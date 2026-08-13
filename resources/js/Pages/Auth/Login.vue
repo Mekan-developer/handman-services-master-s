@@ -26,45 +26,76 @@ function submit() {
 
 function inputCls(hasError) {
     return [
-        'mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-sm shadow-sm transition-colors',
-        'focus:outline-none focus:ring-1',
-        'dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-500',
+        'block w-full rounded-[10px] border px-3.5 py-3 text-[15px] transition-colors',
+        'bg-white text-slate-800 placeholder:text-slate-400',
+        'dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500',
+        'focus:outline-none focus:ring-[3px] focus:ring-offset-0',
         hasError
-            ? 'border-red-400 focus:border-red-400 focus:ring-red-400 dark:border-red-500'
-            : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400',
+            ? 'border-red-400 focus:border-red-400 focus:ring-red-400/15 dark:border-red-500'
+            : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-slate-700 dark:focus:border-indigo-400',
     ].join(' ')
 }
 </script>
 
 <template>
-    <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4 dark:from-slate-900 dark:to-slate-800">
+    <div class="flex min-h-screen w-full flex-wrap">
         <Head :title="t('auth.login.title')" />
 
-        <div class="w-full max-w-md">
-            <!-- Logo & title -->
-            <div class="mb-8 flex flex-col items-center text-center">
-                <div class="flex h-16 shrink-0 items-center px-6">
-                    <div class="flex items-center gap-2.5">
-                        <div class="flex h-14 w-14 items-center justify-center rounded-lg bg-gray-200">
-                            <image src="/icons/logo/alo_help.png" alt="Logo" class="h-auto w-16" />
-                        </div>
-                    </div>
-                </div>
-                <h1 class="mt-4 text-2xl font-bold text-gray-900 dark:text-white">Alo-kömek</h1>
-                <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">{{ t('auth.login.subtitle') }}</p>
+        <!-- Brand panel -->
+        <div
+            class="relative flex min-w-[280px] flex-[1_1_50%] flex-col overflow-hidden bg-[linear-gradient(150deg,var(--tw-gradient-stops))] from-brand-navy-from to-brand-navy-to px-9 py-10"
+        >
+            <!-- Decorative shapes -->
+            <div class="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+                <div class="absolute -bottom-[60px] -left-10 h-[340px] w-[90px] rotate-12 rounded-xl bg-white/5"></div>
+                <div class="absolute -bottom-[100px] left-[70px] h-[300px] w-[70px] rotate-12 rounded-xl bg-white/[0.04]"></div>
+                <div class="absolute -bottom-20 -right-[30px] h-[260px] w-[110px] -rotate-[10deg] rounded-2xl bg-indigo-500/10"></div>
             </div>
 
-            <!-- Card -->
-            <div class="rounded-2xl bg-white p-8 shadow-sm dark:bg-slate-800">
-                <!-- Status -->
-                <div v-if="status" class="mb-6 rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
+            <!-- Wordmark -->
+            <div class="relative z-[1] flex items-center gap-2.5">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-badge">
+                    <img src="/icons/logo/handyman-icon.png" alt="" class="block h-auto w-6" />
+                </div>
+                <span class="font-slab text-[15px] font-extrabold uppercase tracking-[0.5px] text-slate-50">
+                    Master Handyman
+                </span>
+            </div>
+
+            <!-- Greeting -->
+            <div class="relative z-[1] mt-auto pt-[60px]">
+                <p class="text-xl font-normal text-slate-300">{{ t('auth.login.brand.greeting') }}</p>
+                <p class="mt-1.5 text-[32px] font-extrabold leading-[1.15] text-white">
+                    {{ t('auth.login.brand.tagline') }}
+                </p>
+                <p class="text-[36px] font-extrabold uppercase leading-[1.15] tracking-[0.5px] text-brand-green">
+                    {{ t('auth.login.brand.tagline_accent') }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Form panel -->
+        <div class="flex min-w-[280px] flex-[1_1_50%] items-center justify-center bg-white px-11 py-[52px] dark:bg-slate-900">
+            <div class="w-full max-w-[360px]">
+                <h1 class="text-[30px] font-extrabold text-brand-navy dark:text-white">
+                    {{ t('auth.login.title') }}
+                </h1>
+                <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                    {{ t('auth.login.subtitle') }}
+                </p>
+
+                <!-- Session status (e.g. after a password reset) -->
+                <div
+                    v-if="status"
+                    class="mt-6 rounded-[10px] bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                >
                     {{ status }}
                 </div>
 
-                <form @submit.prevent="submit" class="space-y-5">
+                <form class="mt-7" @submit.prevent="submit">
                     <!-- Email -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-slate-300">
+                    <div class="mb-[18px]">
+                        <label for="email" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('auth.login.email') }}
                         </label>
                         <input
@@ -81,8 +112,8 @@ function inputCls(hasError) {
                     </div>
 
                     <!-- Password -->
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-slate-300">
+                    <div class="mb-[18px]">
+                        <label for="password" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('auth.login.password') }}
                         </label>
                         <PasswordInput
@@ -96,20 +127,20 @@ function inputCls(hasError) {
                         <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-500">{{ form.errors.password }}</p>
                     </div>
 
-                    <!-- Remember + Forgot -->
-                    <div class="flex items-center justify-between">
-                        <label class="flex cursor-pointer items-center gap-2">
+                    <!-- Remember + forgot password -->
+                    <div class="mb-[22px] flex items-center justify-between">
+                        <label class="flex cursor-pointer select-none items-center gap-2">
                             <input
                                 v-model="form.remember"
                                 type="checkbox"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-700 dark:ring-offset-slate-800"
+                                class="h-4 w-4 cursor-pointer rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:ring-offset-slate-900"
                             />
-                            <span class="text-sm text-gray-600 dark:text-slate-400">{{ t('auth.login.remember') }}</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300">{{ t('auth.login.remember') }}</span>
                         </label>
                         <Link
                             v-if="canResetPassword"
                             :href="route('password.request')"
-                            class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            class="text-sm text-indigo-600 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
                         >
                             {{ t('auth.login.forgot_password') }}
                         </Link>
@@ -119,7 +150,7 @@ function inputCls(hasError) {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-900"
+                        class="w-full rounded-[10px] bg-brand-green px-4 py-3.5 text-[15px] font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus:outline-none focus:ring-2 focus:ring-brand-green focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-900"
                     >
                         {{ form.processing ? t('auth.login.processing') : t('auth.login.submit') }}
                     </button>

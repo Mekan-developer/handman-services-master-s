@@ -14,6 +14,11 @@ return [
         'forgot_password' => 'Забыли пароль?',
         'submit' => 'Войти',
         'processing' => 'Вход...',
+        'brand' => [
+            'greeting' => 'Привет!',
+            'tagline' => 'Мастера уже',
+            'tagline_accent' => 'в пути',
+        ],
     ],
     'register' => [
         'title' => 'Регистрация',
