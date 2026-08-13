@@ -257,6 +257,10 @@ tests/
 
 ## Local Development Setup
 
+> **Docker**: the repository also ships a Docker environment (nginx + php-fpm 8.3 + MySQL 8).
+> See [docs/DOCKER.md](docs/DOCKER.md) for the full walkthrough — setup, migrations, seeders and troubleshooting.
+> The steps below describe the native (non-Docker) setup.
+
 ### Requirements
 
 - PHP 8.2+ (8.3 recommended) with `sqlite3`, `gd`, `pdo` extensions
