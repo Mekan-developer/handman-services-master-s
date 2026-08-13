@@ -1,0 +1,32 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+.claude/settings.local.json
+storage/maps/tiles.mbtiles
+.scribe
+
+# Глифы базовой карты: в репозитории только диапазоны 0-1279
+# (латиница, латиница расширенная, кириллица) — этого хватает для tk/ru.
+# Остальные ~110 МБ (в основном CJK) выкладываются на сервер отдельно.
+/public/maps/fonts/**/*.pbf
+!/public/maps/fonts/**/0-255.pbf
+!/public/maps/fonts/**/256-511.pbf
+!/public/maps/fonts/**/512-767.pbf
+!/public/maps/fonts/**/768-1023.pbf
+!/public/maps/fonts/**/1024-1279.pbf
