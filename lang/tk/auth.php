@@ -14,6 +14,11 @@ return [
         'forgot_password' => 'Açar sözüňizi unutdyňyzmy?',
         'submit' => 'Giriş',
         'processing' => 'Girýär...',
+        'brand' => [
+            'greeting' => 'Salam!',
+            'tagline' => 'Ussalar eýýäm',
+            'tagline_accent' => 'ýolda',
+        ],
     ],
     'register' => [
         'title' => 'Hasap açmak',
