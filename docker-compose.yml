@@ -1,0 +1,40 @@
+services:
+  nginx:
+    image: nginx:1.30-alpine
+    container_name: handyman_nginx 
+    ports:
+      - 8000:80
+    volumes:
+      - ./docker/nginx/conf.d/nginx.conf:/etc/nginx/conf.d/default.conf:ro  
+      - ./:/var/www/laravel
+    depends_on:
+      - php  
+
+  php:
+    container_name: handyman_php 
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    volumes:
+      - ./:/var/www/laravel  
+      
+  db:
+    image: mysql:8.0 
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - 3316:3306
+    env_file:
+      - docker/db.env  
+    container_name: handyman_db    
+
+  artisan:
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    volumes:
+      - ./:/var/www/laravel
+    entrypoint: ["php", "/var/www/laravel/artisan"]
+           
+volumes:
+  db_data:  
