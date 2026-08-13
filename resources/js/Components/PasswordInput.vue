@@ -1,5 +1,8 @@
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineOptions({ inheritAttrs: false })
 
@@ -30,6 +33,7 @@ defineExpose({
         <button
             type="button"
             tabindex="-1"
+            :aria-label="show ? t('layout.password.hide') : t('layout.password.show')"
             class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-colors hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
             @click="show = !show"
         >
