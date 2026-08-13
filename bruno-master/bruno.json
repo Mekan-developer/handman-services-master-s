@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Alo-komek — Master App API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
