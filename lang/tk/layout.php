@@ -37,6 +37,10 @@ return [
         'update' => 'Täzelemek',
         'cancel' => 'Ýatyr',
     ],
+    'password' => [
+        'show' => 'Açar sözi görkez',
+        'hide' => 'Açar sözi gizle',
+    ],
     'pagination' => [
         'showing' => '{from}–{to} / {total} görkezilýär',
         'prev' => 'Öňki',

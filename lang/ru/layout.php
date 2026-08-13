@@ -37,6 +37,10 @@ return [
         'update' => 'Обновить',
         'cancel' => 'Отмена',
     ],
+    'password' => [
+        'show' => 'Показать пароль',
+        'hide' => 'Скрыть пароль',
+    ],
     'pagination' => [
         'showing' => 'Показано {from}–{to} из {total}',
         'prev' => 'Назад',
