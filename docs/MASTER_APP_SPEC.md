@@ -16,7 +16,7 @@ The Master app lets a handyman:
 4. View order details (client name, phone, location, problem photos, description).
 5. Mark order status: arrived, in progress, completed.
 6. Upload Before/After photos for each individual task performed.
-7. View personal balance, payment model, work history.
+7. View own access subscription (plan, expiry, history) and the subscription price list.
 
 UI reference: **JustLife app** — clean, minimalist, modern.
 Languages: **Turkmen (primary)**, **Russian (secondary)**.
@@ -100,17 +100,80 @@ All of these are implemented and require the Bearer token.
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/v1/master/settings` | App rules/terms — **public**, shown before registration |
-| `GET /api/v1/master/me` | Current master profile + balance + payment model + categories |
+| `GET /api/v1/master/me` | Current master profile + access expiry + categories |
+| `GET /api/v1/master/subscription-plans` | Subscription price list — **public**, readable without a token |
+| `GET /api/v1/master/subscription` | Own subscription: current, access deadline, history — works with a lapsed subscription |
 | `PATCH /api/v1/master/availability` | Toggle the "ready for work" flag |
 | `GET /api/v1/master/orders` | Assigned orders — `?filter=active` or `?filter=history`, paginated 15/page |
+| `GET /api/v1/master/orders/available` | Auto-search feed — unclaimed orders in range (Section 3.3) |
+| `POST /api/v1/master/orders/{id}/respond` | Claim an offered order (Section 3.3) |
+| `POST /api/v1/master/orders/{id}/decline` | Hide an offer from this master's feed (Section 3.3) |
 | `GET /api/v1/master/orders/{id}` | Single order details (client info, photos, tasks) |
 | `POST /api/v1/master/orders/{id}/start` | Mark order as `in_progress` when arriving |
-| `POST /api/v1/master/orders/{id}/complete` | Mark order completed; credits the master's balance |
+| `POST /api/v1/master/orders/{id}/complete` | Mark order completed |
 | `POST /api/v1/master/orders/{id}/tasks` | Create a task (e.g. "Replaced hose") |
 | `POST /api/v1/master/orders/{id}/tasks/{taskId}/photo` | Upload before/after photo |
 | `DELETE /api/v1/master/orders/{id}/tasks/{taskId}` | Remove a task |
 
 Ready-to-run request examples for every one of these live in the `bruno-master/` collection at the repo root ([Bruno](https://www.usebruno.com/) — open the folder, pick the `local` environment).
+
+### 3.3 Auto-search: available orders, respond, decline
+
+New client orders are **not** routed by city. Each order starts a search at a radius that widens by one step every minute (20 → 40 → 60 → 80 km by default) until a master claims it or the maximum is passed.
+
+**The master app must be sending location pings** (Section 3.1). A master with no recorded position gets an empty feed and cannot respond.
+
+#### `GET /api/v1/master/orders/available`
+
+Unclaimed orders that match the master's categories and currently sit inside their own search radius, **nearest first**. No parameters — the server uses the master's last GPS ping.
+
+```json
+{
+  "data": [
+    {
+      "id": 42,
+      "category": "Сантехника",
+      "city": "Ашхабад",
+      "description": "Протекает кран на кухне",
+      "address": "ул. Огузхана 12",
+      "latitude": 37.9601,
+      "longitude": 58.3261,
+      "distance_km": 4.7,
+      "search_radius_km": 20,
+      "search_started_at": "2026-08-14T10:15:00+00:00",
+      "photos": [{ "id": 7, "url": "https://…/storage/…webp", "status": "ready" }],
+      "created_at": "2026-08-14T10:15:00+00:00"
+    }
+  ]
+}
+```
+
+> `client_name` and `client_phone` are **absent by design** — the order is not yours yet. They appear in the response of `respond` and in `GET /orders/{id}` afterwards.
+
+An empty `data` array is normal: no orders in range, or no GPS ping yet. Do not treat it as an error.
+
+#### `POST /api/v1/master/orders/{id}/respond`
+
+Claims the order. **First responder wins** — expect to lose this race regularly and handle it gracefully in the UI.
+
+- `200 OK` → the full `MasterOrderResource` (same shape as `GET /orders/{id}`); the order is now `assigned` to you.
+- `422` → `{ "message": "…" }`, localized per the `X-Locale` header. Show the message and refresh the feed.
+
+| Situation | `message` (ru) |
+|---|---|
+| Another master got there first | «Заявку уже разобрал другой мастер» |
+| You moved out of the order's radius | «Заявка находится вне вашего радиуса поиска» |
+| The search closed, an admin will assign it | «Авто-поиск по этой заявке завершён — её назначит администратор» |
+| No GPS position on record | «Не удалось определить ваше местоположение — включите геолокацию» |
+| Order category is not yours | «У мастера нет этой категории» |
+| Availability toggle is off | «Мастер сейчас недоступен для принятия заявок» |
+
+#### `POST /api/v1/master/orders/{id}/decline`
+
+Hides the order from **your** feed permanently. Other masters keep seeing it and the search keeps running. Idempotent — repeat calls also return `204 No Content`. You can still claim a declined order later by calling `respond` with its id.
+
+- `204 No Content` → dismissed.
+- `422` «Заявку уже разобрал другой мастер» → someone claimed it while you were deciding.
 
 ---
 
@@ -134,8 +197,12 @@ Use the **`pusher_channels_flutter`** package (Pusher SDK is fully compatible wi
 
 | Channel | When | Event | Payload |
 |---------|------|-------|---------|
+| `available-orders` | While online and available | `.order.search.started` | `{ order_id, radius_km }` |
+| `available-orders` | While online and available | `.order.search.radius.expanded` | `{ order_id, radius_km }` |
 | `private-master.{masterId}` | After login | `.order.assigned` | `{ order_id, client_name, address, lat, lng }` *(planned)* |
 | `private-order.{orderId}` | When viewing an active order | `.order.status.changed` | `{ status, by }` *(planned)* |
+
+> **`available-orders` is a public channel and carries no usable order data — treat both events purely as a "your feed may have changed" signal and re-fetch `GET /api/v1/master/orders/available`.** The payload is not filtered for you: an event fires for every order in the system, including ones outside your radius or categories. Only the endpoint applies the matching rules. Debounce the refetch (≈1 s) so a burst of scheduler ticks does not turn into a burst of requests.
 
 > The masters-map channel `masters-map.{cityId}` is for the **admin panel only**; the master app should NOT subscribe to it.
 
@@ -180,7 +247,7 @@ Build these screens in this order. Match JustLife visual style.
 4. **Order Details** — client info (call button), problem description, photos (gallery view), map (client location), action buttons.
 5. **Order in Progress** — when started, sticky banner "Trip active" with elapsed time, big "Complete" button.
 6. **Task Photo Capture** — camera flow, before → after pairs.
-7. **Profile** — name, phone, balance, payment model, access expiry, logout.
+7. **Profile** — name, phone, subscription (plan, days left, history), access expiry, logout.
 8. **Settings** — language switcher (tk/ru), notification toggles, theme.
 
 ---
@@ -246,6 +313,7 @@ The following contracts are **stable** as of this document; the Flutter app can 
 
 - The OTP → Sanctum token auth flow (Section 2)
 - `POST /api/v1/master/{masterId}/location` request and response shape (Section 3.1)
+- The auto-search trio — `GET /orders/available`, `POST /orders/{id}/respond`, `POST /orders/{id}/decline` — and their response shapes (Section 3.3)
 - `master.location.updated` event payload shape (used by admin only, but the Flutter side won't break it)
 - Order status enum values: `pending`, `assigned`, `in_progress`, `completed`, `cancelled` (`App\Enums\OrderStatus`)
 - Payment model values: `percentage`, `fixed_per_job`, `salary`, `salary_percentage` (`App\Enums\PaymentModel`)
