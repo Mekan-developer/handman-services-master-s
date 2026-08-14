@@ -8,7 +8,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { createPinia } from 'pinia';
 import i18n from './i18n';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Alo-kömek';
+const appName = import.meta.env.VITE_APP_NAME || 'HANDYMAN';
 
 // PHP lang files use Laravel-style `:placeholder`, but vue-i18n interpolates `{placeholder}`.
 // Bridge the two so `t('key', { placeholder })` works on the frontend while PHP stays the
