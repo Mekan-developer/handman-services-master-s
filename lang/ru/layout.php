@@ -10,7 +10,7 @@ return [
         'masters' => 'Мастера',
         'clients' => 'Клиенты',
         'orders' => 'Заказы',
-        'payments' => 'Платежи',
+        'subscriptions' => 'Подписки',
         'pending_otps' => 'OTP-коды',
         'banners' => 'Баннеры',
         'users' => 'Пользователи',
@@ -24,7 +24,8 @@ return [
     'header' => [
         'logout' => 'Выйти',
         'profile' => 'Профиль',
-        'theme_toggle' => 'Сменить тему',
+        'theme_toggle_dark' => 'Тёмная тема',
+        'theme_toggle_light' => 'Светлая тема',
     ],
     'confirm' => [
         'delete_title' => 'Подтверждение удаления',

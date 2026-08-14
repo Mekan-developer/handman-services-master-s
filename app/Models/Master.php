@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\PaymentModel;
 use Database\Factories\MasterFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,10 +21,6 @@ class Master extends Authenticatable
         'city_id',
         'name',
         'phone',
-        'payment_model',
-        'payment_value',
-        'monthly_salary',
-        'balance',
         'access_expires_at',
         'is_active',
         'is_available',
@@ -35,10 +30,6 @@ class Master extends Authenticatable
     protected function casts(): array
     {
         return [
-            'payment_model' => PaymentModel::class,
-            'payment_value' => 'decimal:2',
-            'monthly_salary' => 'decimal:2',
-            'balance' => 'decimal:2',
             'access_expires_at' => 'datetime',
             'is_active' => 'boolean',
             'is_available' => 'boolean',
@@ -73,6 +64,11 @@ class Master extends Authenticatable
     public function reviews(): HasMany
     {
         return $this->hasMany(OrderReview::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(MasterSubscription::class);
     }
 
     public function hasActiveAccess(): bool

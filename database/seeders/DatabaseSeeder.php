@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             OblastSeeder::class,
             CitySeeder::class,
             CategorySeeder::class,
+            SubscriptionPlanSeeder::class,
             MasterSeeder::class,
             MasterLocationSeeder::class,
             OrderSeeder::class,

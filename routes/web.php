@@ -7,14 +7,15 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\MasterSubscriptionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OblastController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PendingOtpController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SubscriptionPlanController;
 use App\Http\Controllers\SystemStatusController;
 use App\Http\Controllers\TilesController;
 use App\Http\Controllers\UserController;
@@ -64,7 +65,6 @@ Route::middleware('auth')->group(function () {
         Route::post('categories/{category}/content', [CategoryContentController::class, 'upsert'])->name('categories.content.upsert');
         Route::get('masters/map', [MasterController::class, 'map'])->name('masters.map');
         Route::get('masters/{master}/trajectory', [MasterController::class, 'trajectory'])->name('masters.trajectory');
-        Route::post('masters/{master}/reset-balance', [MasterController::class, 'resetBalance'])->name('masters.reset-balance');
         Route::resource('masters', MasterController::class)->only(['index', 'store', 'destroy']);
         Route::post('masters/{master}', [MasterController::class, 'update'])->name('masters.update');
 
@@ -93,8 +93,15 @@ Route::middleware('auth')->group(function () {
         Route::middleware('role:administrator')->group(function () {
             Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
 
-            Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
-            Route::post('payments/{master}/payout', [PaymentController::class, 'payout'])->name('payments.payout');
+            // One page holds both halves: the owner's plans and the masters' purchases.
+            Route::get('subscriptions', [MasterSubscriptionController::class, 'index'])->name('subscriptions.index');
+            Route::post('masters/{master}/subscriptions', [MasterSubscriptionController::class, 'store'])->name('masters.subscriptions.store');
+            Route::put('subscriptions/{subscription}', [MasterSubscriptionController::class, 'update'])->name('subscriptions.update');
+            Route::post('subscriptions/{subscription}/status', [MasterSubscriptionController::class, 'updateStatus'])->name('subscriptions.update-status');
+            Route::delete('subscriptions/{subscription}', [MasterSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+
+            Route::resource('subscription-plans', SubscriptionPlanController::class)->only(['store', 'update', 'destroy']);
+            Route::post('subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])->name('subscription-plans.toggle');
         });
 
         Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
