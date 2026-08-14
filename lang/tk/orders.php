@@ -136,5 +136,17 @@ return [
         'too_many_photos' => 'Sargytda 4-den köp surat bolup bilmez',
         'not_completed_yet' => 'Syn diňe sargyt tamamlanandan soň goýlup bilner',
         'already_reviewed' => 'Siz eýýäm bu sargyda syn goýduňyz',
+        'already_claimed' => 'Sargydy başga usta eýýäm aldy',
+        'out_of_search_radius' => 'Sargyt siziň gözleg radiusyňyzdan daşarda',
+        'search_expired' => 'Bu sargyt boýunça awtomatik gözleg tamamlandy — ony administrator belleýär',
+        'master_location_unknown' => 'Siziň ýerleşişiňiz kesgitlenmedi — geolokasiýany açyň',
+    ],
+
+    'search' => [
+        'needs_manual_assignment' => 'El bilen bellemegi talap edýär',
+        'needs_manual_assignment_hint' => 'Ussany awtomatik gözlemek iň ýokary radiusa ýetdi, hiç kim jogap bermedi',
+        'in_progress' => 'Ussa gözlenilýär',
+        'radius' => 'Radius :km km',
+        'exhausted_notification' => '№:order sargyt: ussany awtomatik gözlemek netije bermedi (:radius km)',
     ],
 ];

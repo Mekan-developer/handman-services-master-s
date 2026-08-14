@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\Master;
 use App\Models\Order;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -47,6 +48,38 @@ class OrderFactory extends Factory
     public function forCategory(Category $category): static
     {
         return $this->state(['category_id' => $category->id]);
+    }
+
+    /** Pins the client location, so distance-based tests are deterministic. */
+    public function at(float $latitude, float $longitude): static
+    {
+        return $this->state([
+            'client_lat' => $latitude,
+            'client_lng' => $longitude,
+        ]);
+    }
+
+    /** Auto-search running: pending, unclaimed, at the given radius. */
+    public function searching(int $radiusKm = 20, ?CarbonInterface $startedAt = null): static
+    {
+        return $this->state([
+            'status' => OrderStatus::Pending,
+            'master_id' => null,
+            'search_started_at' => $startedAt ?? now(),
+            'search_radius_km' => $radiusKm,
+            'search_expired_at' => null,
+        ]);
+    }
+
+    /** Auto-search gave up — waiting for an administrator to assign a master. */
+    public function searchExpired(): static
+    {
+        return $this->state(fn (array $attrs) => [
+            'status' => OrderStatus::Pending,
+            'master_id' => null,
+            'search_started_at' => $attrs['search_started_at'] ?? now()->subMinutes(10),
+            'search_expired_at' => now(),
+        ]);
     }
 
     public function forMaster(Master $master): static

@@ -8,6 +8,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
@@ -35,6 +36,19 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(__DIR__.'/../routes/api/v1.php');
         },
     )
+    ->withSchedule(function (Schedule $schedule) {
+        // The auto-search radius is a function of elapsed time, so a skipped run
+        // self-corrects on the next tick — overlapping runs would only duplicate work.
+        $schedule->command('orders:expand-search-radius')
+            ->everyMinute()
+            ->withoutOverlapping();
+
+        // Access is derived from subscription end dates, so a skipped run only
+        // delays the state catching up — hourly is precise enough for day-long plans.
+        $schedule->command('subscriptions:expire')
+            ->hourly()
+            ->withoutOverlapping();
+    })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             SetLocale::class,

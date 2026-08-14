@@ -1,7 +1,10 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 const props = defineProps({
     open: {
@@ -189,8 +192,18 @@ defineExpose({ prepend, fetchNotifications })
                             @click="markRead(n); goToOrder(n.data.order_id)"
                         >
                             <div class="flex items-center justify-between gap-2">
-                                <p class="text-sm font-medium text-gray-900 dark:text-white">
-                                    Новый заказ #{{ n.data.order_id }}
+                                <p
+                                    class="text-sm font-medium"
+                                    :class="n.data.type === 'order_search_exhausted'
+                                        ? 'text-amber-600 dark:text-amber-400'
+                                        : 'text-gray-900 dark:text-white'"
+                                >
+                                    <template v-if="n.data.type === 'order_search_exhausted'">
+                                        {{ t('orders.search.needs_manual_assignment') }} #{{ n.data.order_id }}
+                                    </template>
+                                    <template v-else>
+                                        Новый заказ #{{ n.data.order_id }}
+                                    </template>
                                 </p>
                                 <time class="shrink-0 text-xs text-gray-400 dark:text-slate-500">
                                     {{ formatTime(n.created_at) }}
@@ -198,6 +211,12 @@ defineExpose({ prepend, fetchNotifications })
                             </div>
                             <p class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
                                 {{ n.data.client_name }} · {{ n.data.category }}
+                            </p>
+                            <p
+                                v-if="n.data.type === 'order_search_exhausted'"
+                                class="mt-0.5 text-xs text-amber-600/80 dark:text-amber-400/80"
+                            >
+                                {{ t('orders.search.radius', { km: n.data.search_radius_km }) }} · {{ t('orders.search.needs_manual_assignment_hint') }}
                             </p>
                             <p v-if="n.data.city" class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
                                 {{ n.data.city }}<span v-if="n.data.address"> · {{ n.data.address }}</span>

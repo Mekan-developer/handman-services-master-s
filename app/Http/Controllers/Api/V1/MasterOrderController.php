@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\CompleteMasterOrderAction;
+use App\Actions\DeclineOrderAction;
+use App\Actions\RespondToOrderAction;
 use App\Actions\StartMasterOrderAction;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\AvailableOrderResource;
 use App\Http\Resources\Api\V1\MasterOrderResource;
 use App\Models\Master;
+use App\Repositories\MasterRepository;
 use App\Repositories\OrderRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,7 +18,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MasterOrderController extends Controller
 {
-    public function __construct(private readonly OrderRepository $repository) {}
+    public function __construct(
+        private readonly OrderRepository $repository,
+        private readonly MasterRepository $masterRepository,
+    ) {}
 
     public function index(Request $request): AnonymousResourceCollection
     {
@@ -24,6 +31,60 @@ class MasterOrderController extends Controller
         $orders = $this->repository->forMaster($master, $request->query('filter'));
 
         return MasterOrderResource::collection($orders);
+    }
+
+    /**
+     * Unclaimed orders currently reachable from the master's last known position.
+     *
+     * A master who has never sent a GPS ping gets an empty list rather than an
+     * error — it is a normal state right after login, not a failure.
+     */
+    public function available(Request $request): AnonymousResourceCollection
+    {
+        /** @var Master $master */
+        $master = $request->user();
+
+        $location = $this->masterRepository->latestLocation($master);
+
+        if ($location === null) {
+            return AvailableOrderResource::collection([]);
+        }
+
+        $orders = $this->repository->availableForMaster(
+            $master,
+            (float) $location->latitude,
+            (float) $location->longitude,
+        );
+
+        return AvailableOrderResource::collection($orders);
+    }
+
+    /** Claim an offered order. Races with every other master it was offered to. */
+    public function respond(Request $request, int $id, RespondToOrderAction $action): JsonResponse
+    {
+        /** @var Master $master */
+        $master = $request->user();
+
+        $order = $this->repository->findOrFail($id);
+
+        $updated = $action->handle($master, $order);
+
+        return (new MasterOrderResource(
+            $updated->load(['category', 'photos', 'tasks.beforePhotos', 'tasks.afterPhotos'])
+        ))->response();
+    }
+
+    /** Hide an offered order from this master's feed without affecting other masters. */
+    public function decline(Request $request, int $id, DeclineOrderAction $action): JsonResponse
+    {
+        /** @var Master $master */
+        $master = $request->user();
+
+        $order = $this->repository->findOrFail($id);
+
+        $action->handle($master, $order);
+
+        return response()->json(null, 204);
     }
 
     public function show(Request $request, int $id): MasterOrderResource

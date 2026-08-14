@@ -157,6 +157,19 @@ return [
     |--------------------------------------------------------------------------
     */
     'custom' => [
+        'master_search_initial_radius_km' => [
+            'required' => 'Gözlegiň başlangyç radiusyny giriziň.',
+            'integer' => 'Başlangyç radius bitin kilometr sany bolmalydyr.',
+            'min' => 'Başlangyç radius iň az :min km bolmalydyr.',
+            'max' => 'Başlangyç radius :max km-den köp bolup bilmez.',
+            'lte_max' => 'Başlangyç radius iň ýokary radiusdan uly bolup bilmez.',
+        ],
+        'master_search_max_radius_km' => [
+            'required' => 'Gözlegiň iň ýokary radiusyny giriziň.',
+            'integer' => 'Iň ýokary radius bitin kilometr sany bolmalydyr.',
+            'min' => 'Iň ýokary radius iň az :min km bolmalydyr.',
+            'max' => 'Iň ýokary radius :max km-den köp bolup bilmez.',
+        ],
         'phone' => [
             'exists' => 'Bu telefon belgisi bilen usta hasaba alynmadyk.',
             'required' => 'Telefon belgiňizi giriziň.',
@@ -267,6 +280,20 @@ return [
         'type' => 'görnüş',
         'email' => 'e-poçta',
         'password' => 'açar söz',
+        'name_ru' => 'ady (RU)',
+        'name_tk' => 'ady (TK)',
+        'description_ru' => 'düşündiriş (RU)',
+        'description_tk' => 'düşündiriş (TK)',
+        'duration_days' => 'gün sany',
+        'price' => 'baha',
+        'sort_order' => 'tertip belgisi',
+        'is_active' => 'ýagdaý',
+        'status' => 'ýagdaý',
+        'subscription_plan_id' => 'nyrh meýilnamasy',
+        'subscription_price' => 'abunanyň bahasy',
+        'subscription_note' => 'abuna belligi',
+        'price_paid' => 'tölenen möçber',
+        'note' => 'bellik',
     ],
 
 ];

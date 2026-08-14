@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class NewOrderNotification extends Notification implements ShouldQueue
+class OrderSearchExhaustedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -23,12 +23,13 @@ class NewOrderNotification extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type' => 'new_order',
+            'type' => 'order_search_exhausted',
             'order_id' => $this->order->id,
             'client_name' => $this->order->client_name,
             'category' => $this->order->category?->name,
             'city' => $this->order->city?->name,
             'address' => $this->order->client_address,
+            'search_radius_km' => $this->order->search_radius_km,
         ];
     }
 }

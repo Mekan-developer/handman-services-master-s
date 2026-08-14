@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\MasterLocationController;
 use App\Http\Controllers\Api\V1\MasterOrderController;
 use App\Http\Controllers\Api\V1\MasterProfileController;
 use App\Http\Controllers\Api\V1\MasterSettingController;
+use App\Http\Controllers\Api\V1\MasterSubscriptionController;
 use App\Http\Controllers\Api\V1\MasterTaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -38,6 +39,16 @@ Route::prefix('master')->group(function () {
     // Public — app settings (rules/terms shown before registration)
     Route::get('settings', [MasterSettingController::class, 'show'])->name('api.v1.master.settings');
 
+    // Public — subscription price list. A master with a lapsed subscription cannot
+    // authenticate at all, so this has to stay reachable without a token.
+    Route::get('subscription-plans', [MasterSubscriptionController::class, 'plans'])->name('api.v1.master.subscription-plans');
+
+    // Own subscription — readable even once access has run out, so the app can
+    // show "expired on …, renew" instead of a bare 403.
+    Route::get('subscription', [MasterSubscriptionController::class, 'current'])
+        ->middleware(['auth:sanctum', 'ensure.master:allow-expired'])
+        ->name('api.v1.master.subscription');
+
     // Auth
     Route::prefix('auth')->name('api.v1.master.auth.')->group(function () {
         Route::post('request-otp', [MasterAuthController::class, 'requestOtp'])->name('request-otp');
@@ -59,6 +70,13 @@ Route::prefix('master')->group(function () {
 
         Route::prefix('orders')->name('api.v1.master.orders.')->group(function () {
             Route::get('/', [MasterOrderController::class, 'index'])->name('index');
+
+            // Auto-search feed. Must stay above the {order} route, otherwise
+            // "available" is swallowed as an order id.
+            Route::get('available', [MasterOrderController::class, 'available'])->name('available');
+            Route::post('{order}/respond', [MasterOrderController::class, 'respond'])->name('respond');
+            Route::post('{order}/decline', [MasterOrderController::class, 'decline'])->name('decline');
+
             Route::get('{order}', [MasterOrderController::class, 'show'])
                 ->name('show');
             Route::post('{order}/start', [MasterOrderController::class, 'start'])->name('start');

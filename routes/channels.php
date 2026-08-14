@@ -19,6 +19,16 @@ Broadcast::channel('masters-map.{cityId}', function () {
 });
 
 /*
+ * Public channel signalling the master apps that the pool of claimable orders
+ * changed (order.created / order.search.radius.expanded). Payloads carry no
+ * client data — the app reloads GET /api/v1/master/orders/available, which
+ * filters by the master's own position, categories and the order's radius.
+ */
+Broadcast::channel('available-orders', function () {
+    return true;
+});
+
+/*
  * Private channel carrying OTP codes parked for manual delivery. Codes are
  * secrets — only staff who can open the section may subscribe.
  */

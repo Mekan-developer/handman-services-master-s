@@ -13,13 +13,36 @@ class SettingRepository
         return Setting::orderBy('key')->get();
     }
 
-    public function get(string $key): ?string
+    public function get(string $key, ?string $default = null): ?string
     {
-        return Setting::where('key', $key)->value('value');
+        $value = Setting::where('key', $key)->value('value');
+
+        return $value === null || $value === '' ? $default : $value;
     }
 
     public function set(string $key, ?string $value): void
     {
         Setting::updateOrCreate(['key' => $key], ['value' => $value]);
+    }
+
+    /**
+     * Both auto-search radii in a single round trip — the scheduler reads them
+     * once per tick and hands them to every order it processes.
+     *
+     * @return array{initial: int, max: int}
+     */
+    public function searchRadii(): array
+    {
+        $values = Setting::whereIn('key', [
+            Setting::MASTER_SEARCH_INITIAL_RADIUS_KM,
+            Setting::MASTER_SEARCH_MAX_RADIUS_KM,
+        ])->pluck('value', 'key');
+
+        return [
+            'initial' => (int) ($values->get(Setting::MASTER_SEARCH_INITIAL_RADIUS_KM)
+                ?: Setting::DEFAULT_SEARCH_INITIAL_RADIUS_KM),
+            'max' => (int) ($values->get(Setting::MASTER_SEARCH_MAX_RADIUS_KM)
+                ?: Setting::DEFAULT_SEARCH_MAX_RADIUS_KM),
+        ];
     }
 }
