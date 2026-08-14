@@ -9,11 +9,15 @@ const { t } = useI18n()
 const props = defineProps({
     masterAppRules: { type: String, default: '' },
     clientAppRules: { type: String, default: '' },
+    masterSearchInitialRadiusKm: { type: Number, default: 20 },
+    masterSearchMaxRadiusKm: { type: Number, default: 80 },
 })
 
 const form = useForm({
     master_app_rules: props.masterAppRules ?? '',
     client_app_rules: props.clientAppRules ?? '',
+    master_search_initial_radius_km: props.masterSearchInitialRadiusKm,
+    master_search_max_radius_km: props.masterSearchMaxRadiusKm,
 })
 
 // ── App cards ──────────────────────────────────────────────────────────────
@@ -86,24 +90,80 @@ function save(which) {
     })
 }
 
+// ── Auto-search radius ─────────────────────────────────────────────────────
+const radiusSaved = ref(false)
+
+const initialRadius = computed(() => Number(form.master_search_initial_radius_km))
+const maxRadius     = computed(() => Number(form.master_search_max_radius_km))
+
+function radiusFieldError(value) {
+    if (!Number.isInteger(value) || value < 1) { return t('validation.custom.master_search_initial_radius_km.min', { min: 1 }) }
+    return null
+}
+
+const initialRadiusError = computed(() => {
+    const own = radiusFieldError(initialRadius.value)
+    if (own) { return own }
+    if (Number.isInteger(maxRadius.value) && initialRadius.value > maxRadius.value) {
+        return t('settings.auto_search.initial_gt_max')
+    }
+    return null
+})
+
+const maxRadiusError = computed(() => radiusFieldError(maxRadius.value))
+
+const radiusValid = computed(() => !initialRadiusError.value && !maxRadiusError.value)
+
+/* Mirrors ExpandOrderSearchRadiusAction: radius(n) = n * initial, capped by max. */
+const radiusSteps = computed(() => {
+    if (!radiusValid.value) { return [] }
+    const steps = []
+    for (let n = 1; n * initialRadius.value <= maxRadius.value && n <= 12; n++) {
+        steps.push({ n, km: n * initialRadius.value })
+    }
+    return steps
+})
+
+function saveRadii() {
+    if (!radiusValid.value) { return }
+
+    form.put(route('settings.update'), {
+        preserveScroll: true,
+        onSuccess() {
+            radiusSaved.value = true
+            setTimeout(() => { radiusSaved.value = false }, 2500)
+        },
+    })
+}
+
 // ── Monitoring ─────────────────────────────────────────────────────────────
-const queueStatus    = ref('ok')
-const reverbStatus   = ref('ok')
-const wsStatus       = ref('ok')
+// Все значения приходят с /system-status либо из клиента Echo. Ничего
+// не генерируется на фронте: пустой показатель — это «нет данных», а не ноль.
+const queueStatus    = ref('checking')
+const reverbStatus   = ref('checking')
+const wsStatus       = ref('checking')
 const otpStatus      = ref('checking')
-const queueCount     = ref(7)
-const queueDone      = ref(1284)
-const reverbChannels = ref(23)
-const reverbPing     = ref(12)
-const wsClients      = ref(41)
-const wsMsgRate      = ref(18)
+const queuePending   = ref(null)
+const queueProcessed = ref(null)
+const reverbChannels = ref(null)
+const reverbLatency  = ref(null)
+const wsConnections  = ref(null)
+const wsSubscribed   = ref(null)
+const wsState        = ref('disconnected')
 const otpClients     = ref(0)
 const otpLastSent    = ref(null)
-const nowTime        = ref('')
+const nowTime        = ref('—')
 
 const systemOk = computed(() =>
-    reverbStatus.value === 'ok' && wsStatus.value === 'ok' && otpStatus.value === 'ok'
+    queueStatus.value === 'ok' && reverbStatus.value === 'ok' &&
+    wsStatus.value === 'ok' && otpStatus.value === 'ok'
 )
+
+const wsStateLabel = computed(() => t(`settings.monitoring.state.${wsState.value}`))
+
+function metric(value, suffix = '') {
+    return value === null ? '—' : `${value}${suffix}`
+}
 
 function statusSt(s) {
     if (s === 'ok')    { return { bg: 'bg-green-500/10',   border: 'border-green-500/25',  dot: 'bg-green-500',  text: 'text-green-500',  label: t('settings.monitoring.active')   } }
@@ -116,60 +176,78 @@ const rSt = computed(() => statusSt(reverbStatus.value))
 const wSt = computed(() => statusSt(wsStatus.value))
 const oSt = computed(() => statusSt(otpStatus.value))
 
-function tick() {
-    const now = new Date()
-    nowTime.value        = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
-    queueCount.value     = Math.max(0, queueCount.value + (Math.random() > 0.6 ? 1 : -1))
-    queueDone.value     += Math.floor(Math.random() * 3)
-    reverbChannels.value = Math.max(1, reverbChannels.value + (Math.random() > 0.55 ? 1 : -1))
-    reverbPing.value     = Math.max(5, Math.floor(reverbPing.value + (Math.random() - 0.5) * 6))
-    wsClients.value      = Math.max(0, wsClients.value + (Math.random() > 0.5 ? 1 : -1))
-    wsMsgRate.value      = Math.max(0, Math.floor(wsMsgRate.value + (Math.random() - 0.5) * 4))
+// Состояние собственного WS-соединения — читается прямо из клиента Echo.
+function updateWsStatus() {
+    if (!window.Echo) {
+        wsState.value    = 'disconnected'
+        wsStatus.value   = 'error'
+        wsSubscribed.value = null
+        return
+    }
+    const pusher = window.Echo.connector.pusher
+    wsState.value = pusher.connection.state === 'connected'
+        ? 'connected'
+        : (pusher.connection.state === 'connecting' ? 'connecting' : 'disconnected')
+    wsStatus.value = { connected: 'ok', connecting: 'checking', disconnected: 'error' }[wsState.value]
+    wsSubscribed.value = Object.keys(pusher.channels.channels ?? {}).length
 }
 
-async function fetchStatus() {
+async function fetchStatus(fresh = false) {
     try {
-        const { data } = await window.axios.get(route('system.status'))
-        queueStatus.value  = data.queue === 'ok' ? 'ok' : 'error'
-        reverbStatus.value = data.websocket === 'ok' ? 'ok' : 'error'
-        otpStatus.value    = data.otp_gateway?.status === 'ok' ? 'ok' : 'error'
-        otpClients.value   = data.otp_gateway?.clients ?? 0
-        otpLastSent.value  = data.otp_gateway?.last_sent ?? null
+        const { data } = await window.axios.get(route('system.status'), { params: fresh ? { fresh: 1 } : {} })
+
+        queueStatus.value    = data.queue.status
+        queuePending.value   = data.queue.pending
+        queueProcessed.value = data.queue.processed
+
+        reverbStatus.value   = data.reverb.status
+        reverbChannels.value = data.reverb.channels
+        reverbLatency.value  = data.reverb.latency_ms
+        wsConnections.value  = data.reverb.connections
+
+        otpStatus.value    = data.otp_gateway.status
+        otpClients.value   = data.otp_gateway.clients
+        otpLastSent.value  = data.otp_gateway.last_sent
+
+        nowTime.value = new Date(data.checked_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        updateWsStatus()
     } catch {
-        queueStatus.value  = 'error'
-        reverbStatus.value = 'error'
-        otpStatus.value    = 'error'
-    }
-    if (window.Echo) {
-        wsStatus.value = window.Echo.connector.pusher.connection.state === 'connected' ? 'ok' : 'error'
+        queueStatus.value    = 'error'
+        reverbStatus.value   = 'error'
+        otpStatus.value      = 'error'
+        queuePending.value   = null
+        queueProcessed.value = null
+        reverbChannels.value = null
+        reverbLatency.value  = null
+        wsConnections.value  = null
     }
 }
 
 function reconnect(which) {
     if (which === 'reverb') {
         reverbStatus.value = 'checking'
-        setTimeout(fetchStatus, 1800)
-    } else if (which === 'otp') {
-        otpStatus.value = 'checking'
-        setTimeout(fetchStatus, 1800)
-    } else {
-        wsStatus.value = 'checking'
-        setTimeout(() => {
-            if (window.Echo) {
-                wsStatus.value = window.Echo.connector.pusher.connection.state === 'connected' ? 'ok' : 'error'
-            }
-        }, 1800)
+        fetchStatus(true)
+        return
     }
+    if (which === 'otp') {
+        otpStatus.value = 'checking'
+        fetchStatus(true)
+        return
+    }
+    if (!window.Echo) { return }
+    wsStatus.value = 'checking'
+    window.Echo.connector.pusher.disconnect()
+    window.Echo.connector.pusher.connect()
 }
 
-let metricsInterval = null
-let statusInterval  = null
+let statusInterval = null
 
 onMounted(() => {
-    tick()
     fetchStatus()
-    statusInterval  = setInterval(fetchStatus, 30_000)
-    metricsInterval = setInterval(tick, 2500)
+    statusInterval = setInterval(() => fetchStatus(), 30_000)
+
+    updateWsStatus()
+    window.Echo?.connector.pusher.connection.bind('state_change', updateWsStatus)
 
     nextTick(() => {
         const m = document.getElementById(MASTER_ID)
@@ -180,8 +258,9 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-    clearInterval(metricsInterval)
     clearInterval(statusInterval)
+    window.Echo?.connector.pusher.connection.unbind('state_change', updateWsStatus)
+    window.Echo?.connector.pusher.unbind_global(updateWsStatus)
 })
 </script>
 
@@ -232,11 +311,11 @@ onBeforeUnmount(() => {
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
                             <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
                                 <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.in_queue') }}</div>
-                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ queueCount }}</div>
+                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ metric(queuePending) }}</div>
                             </div>
                             <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
                                 <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.processed') }}</div>
-                                <div class="text-xl font-bold leading-tight text-green-500">{{ queueDone.toLocaleString('ru') }}</div>
+                                <div class="text-xl font-bold leading-tight text-green-500">{{ queueProcessed === null ? '—' : queueProcessed.toLocaleString('ru') }}</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-1 text-[11px] text-gray-400 dark:text-slate-500">
@@ -271,15 +350,15 @@ onBeforeUnmount(() => {
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
                             <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
                                 <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.channels') }}</div>
-                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ reverbChannels }}</div>
+                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ metric(reverbChannels) }}</div>
                             </div>
                             <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
                                 <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.ping') }}</div>
-                                <div class="text-xl font-bold leading-tight text-violet-400">{{ reverbPing }}ms</div>
+                                <div class="text-xl font-bold leading-tight text-violet-400">{{ metric(reverbLatency, ' ms') }}</div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.uptime') }}</div>
+                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.updated') }} {{ nowTime }}</div>
                             <button
                                 type="button"
                                 @click="reconnect('reverb')"
@@ -315,15 +394,15 @@ onBeforeUnmount(() => {
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
                             <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
                                 <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.clients') }}</div>
-                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ wsClients }}</div>
+                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ metric(wsConnections) }}</div>
                             </div>
                             <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.msg_rate') }}</div>
-                                <div class="text-xl font-bold leading-tight text-sky-400">{{ wsMsgRate }}</div>
+                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.my_channels') }}</div>
+                                <div class="text-xl font-bold leading-tight text-sky-400">{{ metric(wsSubscribed) }}</div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.active_now') }}</div>
+                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ wsStateLabel }}</div>
                             <button
                                 type="button"
                                 @click="reconnect('ws')"
@@ -380,6 +459,125 @@ onBeforeUnmount(() => {
                         </div>
                     </div>
 
+                </div>
+            </section>
+
+            <!-- ─── Auto-search Section ──────────────────────────────────────── -->
+            <section>
+                <div class="mb-4 flex items-center gap-2.5">
+                    <div class="h-[18px] w-[3px] shrink-0 rounded-sm" style="background:linear-gradient(to bottom,#f59e0b,#f97316)" />
+                    <h2 class="text-[13px] font-semibold uppercase tracking-[0.5px] text-slate-400">
+                        {{ t('settings.section_auto_search') }}
+                    </h2>
+                </div>
+
+                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+
+                    <!-- Header -->
+                    <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[11px] border border-amber-500/20 bg-amber-500/[0.12]">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8">
+                                <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/>
+                                <line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/>
+                                <line x1="1" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="23" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.auto_search.title') }}</div>
+                            <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.auto_search.hint') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Inputs -->
+                    <div class="grid grid-cols-1 gap-4 px-5 pb-4 sm:grid-cols-2">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="initial-radius" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                                {{ t('settings.auto_search.initial_radius') }}
+                            </label>
+                            <div class="relative">
+                                <input
+                                    id="initial-radius"
+                                    v-model.number="form.master_search_initial_radius_km"
+                                    type="number"
+                                    min="1"
+                                    max="1000"
+                                    step="1"
+                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-11 text-[13px] text-gray-900 outline-none transition-colors focus:border-amber-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    :class="initialRadiusError || form.errors.master_search_initial_radius_km
+                                        ? 'border-red-500/60'
+                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                >
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                    {{ t('settings.auto_search.km') }}
+                                </span>
+                            </div>
+                            <p v-if="initialRadiusError || form.errors.master_search_initial_radius_km" class="text-[11.5px] text-red-500">
+                                {{ initialRadiusError ?? form.errors.master_search_initial_radius_km }}
+                            </p>
+                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                                {{ t('settings.auto_search.initial_radius_hint') }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label for="max-radius" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                                {{ t('settings.auto_search.max_radius') }}
+                            </label>
+                            <div class="relative">
+                                <input
+                                    id="max-radius"
+                                    v-model.number="form.master_search_max_radius_km"
+                                    type="number"
+                                    min="1"
+                                    max="1000"
+                                    step="1"
+                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-11 text-[13px] text-gray-900 outline-none transition-colors focus:border-amber-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    :class="maxRadiusError || form.errors.master_search_max_radius_km
+                                        ? 'border-red-500/60'
+                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                >
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                    {{ t('settings.auto_search.km') }}
+                                </span>
+                            </div>
+                            <p v-if="maxRadiusError || form.errors.master_search_max_radius_km" class="text-[11.5px] text-red-500">
+                                {{ maxRadiusError ?? form.errors.master_search_max_radius_km }}
+                            </p>
+                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                                {{ t('settings.auto_search.max_radius_hint') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Expansion preview -->
+                    <div v-if="radiusSteps.length" class="flex flex-wrap items-center gap-1.5 px-5 pb-4">
+                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">{{ t('settings.auto_search.preview') }}:</span>
+                        <span
+                            v-for="step in radiusSteps"
+                            :key="step.n"
+                            class="rounded-full border border-amber-500/20 bg-amber-500/10 px-2.5 py-[3px] text-[11px] font-medium text-amber-500"
+                        >
+                            {{ t('settings.auto_search.minute', { n: step.n }) }} — {{ step.km }} {{ t('settings.auto_search.km') }}
+                        </span>
+                        <span class="rounded-full border border-gray-200 bg-gray-100 px-2.5 py-[3px] text-[11px] font-medium text-gray-500 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400">
+                            {{ t('settings.auto_search.manual_after') }}
+                        </span>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="flex items-center justify-between border-t border-gray-100 bg-amber-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
+                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            {{ radiusSaved ? t('settings.saved_ok') : '' }}
+                        </span>
+                        <button
+                            type="button"
+                            @click="saveRadii"
+                            :disabled="form.processing || !radiusValid"
+                            class="rounded-lg bg-amber-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-amber-600 disabled:opacity-60"
+                        >
+                            {{ t('settings.save') }}
+                        </button>
+                    </div>
                 </div>
             </section>
 
