@@ -1,4 +1,15 @@
+x-php-build: &php-build
+  build:
+    context: .
+    dockerfile: ./docker/php/Dockerfile
+  volumes:
+    - ./:/var/www/laravel 
+
 services:
+  php:
+    <<: *php-build  # yesli ne tak budesh sdelat a pisat kazhdem meste togda dilya kazhdiy chast on budet builditsa atdelno
+    container_name: handyman_php     
+
   nginx:
     image: nginx:1.30-alpine
     container_name: handyman_nginx 
@@ -9,15 +20,36 @@ services:
       - ./:/var/www/laravel
     depends_on:
       - php  
+      - db
+      
+  queue:
+    <<: *php-build
+    container_name: handyman_queue
+    user: www-data
+    command: php artisan queue:work --tries=3 --backoff=5
+    depends_on:
+      - db
+    restart: unless-stopped
 
-  php:
-    container_name: handyman_php 
+  reverb:
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
+    container_name: handyman_reverb
+    user: www-data
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
     volumes:
-      - ./:/var/www/laravel  
-      
+      - ./:/var/www/laravel
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    restart: unless-stopped  
+
+  artisan:
+    <<: *php-build
+    entrypoint: ["php", "/var/www/laravel/artisan"]
+
   db:
     image: mysql:8.0 
     volumes:
@@ -26,15 +58,7 @@ services:
       - 3316:3306
     env_file:
       - docker/db.env  
-    container_name: handyman_db    
+    container_name: handyman_db 
 
-  artisan:
-    build:
-      context: .
-      dockerfile: ./docker/php/Dockerfile
-    volumes:
-      - ./:/var/www/laravel
-    entrypoint: ["php", "/var/www/laravel/artisan"]
-           
 volumes:
   db_data:  
