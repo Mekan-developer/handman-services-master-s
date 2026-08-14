@@ -1,6 +1,6 @@
 # Alo-kömek — Handyman Service (Admin Panel & Backend)
 
-A platform for clients to search and book handyman services. Administrators manage masters, assign orders, track payments and watch master locations in real time through a web admin panel. Masters and clients interact through dedicated Flutter mobile apps that talk to the versioned REST API of this same application.
+A platform for clients to search and book handyman services. Administrators manage masters, assign orders, sell access subscriptions and watch master locations in real time through a web admin panel. The service earns from master subscriptions only — the platform never pays masters and does not track their earnings. Masters and clients interact through dedicated Flutter mobile apps that talk to the versioned REST API of this same application.
 
 ---
 
@@ -121,6 +121,7 @@ Order ─┬─> City, Category, Master, Client
        ├─< OrderPhoto             (photos of the problem, client-supplied)
        ├─< OrderTask ─< OrderTaskPhoto   (before/after pair per performed task)
        ├─< MasterLocation         (the trip taken for this order)
+       ├─< OrderMasterDecline     (masters who dismissed the auto-search offer)
        └─── OrderReview
 
 Standalone: User (admin staff), Banner, Setting, PendingOtp
@@ -130,11 +131,13 @@ Standalone: User (admin staff), Banner, Setting, PendingOtp
 |---|---|
 | `Oblast` / `Region` / `City` | Geography. Masters, clients and orders are all scoped to a city |
 | `Category` | Service catalog, self-nesting, bilingual, with an optional `CategoryContent` landing page |
-| `Master` | The handyman: payment model, balance, access expiry, availability flag, live location |
+| `Master` | The handyman: access expiry (derived from subscriptions), availability flag, live location |
 | `Client` | Mobile app user, can be blocked by an administrator |
-| `Order` | The job. Carries status (`App\Enums\OrderStatus`), photos, tasks and one review |
+| `Order` | The job. Carries status (`App\Enums\OrderStatus`), photos, tasks, one review, and the auto-search state (`search_started_at`, `search_radius_km`, `search_expired_at`) |
 | `OrderTask` | One discrete piece of work with before/after photos — e.g. "replaced hose" |
-| `MasterPayout` | Record of a balance payout, referencing the `User` who made it |
+| `OrderMasterDecline` | A master dismissed an auto-search offer — hides it from that master's feed only |
+| `SubscriptionPlan` | Tariff sold to masters: bilingual name, duration in days, price, soft deleted so sold subscriptions keep their link |
+| `MasterSubscription` | A purchase: snapshot of plan name/price/duration, status (`App\Enums\SubscriptionStatus`), period, who issued it |
 | `PendingOtp` | OTP parked for manual delivery when the SMS gateway is down |
 | `Setting` | Key/value app settings exposed to both mobile apps |
 | `User` | Admin panel staff — administrator / manager / operator (`App\Enums\UserRole`) |
@@ -145,7 +148,7 @@ Standalone: User (admin staff), Banner, Setting, PendingOtp
 |---|---|
 | `OrderStatus` | `pending`, `assigned`, `in_progress`, `completed`, `cancelled` (+ `label()`, `color()`, `isFinal()`) |
 | `UserRole` | `administrator`, `manager`, `operator` (+ `assignable()`, `canManage()`) |
-| `PaymentModel` | `percentage`, `fixed_per_job`, `salary`, `salary_percentage` (+ `requiresFinalPrice()`) |
+| `SubscriptionStatus` | `pending`, `active`, `expired`, `cancelled` (+ `label()`, `color()`, `isFinal()`, `canTransitionTo()`) |
 | `OtpDeliveryChannel` | Delivery route of a generated OTP (SMS gateway vs. manual) |
 | `OtpRecipientType` | Whether the OTP belongs to a master or a client |
 | `CategoryIconType` | Icon source for a category |
@@ -159,7 +162,7 @@ Enforced by the `role` middleware alias (`App\Http\Middleware\CheckRole`) in `ro
 | Profile, `/system-status` | ✅ | ✅ | ✅ |
 | Dashboard, geography, categories, masters, clients, orders, banners, settings, notifications, OTP codes | ✅ | ✅ | ❌ |
 | Users (`/users`) | ✅ | ❌ | ❌ |
-| Payments & payouts (`/payments`) | ✅ | ❌ | ❌ |
+| Subscriptions & plans (`/subscriptions`) | ✅ | ❌ | ❌ |
 
 ---
 
@@ -169,11 +172,13 @@ Enforced by the `role` middleware alias (`App\Http\Middleware\CheckRole`) in `ro
 app/
 ├── Actions/                    # ~55 single-purpose operations (Create/Update/Delete/Assign/…)
 ├── Console/Commands/
-│   └── SimulateMasterMovement.php   # master:simulate-movement — demo GPS pings
-├── Enums/                      # OrderStatus, UserRole, PaymentModel, Otp*, CategoryIconType
+│   ├── SimulateMasterMovement.php          # master:simulate-movement — demo GPS pings
+│   ├── ExpandOrderSearchRadiusCommand.php  # orders:expand-search-radius — every minute
+│   └── ExpireMasterSubscriptionsCommand.php # subscriptions:expire — hourly
+├── Enums/                      # OrderStatus, UserRole, SubscriptionStatus, Otp*, CategoryIconType
 ├── Events/                     # MasterAssigned, MasterLocationUpdated, OrderCreated,
 │                               # OrderStatusChanged, PendingOtpCreated
-├── Exceptions/                 # ApiException + Master/Order/Otp/Payment domain exceptions
+├── Exceptions/                 # ApiException + Master/Order/Otp/Subscription domain exceptions
 ├── Http/
 │   ├── Controllers/            # Web controllers (thin, Inertia)
 │   │   ├── Api/V1/             # Master API controllers
@@ -193,9 +198,9 @@ app/
 ├── Notifications/              # NewOrderNotification (database channel)
 ├── Observers/                  # MasterObserver
 ├── Policies/                   # UserPolicy
-├── Providers/                  # AppServiceProvider (observer + queue heartbeat)
+├── Providers/                  # AppServiceProvider (observer + queue heartbeat + processed counter)
 ├── Repositories/               # 14 repositories — all database query logic
-├── Services/                   # OtpGatewayService
+├── Services/                   # OtpGatewayService, SystemStatusService, ReverbMetricsService
 └── Support/                    # Framework-agnostic helpers (PhotoConverter, CategoryIcon)
 
 resources/js/
@@ -208,7 +213,7 @@ resources/js/
 │   └── GuestLayout.vue         # Login / password reset shell
 ├── Pages/                      # Auth, Banners, Categories, Cities, Clients, Dashboard,
 │                               # Masters (Index + Map), Oblasts, Orders (Index + Show),
-│                               # Payments, PendingOtps, Profile, Regions, Settings, Users
+│                               # PendingOtps, Profile, Regions, Settings, Subscriptions, Users
 │                               # (each section has a Partials/ folder with its modals)
 ├── stores/                     # useThemeStore, useLocaleStore, useNotificationStore
 ├── utils/                      # loadMapStyle.js, formatPhone.js
@@ -219,9 +224,9 @@ resources/js/
 
 lang/
 ├── ru/                         # api, auth, banners, categories, cities, clients, dashboard,
-│                               # layout, masters, notifications, oblasts, orders, payments,
-│                               # pending_otps, profile, regions, resources, settings, users,
-│                               # validation
+│                               # layout, masters, notifications, oblasts, orders,
+│                               # pending_otps, profile, regions, resources, settings,
+│                               # subscriptions, users, validation
 └── tk/                         # Turkmen — mirrors ru/ file-for-file, key-for-key
 
 routes/
@@ -303,7 +308,10 @@ php artisan queue:work
 # 9. WebSocket server — REQUIRED for realtime order alerts and the live map
 php artisan reverb:start
 
-# 10. OTP SMS gateway bridge (optional in dev — without it OTPs fall back to manual delivery)
+# 10. Scheduler — REQUIRED for the master auto-search radius to grow
+php artisan schedule:work
+
+# 11. OTP SMS gateway bridge (optional in dev — without it OTPs fall back to manual delivery)
 cd socket-server && cp .env.example .env && npm install && npm start
 ```
 
@@ -521,6 +529,7 @@ Row status values live as constants on the photo models: `pending` · `convertin
 | Channel | Type | Who may subscribe | Carries |
 |---|---|---|---|
 | `masters-map.{cityId}` | public | anyone (tighten in production) | `MasterLocationUpdated` |
+| `available-orders` | public | master apps | `OrderSearchStarted`, `OrderSearchRadiusExpanded` — refresh signals carrying only an order id and a radius |
 | `admin.pending-otps` | private | admin staff except operators | `PendingOtpCreated` |
 | `client.{clientId}` | private | the Client that owns the Sanctum token | `MasterAssigned`, `OrderStatusChanged` |
 | `master.{masterId}` | private | the Master that owns the Sanctum token | `MasterAssigned`, `OrderStatusChanged` |
@@ -535,6 +544,168 @@ Mobile apps authorize private channels against `POST /api/v1/broadcasting/auth` 
 3. The admin panel receives the broadcast, shows a toast via `useNotificationStore.info()`
 4. `public/sounds/alarm.mp3` plays — **only when the browser tab is active** (Page Visibility API), so alerts do not stack up
 5. The bell badge (`unreadNotificationsCount`) increments
+
+---
+
+## Master Auto-Search (expanding radius)
+
+A client order is not routed by city — it is offered to masters by **geographic distance**, in a radius that widens every minute until somebody claims it.
+
+### How the radius grows
+
+`radius(n) = n × initial`, where `n` is the minute of the search the order is currently in:
+
+| Minute | Radius (defaults) |
+|---|---|
+| 1 | 20 km |
+| 2 | 40 km |
+| 3 | 60 km |
+| 4 | 80 km |
+| 5 | would be 100 km → **over the maximum, the search closes** |
+
+The radius is derived from `now() − search_started_at` on every tick rather than incremented, so a missed or duplicated scheduler run cannot drift it.
+
+Both bounds are configurable at **Settings → Авто-поиск мастера** (`master_search_initial_radius_km`, `master_search_max_radius_km`; defaults live on `App\Models\Setting`). Validation enforces `initial ≤ max`, comparing a partial submit against the stored counterpart.
+
+### Flow
+
+1. `CreateClientOrderAction` stamps `search_started_at = now()` and `search_radius_km = initial`, then fires `OrderSearchStarted`.
+2. `orders:expand-search-radius` runs **every minute** (`bootstrap/app.php` → `withSchedule`, `withoutOverlapping`) and hands each searching order to `ExpandOrderSearchRadiusAction`.
+3. On each widening → `OrderSearchRadiusExpanded` broadcasts on the public `available-orders` channel. Master apps treat both events as a "reload your feed" signal and call `GET /api/v1/master/orders/available`.
+4. A master claims the order with `POST /api/v1/master/orders/{order}/respond` → `RespondToOrderAction`.
+5. Once `radius(n)` would exceed the maximum → `search_expired_at` is set, `OrderSearchExhausted` fires, `NotifyAdminsOnOrderSearchExhausted` sends `OrderSearchExhaustedNotification` to admin staff, and the order shows a **«Требует ручного назначения»** badge in `/orders`. From then on masters can neither see nor claim it — only `AssignMasterAction` (administrator) can.
+
+> **Both `schedule:work` and `queue:work` must be running.** Without the scheduler the radius never grows; without the queue worker admins never receive the exhaustion notification.
+
+### Matching rules
+
+A master sees an order only when **all** of these hold:
+
+- order is `pending` with no `master_id`, and its search has not expired
+- the order's category is one of the master's categories
+- distance(master's last GPS ping → order) ≤ the order's current `search_radius_km`
+- the master has not declined that order
+
+**City is deliberately not part of the match** — an 80 km radius crosses city borders by design. `city_id` stays a reporting/filtering dimension in the admin panel, and manual assignment via `AssignMasterAction` still enforces `cityMismatch()`.
+
+A master with no row in `master_locations` is excluded: `GET .../available` returns an empty list (a normal state right after login), and `respond` fails with `master_location_unknown`.
+
+### Distance is computed in two passes
+
+`OrderRepository::availableForMaster()` pre-filters in SQL with a **plain-arithmetic bounding box** (no `acos`/`radians`), then settles the exact circle in PHP via `Order::distanceKmTo()` (haversine) and sorts nearest-first.
+
+This is deliberate: MySQL, PostgreSQL and the SQLite build used by the test suite disagree on which trigonometric functions exist, so a `selectRaw` haversine would tie the feature to one driver and break the tests. The candidate set the bounding box lets through is small, so the PHP pass costs nothing.
+
+### Claiming is a race
+
+`OrderRepository::claimForMaster()` puts the guard in the `WHERE` clause:
+
+```php
+Order::where('id', $order->id)
+    ->whereNull('master_id')
+    ->where('status', OrderStatus::Pending)
+    ->whereNull('search_expired_at')
+    ->update([...]);   // affected rows === 1 → this master won
+```
+
+Two simultaneous responders resolve to one `UPDATE` touching a row and one touching none; the loser gets `orders.errors.already_claimed`. No locks, no transaction needed.
+
+### Declining
+
+`POST /api/v1/master/orders/{order}/decline` writes to `order_master_declines` (unique on `order_id + master_id`, idempotent). It **only** hides the order from that master's own feed — the search keeps running and other masters still see it. A master who changes their mind can still claim it directly by id.
+
+### Privacy
+
+`AvailableOrderResource` is intentionally narrower than `MasterOrderResource`: an unclaimed order exposes category, description, address, coordinates and distance, but **not** `client_name` or `client_phone`. Those appear only after the claim succeeds.
+
+The public `available-orders` channel carries nothing but an order id and a radius. `OrderCreated` — whose payload includes the client's name — stays on the admin-only `orders` channel; the master-facing signal is the separate, contentless `OrderSearchStarted`.
+
+---
+
+## Master Subscriptions
+
+The service owner sells masters timed access to the platform. **This is the only revenue stream** — the platform does not pay masters, does not hold a balance for them and does not track their per-order earnings. The client pays the master directly; `orders.final_price` is bookkeeping for reporting, nothing more.
+
+### Two tables
+
+| Table | Purpose |
+|---|---|
+| `subscription_plans` | The owner's tariffs: bilingual name/description, `duration_days`, `price`, `is_active`, `sort_order`. **Soft deleted** so already sold subscriptions never lose their link |
+| `master_subscriptions` | A purchase. Carries a **snapshot** of `plan_name`, `price_paid` and `duration_days` — later edits to the plan must never rewrite history (same trick the old payout ledger used) |
+
+Default plans come from `SubscriptionPlanSeeder`: 30 / 90 / 180 days, prices in class constants.
+
+### `access_expires_at` has exactly one writer
+
+`Master::hasActiveAccess()` and every consumer of it (`EnsureMaster`, the OTP actions, `EnsuresMasterEligibility`, `MasterRepository` filters) are unchanged. What changed is **who writes the column**:
+
+- it is no longer editable by hand — `Store/UpdateMasterRequest` do not accept it;
+- every subscription action funnels through `App\Actions\Concerns\SyncsMasterAccess`, which sets it to `MAX(expires_at)` across the master's `active` + `pending` subscriptions;
+- with nothing left the deadline is set to `now()` — **never `null`**, because `null` means *unlimited* to `hasActiveAccess()` (legacy masters created before subscriptions keep that meaning);
+- a new master created without a plan starts with access closed.
+
+Free access is granted the same way as paid: issue a subscription with `price_paid = 0` and a note. That keeps it auditable — who granted it, when and why.
+
+### Renewal is a queue, not an overwrite
+
+At most one subscription per master is `active`. Selling to a master who already has a running one does **not** start from `now()` and does not error out — the new purchase is created `pending`, starting the moment the current one ends:
+
+```
+├─ active   01.01 → 31.01   ← running
+└─ pending  31.01 → 02.03   ← paid for, waiting its turn
+access_expires_at = 02.03   (MAX over active + pending)
+```
+
+Paid-for days are never burned, and the "one active" invariant holds.
+
+### Status transitions
+
+Allowed moves live in `SubscriptionStatus::canTransitionTo()` — never in scattered `if`s.
+
+```
+pending  ──▶ active      (its start date arrived, or an admin starts it early)
+pending  ──▶ cancelled
+active   ──▶ expired     (end date passed, or an admin closes it)
+active   ──▶ cancelled
+expired / cancelled      terminal
+```
+
+Manually activating a queued subscription while another is still running is rejected (`SubscriptionException::alreadyActive()`).
+
+### The clock: `subscriptions:expire`
+
+Registered in `bootstrap/app.php` → `withSchedule()`, hourly, `withoutOverlapping()`. One pass does three things in order:
+
+1. `active` rows past `expires_at` → `expired`;
+2. `pending` rows whose `starts_at` has arrived → `active` (only when nothing else is running for that master);
+3. re-derive `access_expires_at` for every touched master.
+
+It is idempotent — a skipped run just catches up on the next tick.
+
+### Who buys
+
+The administrator issues subscriptions manually after taking payment, exactly like the rest of the money flow in this project — there is no payment gateway. The mobile API is **read-only** for masters.
+
+Two endpoints, and their auth is deliberately asymmetric:
+
+- `GET /api/v1/master/subscription-plans` is **public**. A master whose access lapsed cannot even obtain a token (`VerifyMasterOtpAction` refuses), so the price list has to be reachable without one. It is a price list: no PII, nothing to protect.
+- `GET /api/v1/master/subscription` runs under `ensure.master:allow-expired`. The middleware parameter skips only the `hasActiveAccess()` check; "is a master" and `is_active` still apply.
+
+### Web routes (administrator only)
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/subscriptions` | The page: plans + purchase history + stats |
+| `POST` | `/subscription-plans` | Create a plan |
+| `PUT` | `/subscription-plans/{plan}` | Edit a plan (future purchases only) |
+| `POST` | `/subscription-plans/{plan}/toggle` | Enable / disable for new purchases |
+| `DELETE` | `/subscription-plans/{plan}` | Soft delete |
+| `POST` | `/masters/{master}/subscriptions` | Issue or renew |
+| `PUT` | `/subscriptions/{subscription}` | Correct `price_paid` / `note` only — dates and duration stay as sold |
+| `POST` | `/subscriptions/{subscription}/status` | Change status |
+| `DELETE` | `/subscriptions/{subscription}` | Delete and recompute access |
+
+A master can also be given their first subscription right in the create-master form: pick a plan, optionally type a different price.
 
 ---
 
@@ -604,16 +775,21 @@ Web (Inertia) and API controllers are **strictly separate**. Never reuse or shar
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
 | `GET` | `/api/v1/master/settings` | public | App rules/terms shown before registration |
+| `GET` | `/api/v1/master/subscription-plans` | public | Subscription price list — reachable without a token on purpose (see below) |
+| `GET` | `/api/v1/master/subscription` | Sanctum, `ensure.master:allow-expired` | Own subscription: current one, access deadline, history |
 | `POST` | `/api/v1/master/auth/request-otp` | public | Send OTP to the master's phone |
 | `POST` | `/api/v1/master/auth/verify-otp` | public | Verify OTP, returns a Sanctum token |
 | `POST` | `/api/v1/master/auth/logout` | Sanctum | Revoke the current token |
-| `GET` | `/api/v1/master/me` | Sanctum | Profile, balance, payment model, categories |
+| `GET` | `/api/v1/master/me` | Sanctum | Profile, access expiry, categories |
 | `PATCH` | `/api/v1/master/availability` | Sanctum | Toggle "ready for work" |
 | `POST` | `/api/v1/master/{master}/location` | Sanctum | GPS ping; `{master}` **must** match the token owner |
 | `GET` | `/api/v1/master/orders` | Sanctum | Assigned orders (`filter=active` / `history`) |
+| `GET` | `/api/v1/master/orders/available` | Sanctum | Auto-search feed: unclaimed orders inside the current radius, nearest first |
+| `POST` | `/api/v1/master/orders/{order}/respond` | Sanctum | Claim an offered order (first responder wins) |
+| `POST` | `/api/v1/master/orders/{order}/decline` | Sanctum | Hide an offer from this master's feed only |
 | `GET` | `/api/v1/master/orders/{order}` | Sanctum | Order details |
 | `POST` | `/api/v1/master/orders/{order}/start` | Sanctum | Mark as `in_progress` on arrival |
-| `POST` | `/api/v1/master/orders/{order}/complete` | Sanctum | Complete and credit the balance |
+| `POST` | `/api/v1/master/orders/{order}/complete` | Sanctum | Mark the job as done |
 | `POST` | `/api/v1/master/orders/{order}/tasks` | Sanctum | Add a performed task |
 | `POST` | `/api/v1/master/orders/{order}/tasks/{task}/photo` | Sanctum | Upload a before/after photo |
 | `DELETE` | `/api/v1/master/orders/{order}/tasks/{task}` | Sanctum | Remove a task |
@@ -647,6 +823,23 @@ Run `php artisan route:list --path=api/v1` for the authoritative list.
 Scribe generates the docs (`php artisan scribe:generate`) and serves them at `/docs`, with `/docs.openapi` and `/docs.postman` alongside. Access is gated by `ProtectScribeDocs` (wired in `config/scribe.php` → `laravel.middleware`): open in local/dev, **administrators only in production**, everyone else gets a `404` so the endpoint is not discoverable.
 
 Ready-to-run request collections live in `bruno-master/` and `bruno-client/` (Bruno, with `environments/`).
+
+---
+
+## Infrastructure Monitoring
+
+`GET /system-status` (auth only) powers the status dots in `AdminLayout.vue` and the monitoring cards on `/settings`. Every number is measured — nothing is simulated on the frontend.
+
+| Source | What it measures | How |
+| --- | --- | --- |
+| **Queue** | worker alive, pending jobs, jobs finished today | `Queue::looping` writes `queue:worker_heartbeat` (stale after 120 s); `Queue::size()`; `Queue::after` increments `queue:processed:{Y-m-d}` |
+| **Reverb** | reachability, open channels, connections, response time | `ReverbMetricsService` calls the signed Pusher-compatible endpoints `/apps/{id}/channels` and `/apps/{id}/connections` on `REVERB_HOST:REVERB_PORT` |
+| **OTP gateway** | bridge alive, connected phones, last OTP | `GET {SMS_GATEWAY_URL}/health` + `otp_gateway:last_sent` cache key |
+| **WebSocket card** | this browser's own socket | read directly from `window.Echo.connector.pusher` (state + subscribed channels) |
+
+`SystemStatusService` caches the whole snapshot for 10 s so open admin tabs don't storm Reverb and the SMS gateway. The **Переподключить** buttons request `?fresh=1` to bypass that cache; the WebSocket button reconnects the Echo client itself.
+
+When a source is unreachable its card shows `—` instead of a number — a missing metric never renders as `0`.
 
 ---
 
@@ -761,7 +954,12 @@ php artisan serve                 # Laravel dev server
 # ── Workers & services ───────────────────────────────────────────────────────
 php artisan queue:work            # Process queued jobs (image conversion, broadcasts)
 php artisan reverb:start          # WebSocket server
+php artisan schedule:work         # Scheduler (auto-search radius + subscription expiry)
 cd socket-server && npm start     # OTP Socket.IO bridge
+
+php artisan orders:expand-search-radius   # One-off sweep of the auto-search, for debugging
+php artisan subscriptions:expire          # One-off subscription clock tick, for debugging
+php artisan schedule:list                 # Verify both scheduled commands are registered
 
 # ── Database ─────────────────────────────────────────────────────────────────
 php artisan migrate               # Run pending migrations
