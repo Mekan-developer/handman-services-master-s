@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Actions\Concerns\EnsuresMasterEligibility;
 use App\Events\MasterAssigned;
 use App\Exceptions\OrderException;
 use App\Models\Order;
@@ -10,6 +11,8 @@ use App\Repositories\OrderRepository;
 
 class AssignMasterAction
 {
+    use EnsuresMasterEligibility;
+
     public function __construct(
         private readonly OrderRepository $orderRepository,
         private readonly MasterRepository $masterRepository,
@@ -23,20 +26,15 @@ class AssignMasterAction
 
         $master = $this->masterRepository->findOrFail($masterId);
 
-        if (! $master->is_active || ! $master->hasActiveAccess()) {
-            throw OrderException::masterAccessExpired();
-        }
+        $this->ensureMasterCanTakeOrders($master);
 
-        if (! $master->is_available) {
-            throw OrderException::masterUnavailable();
-        }
-
+        // Manual assignment stays city-bound; only the geo auto-search crosses
+        // city borders, and it never routes through this action.
         if ($master->city_id !== $order->city_id) {
             throw OrderException::cityMismatch();
         }
 
-        $masterCategoryIds = $master->categories()->pluck('categories.id')->all();
-        if (! in_array($order->category_id, $masterCategoryIds, true)) {
+        if (! in_array($order->category_id, $this->orderRepository->masterCategoryIds($master), true)) {
             throw OrderException::categoryMismatch();
         }
 

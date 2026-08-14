@@ -9,7 +9,13 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCreated implements ShouldBroadcast
+/**
+ * Signals the master apps that the pool of available orders changed. The payload
+ * is deliberately just an id and a radius — the channel is public, so anything
+ * identifying the client stays behind the authenticated
+ * GET /api/v1/master/orders/available endpoint.
+ */
+class OrderSearchRadiusExpanded implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,27 +24,22 @@ class OrderCreated implements ShouldBroadcast
     /** @return array<int, Channel> */
     public function broadcastOn(): array
     {
-        // Admin panel only — the payload carries the client's name, so it must not
-        // reach the public master-facing channel. Master apps get the contentless
-        // OrderSearchStarted signal instead.
         return [
-            new Channel('orders'),
+            new Channel('available-orders'),
         ];
     }
 
     public function broadcastAs(): string
     {
-        return 'order.created';
+        return 'order.search.radius.expanded';
     }
 
     /** @return array<string, mixed> */
     public function broadcastWith(): array
     {
         return [
-            'id' => $this->order->id,
-            'client_name' => $this->order->client_name,
-            'category' => $this->order->category?->name,
-            'city' => $this->order->city?->name,
+            'order_id' => $this->order->id,
+            'radius_km' => $this->order->search_radius_km,
         ];
     }
 }

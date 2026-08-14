@@ -66,6 +66,11 @@ class OrderResource extends JsonResource
                     : [],
             ])),
 
+            'search_radius_km' => $this->search_radius_km,
+            'search_started_at' => $this->search_started_at?->toDateTimeString(),
+            'search_expired_at' => $this->search_expired_at?->toDateTimeString(),
+            'needs_manual_assignment' => $this->needsManualAssignment(),
+
             'assigned_at' => $this->assigned_at?->toDateTimeString(),
             'started_at' => $this->started_at?->toDateTimeString(),
             'completed_at' => $this->completed_at?->toDateTimeString(),

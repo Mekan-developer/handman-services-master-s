@@ -4,16 +4,21 @@ namespace App\Actions;
 
 use App\Enums\OrderStatus;
 use App\Events\OrderCreated;
+use App\Events\OrderSearchStarted;
 use App\Jobs\ConvertOrderPhotoJob;
 use App\Models\Client;
 use App\Models\Order;
 use App\Repositories\OrderRepository;
+use App\Repositories\SettingRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class CreateClientOrderAction
 {
-    public function __construct(private readonly OrderRepository $repository) {}
+    public function __construct(
+        private readonly OrderRepository $repository,
+        private readonly SettingRepository $settingRepository,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data
@@ -21,7 +26,9 @@ class CreateClientOrderAction
      */
     public function handle(Client $client, array $data, array $photos = []): Order
     {
-        return DB::transaction(function () use ($client, $data, $photos) {
+        $radii = $this->settingRepository->searchRadii();
+
+        return DB::transaction(function () use ($client, $data, $photos, $radii) {
             $order = $this->repository->create([
                 'city_id' => $data['city_id'],
                 'category_id' => $data['category_id'],
@@ -33,6 +40,10 @@ class CreateClientOrderAction
                 'client_lng' => $data['client_lng'],
                 'description' => $data['description'],
                 'status' => OrderStatus::Pending,
+                // The master auto-search starts the moment the order exists; the
+                // scheduler grows the radius from here, minute by minute.
+                'search_started_at' => now(),
+                'search_radius_km' => $radii['initial'],
             ]);
 
             foreach ($photos as $photo) {
@@ -50,6 +61,7 @@ class CreateClientOrderAction
             $order->load(['city', 'category', 'photos']);
 
             OrderCreated::dispatch($order);
+            OrderSearchStarted::dispatch($order);
 
             return $order;
         });
