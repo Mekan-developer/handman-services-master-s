@@ -58,7 +58,7 @@ const pages = computed(() => {
 <template>
     <div
         v-if="last > 1"
-        class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-slate-700"
+        class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-white/[0.08]"
     >
         <p class="text-sm text-gray-500 dark:text-slate-400">
             {{ t('layout.pagination.showing', { from, to, total }) }}
@@ -69,7 +69,7 @@ const pages = computed(() => {
             <Link
                 v-if="current > 1"
                 :href="pageUrl(current - 1)"
-                class="inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                class="inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/[0.05]"
             >
                 ←
             </Link>
@@ -94,7 +94,7 @@ const pages = computed(() => {
                     :class="
                         page === current
                             ? 'bg-blue-600 text-white'
-                            : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700'
+                            : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/[0.05]'
                     "
                     class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors"
                 >
@@ -106,7 +106,7 @@ const pages = computed(() => {
             <Link
                 v-if="current < last"
                 :href="pageUrl(current + 1)"
-                class="inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                class="inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/[0.05]"
             >
                 →
             </Link>
