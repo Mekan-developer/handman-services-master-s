@@ -15,7 +15,7 @@ const props = defineProps({
     masters: Object,
     oblasts: Array,
     categories: Array,
-    paymentModels: Array,
+    subscriptionPlans: { type: Array, default: () => [] },
     filters: { type: Object, default: () => ({}) },
 })
 
@@ -27,13 +27,13 @@ const form = useForm({
     city_id: null,
     name: '',
     phone: '',
-    payment_model: null,
-    payment_value: 0,
-    monthly_salary: 0,
-    access_expires_at: '',
     is_active: true,
     category_ids: [],
     photo: null,
+    // Only submitted when creating — access is derived from subscriptions.
+    subscription_plan_id: null,
+    subscription_price: null,
+    subscription_note: '',
 })
 
 function openCreate() {
@@ -48,12 +48,6 @@ function openEdit(master) {
     form.city_id = master.city_id
     form.name = master.name
     form.phone = master.phone
-    form.payment_model = master.payment_model
-    form.payment_value = master.payment_value
-    form.monthly_salary = master.monthly_salary
-    form.access_expires_at = master.access_expires_at
-        ? master.access_expires_at.replace(' ', 'T').slice(0, 16)
-        : ''
     form.is_active = master.is_active
     form.category_ids = master.category_ids ? [...master.category_ids] : []
     form.photo = null
@@ -93,21 +87,6 @@ function confirmDelete() {
     router.delete(route('masters.destroy', deleteTarget.value.id), {
         onSuccess: () => { deleteTarget.value = null },
         onFinish: () => { deleting.value = false },
-    })
-}
-
-const resetBalanceTarget = ref(null)
-const resettingBalance = ref(false)
-
-function resetBalance(master) {
-    resetBalanceTarget.value = master
-}
-
-function confirmResetBalance() {
-    resettingBalance.value = true
-    router.post(route('masters.reset-balance', resetBalanceTarget.value.id), {}, {
-        onSuccess: () => { resetBalanceTarget.value = null },
-        onFinish: () => { resettingBalance.value = false },
     })
 }
 
@@ -216,16 +195,14 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.phone') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.city') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.rating') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.payment_model') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.status') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.access_expires_at') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.balance') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                             <tr v-if="masterList.length === 0">
-                                <td colspan="10" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
+                                <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
                                     {{ t('masters.empty') }}
                                 </td>
                             </tr>
@@ -284,9 +261,6 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                                     </div>
                                     <span v-else class="text-gray-300 dark:text-slate-600">—</span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
-                                    {{ paymentModels.find(pm => pm.value === master.payment_model)?.label ?? master.payment_model }}
-                                </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col gap-1.5">
                                         <span
@@ -315,28 +289,32 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
-                                    <span v-if="master.access_expires_at">
-                                        {{ master.access_expires_at }}
-                                    </span>
-                                    <span v-else class="text-gray-300 dark:text-slate-600">—</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-semibold text-gray-900 dark:text-slate-200">
-                                            {{ Number(master.balance ?? 0).toFixed(2) }}
+                                <td class="px-6 py-4 text-sm">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="text-gray-500 dark:text-slate-400">
+                                            {{ master.access_expires_at ?? t('masters.access_unlimited') }}
                                         </span>
-                                        <button
-                                            v-if="Number(master.balance) > 0"
-                                            @click="resetBalance(master)"
-                                            class="rounded px-2 py-0.5 text-xs font-medium text-orange-600 ring-1 ring-orange-300 hover:bg-orange-50 dark:text-orange-400 dark:ring-orange-500/40 dark:hover:bg-orange-500/10 transition-colors"
+                                        <span
+                                            :class="master.has_active_access
+                                                ? 'text-green-600 dark:text-green-400'
+                                                : 'text-red-500 dark:text-red-400'"
+                                            class="text-xs font-medium"
                                         >
-                                            {{ t('masters.reset_balance') }}
-                                        </button>
+                                            {{ master.has_active_access ? t('masters.access_active') : t('masters.access_expired') }}
+                                        </span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
+                                        <Link
+                                            :href="route('subscriptions.index', { master_id: master.id })"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-emerald-100 hover:text-emerald-600 dark:hover:bg-emerald-500/15 dark:hover:text-emerald-400 transition-all duration-150"
+                                            :title="t('masters.issue_subscription')"
+                                        >
+                                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </Link>
                                         <button
                                             @click="openEdit(master)"
                                             class="rounded-lg p-2 text-slate-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400 transition-all duration-150"
@@ -378,7 +356,7 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
             :editing="editingMaster"
             :oblasts="oblasts"
             :categories="categories"
-            :payment-models="paymentModels"
+            :subscription-plans="subscriptionPlans"
             @close="closeModal"
             @submit="submit"
         />
@@ -389,15 +367,6 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
             :processing="deleting"
             @confirm="confirmDelete"
             @close="deleteTarget = null"
-        />
-
-        <ConfirmModal
-            :show="resetBalanceTarget !== null"
-            :message="t('masters.reset_balance_confirm')"
-            :processing="resettingBalance"
-            :danger="false"
-            @confirm="confirmResetBalance"
-            @close="resetBalanceTarget = null"
         />
     </AdminLayout>
 </template>

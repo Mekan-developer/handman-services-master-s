@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Enums\PaymentModel;
 use App\Models\City;
 use App\Models\Master;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,32 +20,10 @@ class MasterFactory extends Factory
             'city_id' => City::factory(),
             'name' => fake()->name(),
             'phone' => fake()->unique()->numerify('+99362#######'),
-            'payment_model' => PaymentModel::Percentage,
-            'payment_value' => fake()->randomFloat(2, 5, 50),
-            'monthly_salary' => 0,
-            'balance' => 0,
             'access_expires_at' => now()->addDays(30),
             'is_active' => true,
             'photo' => null,
         ];
-    }
-
-    public function salary(): static
-    {
-        return $this->state([
-            'payment_model' => PaymentModel::Salary,
-            'payment_value' => 0,
-            'monthly_salary' => 1500,
-        ]);
-    }
-
-    public function salaryPercentage(): static
-    {
-        return $this->state([
-            'payment_model' => PaymentModel::SalaryPercentage,
-            'payment_value' => 35,
-            'monthly_salary' => 1500,
-        ]);
     }
 
     public function inactive(): static

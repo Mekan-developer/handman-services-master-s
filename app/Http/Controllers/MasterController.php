@@ -4,17 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateMasterAction;
 use App\Actions\DeleteMasterAction;
-use App\Actions\RecordMasterPayoutAction;
 use App\Actions\UpdateMasterAction;
-use App\Enums\PaymentModel;
-use App\Exceptions\PaymentException;
+use App\Exceptions\SubscriptionException;
 use App\Http\Requests\StoreMasterRequest;
 use App\Http\Requests\UpdateMasterRequest;
 use App\Http\Resources\MasterResource;
+use App\Http\Resources\SubscriptionPlanResource;
 use App\Http\Traits\WithNotification;
 use App\Repositories\CategoryRepository;
 use App\Repositories\MasterRepository;
 use App\Repositories\OblastRepository;
+use App\Repositories\SubscriptionPlanRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,13 +35,7 @@ class MasterController extends Controller
             'masters' => MasterResource::collection($this->repository->paginate(15, $filters)),
             'oblasts' => app(OblastRepository::class)->allWithCities(),
             'categories' => app(CategoryRepository::class)->treeForSelect(),
-            'paymentModels' => collect(PaymentModel::cases())
-                ->reject(fn ($m) => $m === PaymentModel::FixedPerJob)
-                ->map(fn ($m) => [
-                    'value' => $m->value,
-                    'label' => $m->label(),
-                ])
-                ->values(),
+            'subscriptionPlans' => SubscriptionPlanResource::collection(app(SubscriptionPlanRepository::class)->active())->resolve(),
             'filters' => $filters,
         ]);
     }
@@ -68,8 +62,12 @@ class MasterController extends Controller
 
     public function store(StoreMasterRequest $request, CreateMasterAction $action): RedirectResponse
     {
-        $action->handle($request->validated());
-        $this->notifySuccess('notifications.created', ['resource' => __('resources.master')]);
+        try {
+            $action->handle($request->validated(), $request->user());
+            $this->notifySuccess('notifications.created', ['resource' => __('resources.master')]);
+        } catch (SubscriptionException $e) {
+            $this->notifyError($e->getMessage());
+        }
 
         return redirect()->route('masters.index');
     }
@@ -88,20 +86,6 @@ class MasterController extends Controller
         $master = $this->repository->findOrFail($id);
         $action->handle($master);
         $this->notifySuccess('notifications.deleted', ['resource' => __('resources.master')]);
-
-        return redirect()->route('masters.index');
-    }
-
-    public function resetBalance(int $id, RecordMasterPayoutAction $action): RedirectResponse
-    {
-        $master = $this->repository->findOrFail($id);
-
-        try {
-            $action->handle($master, request()->user());
-            $this->notifySuccess('masters.notifications.balance_reset');
-        } catch (PaymentException $e) {
-            $this->notifyError($e->getMessage());
-        }
 
         return redirect()->route('masters.index');
     }

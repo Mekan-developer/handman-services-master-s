@@ -9,7 +9,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureMaster
 {
-    public function handle(Request $request, Closure $next): Response
+    /** Route middleware parameter that keeps the gate open for a lapsed subscription. */
+    private const ALLOW_EXPIRED = 'allow-expired';
+
+    /**
+     * @param  string|null  $mode  Pass `allow-expired` on endpoints a master must
+     *                             still reach after their subscription ran out
+     *                             (e.g. checking what to renew).
+     */
+    public function handle(Request $request, Closure $next, ?string $mode = null): Response
     {
         $user = $request->user();
 
@@ -21,7 +29,7 @@ class EnsureMaster
             return response()->json(['message' => __('api.master.disabled')], 403);
         }
 
-        if (! $user->hasActiveAccess()) {
+        if ($mode !== self::ALLOW_EXPIRED && ! $user->hasActiveAccess()) {
             return response()->json(['message' => __('api.master.access_expired')], 403);
         }
 

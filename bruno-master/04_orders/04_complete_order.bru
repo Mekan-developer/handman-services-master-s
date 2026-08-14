@@ -29,8 +29,8 @@ docs {
   # Complete Order
 
   Changes order status: `in_progress` → `completed`.
-  Setting `final_price` triggers automatic balance accrual for the master
-  based on their payment model (percentage / fixed_per_job / salary).
+  `final_price` is recorded for reporting only — the platform does not pay
+  masters, it earns from their access subscriptions instead.
 
   **Response 200:**
   ```json

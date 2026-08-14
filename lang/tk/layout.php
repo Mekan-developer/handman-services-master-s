@@ -10,7 +10,7 @@ return [
         'masters' => 'Ussatlar',
         'clients' => 'Müşderiler',
         'orders' => 'Sargytlar',
-        'payments' => 'Tölegler',
+        'subscriptions' => 'Abunalar',
         'pending_otps' => 'OTP kodlary',
         'banners' => 'Bannerlar',
         'users' => 'Ulanyjylar',
@@ -24,7 +24,8 @@ return [
     'header' => [
         'logout' => 'Çykmak',
         'profile' => 'Profil',
-        'theme_toggle' => 'Temany üýtget',
+        'theme_toggle_dark' => 'Garaňky tema',
+        'theme_toggle_light' => 'Açyk tema',
     ],
     'confirm' => [
         'delete_title' => 'Öçürmegi tassykla',

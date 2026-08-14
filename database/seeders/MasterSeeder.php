@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Enums\PaymentModel;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Master;
@@ -36,25 +35,25 @@ class MasterSeeder extends Seeder
         }
 
         $masters = [
-            ['Ашхабад', 'Мерген Аннамырадов', PaymentModel::Percentage, 15.0, true, 30],
-            ['Ашхабад', 'Бегенч Овезов', PaymentModel::Percentage, 20.0, true, 30],
-            ['Ашхабад', 'Сердар Хыдыров', PaymentModel::FixedPerJob, 50.0, true, 30],
-            ['Ашхабад', 'Гурбан Реджепов', PaymentModel::Percentage, 18.0, true, 30],
-            ['Туркменабат', 'Атаджан Сапаров', PaymentModel::Percentage, 15.0, true, 30],
-            ['Туркменабат', 'Довлет Атаев', PaymentModel::Salary, 1500.0, true, 15],
-            ['Туркменабат', 'Максат Нурыев', PaymentModel::Percentage, 22.0, true, 30],
-            ['Дашогуз', 'Аман Бердыев', PaymentModel::Percentage, 17.0, true, 30],
-            ['Дашогуз', 'Назар Курбанов', PaymentModel::SalaryPercentage, 10.0, false, 30],
-            ['Мары', 'Реджеп Овезгельдыев', PaymentModel::Percentage, 20.0, true, 30],
-            ['Мары', 'Какаджан Мухаммедов', PaymentModel::Percentage, 25.0, true, 30],
-            ['Балканабат', 'Тиркеш Аширов', PaymentModel::Percentage, 18.0, true, 30],
-            ['Балканабат', 'Бабамурат Сейидов', PaymentModel::FixedPerJob, 75.0, true, -2],
-            ['Туркменбаши', 'Айдогды Ходжаев', PaymentModel::Percentage, 19.0, true, 30],
-            ['Туркменбаши', 'Мырат Назаров', PaymentModel::Percentage, 21.0, true, 30],
+            ['Ашхабад', 'Мерген Аннамырадов', true, 30],
+            ['Ашхабад', 'Бегенч Овезов', true, 30],
+            ['Ашхабад', 'Сердар Хыдыров', true, 30],
+            ['Ашхабад', 'Гурбан Реджепов', true, 30],
+            ['Туркменабат', 'Атаджан Сапаров', true, 30],
+            ['Туркменабат', 'Довлет Атаев', true, 15],
+            ['Туркменабат', 'Максат Нурыев', true, 30],
+            ['Дашогуз', 'Аман Бердыев', true, 30],
+            ['Дашогуз', 'Назар Курбанов', false, 30],
+            ['Мары', 'Реджеп Овезгельдыев', true, 30],
+            ['Мары', 'Какаджан Мухаммедов', true, 30],
+            ['Балканабат', 'Тиркеш Аширов', true, 30],
+            ['Балканабат', 'Бабамурат Сейидов', true, -2],
+            ['Туркменбаши', 'Айдогды Ходжаев', true, 30],
+            ['Туркменбаши', 'Мырат Назаров', true, 30],
         ];
 
         DB::transaction(function () use ($masters, $cities, $leafCategories) {
-            foreach ($masters as $index => [$cityName, $name, $paymentModel, $value, $isActive, $expiresInDays]) {
+            foreach ($masters as $index => [$cityName, $name, $isActive, $expiresInDays]) {
                 $city = $cities->get($cityName);
 
                 if ($city === null) {
@@ -66,9 +65,6 @@ class MasterSeeder extends Seeder
                     [
                         'city_id' => $city->id,
                         'name' => $name,
-                        'payment_model' => $paymentModel,
-                        'payment_value' => $value,
-                        'balance' => fake()->randomFloat(2, 0, 500),
                         'access_expires_at' => now()->addDays($expiresInDays),
                         'is_active' => $isActive,
                         'photo' => null,

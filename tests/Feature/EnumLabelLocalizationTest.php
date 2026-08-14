@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
-use App\Enums\PaymentModel;
+use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
 use Tests\TestCase;
 
@@ -32,7 +32,7 @@ class EnumLabelLocalizationTest extends TestCase
 
         $cases = [
             ...OrderStatus::cases(),
-            ...PaymentModel::cases(),
+            ...SubscriptionStatus::cases(),
             ...UserRole::cases(),
         ];
 
@@ -58,11 +58,11 @@ class EnumLabelLocalizationTest extends TestCase
     {
         $this->app->setLocale('ru');
         $ru = OrderStatus::Pending->label();
-        $ruPayment = PaymentModel::Salary->label();
+        $ruSubscription = SubscriptionStatus::Active->label();
 
         $this->app->setLocale('tk');
 
         $this->assertNotSame($ru, OrderStatus::Pending->label());
-        $this->assertNotSame($ruPayment, PaymentModel::Salary->label());
+        $this->assertNotSame($ruSubscription, SubscriptionStatus::Active->label());
     }
 }

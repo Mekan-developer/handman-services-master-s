@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Master;
+use App\Models\MasterLocation;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -40,6 +42,12 @@ class MasterRepository
             ->get();
     }
 
+    /** Every master, name-ordered — feeds admin pickers such as the subscription dropdown. */
+    public function allForSelect(): Collection
+    {
+        return Master::query()->orderBy('name')->get();
+    }
+
     /** Location history for a single master — for trajectory. */
     public function trajectory(Master $master, int $hours = 8): Collection
     {
@@ -52,6 +60,12 @@ class MasterRepository
     public function findOrFail(int $id): Master
     {
         return Master::findOrFail($id);
+    }
+
+    /** Most recent GPS ping, or null when the master has never reported a position. */
+    public function latestLocation(Master $master): ?MasterLocation
+    {
+        return $master->locations()->latest('recorded_at')->first();
     }
 
     public function create(array $data): Master
@@ -81,39 +95,15 @@ class MasterRepository
         $master->delete();
     }
 
-    public function incrementBalance(Master $master, float $amount): void
+    /**
+     * Write the access deadline derived from the master's subscriptions.
+     * Separate from {@see update()} because that one also re-syncs categories.
+     */
+    public function updateAccessExpiry(Master $master, CarbonInterface $expiresAt): Master
     {
-        $master->increment('balance', $amount);
-    }
+        $master->update(['access_expires_at' => $expiresAt]);
 
-    public function decrementBalance(Master $master, float $amount): void
-    {
-        $master->decrement('balance', $amount);
-    }
-
-    public function resetBalance(Master $master): void
-    {
-        $master->update(['balance' => 0]);
-    }
-
-    /** Masters with a positive outstanding balance — awaiting payout. */
-    public function withOutstandingBalance(): Collection
-    {
-        return Master::with('city')
-            ->where('balance', '>', 0)
-            ->orderByDesc('balance')
-            ->get();
-    }
-
-    /** Sum of all outstanding (not yet paid out) master balances. */
-    public function totalOutstandingBalance(): float
-    {
-        return (float) Master::where('balance', '>', 0)->sum('balance');
-    }
-
-    public function countWithOutstandingBalance(): int
-    {
-        return Master::where('balance', '>', 0)->count();
+        return $master->refresh();
     }
 
     /** Active masters in given city, optionally filtered by category — for order assignment dropdown. */

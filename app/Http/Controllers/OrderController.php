@@ -165,10 +165,7 @@ class OrderController extends Controller
             $updated = $action->handle($order, $newStatus, $data['cancel_reason'] ?? null);
             $updated->loadMissing('master');
 
-            if ($newStatus === OrderStatus::Completed
-                && $updated->master !== null
-                && $updated->master->payment_model->requiresFinalPrice()
-                && $updated->final_price === null) {
+            if ($newStatus === OrderStatus::Completed && $updated->final_price === null) {
                 $this->notifyWarning('orders.notifications.completed_without_price');
             } else {
                 $this->notifySuccess('orders.notifications.status_updated');
