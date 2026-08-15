@@ -1,16 +1,21 @@
 # Master Mobile App — Technical Specification (Flutter)
 
-> Audience: Flutter developer building the **Master** (handyman) mobile application.
+> Audience: Flutter developer building the master (handyman) side of the mobile application.
 > Backend: Laravel 11 + Sanctum + Reverb (WebSockets).
 > All endpoints are versioned under `/api/v1/`.
+
+> **One app, one account.** There is no separate master application and no
+> separate master login. The user signs in as a **client** (see the client auth
+> flow), and the master side unlocks on that same token once the account carries
+> an approved master profile. Section 2 covers how that works.
 
 ---
 
 ## 1. Overview
 
-The Master app lets a handyman:
+The master side lets a handyman:
 
-1. Log in by phone (OTP-confirmed).
+1. Apply for the master role from inside the client app, and follow the review.
 2. Receive assigned orders in real-time.
 3. Send live GPS location to the backend so the admin can track the master on the map.
 4. View order details (client name, phone, location, problem photos, description).
@@ -23,29 +28,59 @@ Languages: **Turkmen (primary)**, **Russian (secondary)**.
 
 ---
 
-## 2. Auth Flow (implemented)
+## 2. Auth & the "become a master" flow (implemented)
 
-Every master endpoint except `GET /api/v1/master/settings` and the two OTP endpoints requires a Bearer token.
+### 2.1 There is one token
 
-| Step | Endpoint | Body | Response |
-|------|----------|------|----------|
-| 1. Request OTP | `POST /api/v1/master/auth/request-otp` | `{ "phone": "+99362111222" }` | `{ "message": "OTP sent.", "delivery": "sms\|manual", "delivery_message": null }` |
-| 2. Verify OTP | `POST /api/v1/master/auth/verify-otp` | `{ "phone": "+99362111222", "code": "1234" }` | `{ "token": "1\|abc...", "master": { ... } }` |
-| 3. Authenticated requests | any | header: `Authorization: Bearer <token>` | — |
-| 4. Logout | `POST /api/v1/master/auth/logout` | — | `204 No Content` |
-
-Token is a Laravel Sanctum personal access token, issued with the name `mobile`. Store it in flutter_secure_storage.
+Sign-in is the **client** OTP flow (`POST /api/v1/client/auth/request-otp` →
+`verify-otp`), which returns a Sanctum token named `mobile-client`. Store it in
+flutter_secure_storage and send it as `Authorization: Bearer <token>` on both the
+client and the master endpoints. Logout is `POST /api/v1/client/auth/logout`.
 
 **Handle `delivery: "manual"`** — it means the SMS gateway was unreachable. The code is still valid, but it was parked for an operator to dictate by phone. Show `delivery_message` to the user instead of a generic "SMS sent" screen; the OTP input flow stays exactly the same.
 
-**Error contract on protected endpoints** (`ensure.master`):
+### 2.2 Which side of the app to show
 
-| Code | Meaning |
-|------|---------|
-| `401` | Missing, malformed, or revoked token |
-| `403` | Token belongs to a non-master, the master is deactivated, or their access period expired |
+`GET /api/v1/client/me` (and the `client` object returned by `verify-otp`) carries:
 
-A `403` on access expiry is terminal for the session — send the master back to the login screen with an explanatory message rather than retrying.
+```json
+{ "master_status": null, "master_id": null, "has_master_access": false }
+```
+
+- `master_status`: `null` (never applied) \| `pending` \| `approved` \| `rejected`
+- `has_master_access`: `true` only when approved, active **and** subscribed — the
+  one flag that says the master endpoints will answer
+
+### 2.3 Applying
+
+| Step | Endpoint | Body |
+|------|----------|------|
+| Read own application | `GET /api/v1/client/master-application` | — (`data: null` if never applied) |
+| Apply / re-apply | `POST /api/v1/client/master-application` | `{ "city_id": 1, "category_ids": [4,7], "experience_years": 5, "about": "…" }` |
+
+`category_ids` must be **leaf** categories. The client's profile name is required
+first — apply after `complete-registration`.
+
+Applying returns `201` with `status: "pending"` and grants nothing. An
+administrator approves it and issues the subscription (paid in person). A
+rejected applicant gets `rejection_reason` and may submit the form again; an
+approved one gets `422` if they try.
+
+### 2.4 Error contract on master endpoints (`ensure.master`)
+
+| Code | `reason` | Meaning |
+|------|----------|---------|
+| `401` | — | Missing, malformed, or revoked token |
+| `403` | `token_required` | Not a client token |
+| `403` | `not_a_master` | Account has never applied — show "become a master" |
+| `403` | `application_pending` | Still under review — show the waiting screen |
+| `403` | `application_rejected` | Turned down — show `rejection_reason`, offer to re-apply |
+| `403` | `disabled` | Profile deactivated by an administrator |
+| `403` | `access_expired` | Subscription lapsed — show renewal, `GET /api/v1/master/subscription` still answers |
+
+Every `403` carries a machine-readable `reason` alongside the localized
+`message`; branch on `reason`, never on the text. None of them should sign the
+user out — the client half of the app keeps working on the same token.
 
 ---
 
@@ -115,7 +150,7 @@ All of these are implemented and require the Bearer token.
 | `POST /api/v1/master/orders/{id}/tasks/{taskId}/photo` | Upload before/after photo |
 | `DELETE /api/v1/master/orders/{id}/tasks/{taskId}` | Remove a task |
 
-Ready-to-run request examples for every one of these live in the `bruno-master/` collection at the repo root ([Bruno](https://www.usebruno.com/) — open the folder, pick the `local` environment).
+Ready-to-run request examples for every one of these live in the `bruno/` collection at the repo root ([Bruno](https://www.usebruno.com/) — open the folder, pick the `local` environment). It is a single collection for the whole app: the master endpoints sit in `06_master_profile`, `07_master_orders` and `08_master_subscription`, and they run on the very same `{{token}}` that **Verify OTP** saved in `01_auth`.
 
 ### 3.3 Auto-search: available orders, respond, decline
 
@@ -210,9 +245,13 @@ Use the **`pusher_channels_flutter`** package (Pusher SDK is fully compatible wi
 
 Reverb private channels require auth. The mobile app must point the auth endpoint to:
 ```
-POST /broadcasting/auth
+POST /api/v1/broadcasting/auth
 Header: Authorization: Bearer <sanctum_token>
 ```
+
+Because both roles live on one token, a single connection can subscribe to
+`master.{masterId}` **and** `client.{clientId}` at the same time — use
+`master_id` / `id` from `GET /api/v1/client/me`.
 
 ---
 
@@ -241,14 +280,15 @@ Response `202 Accepted`:
 
 Build these screens in this order. Match JustLife visual style.
 
-1. **Splash** — auto-redirect to login or home based on token presence.
-2. **Login** — phone input → OTP screen → home.
-3. **Home** — list of active orders + tab "History".
-4. **Order Details** — client info (call button), problem description, photos (gallery view), map (client location), action buttons.
-5. **Order in Progress** — when started, sticky banner "Trip active" with elapsed time, big "Complete" button.
-6. **Task Photo Capture** — camera flow, before → after pairs.
-7. **Profile** — name, phone, subscription (plan, days left, history), access expiry, logout.
-8. **Settings** — language switcher (tk/ru), notification toggles, theme.
+1. **Splash** — auto-redirect on token presence, then branch on `has_master_access` / `master_status` from `GET /api/v1/client/me`.
+2. **Login** — phone input → OTP screen → home (shared with the client side).
+3. **Become a master** — the application form (city, categories, years of experience, bio), plus the status screens for `pending` (waiting for review) and `rejected` (shows `rejection_reason`, lets them re-apply).
+4. **Home** — list of active orders + tab "History".
+5. **Order Details** — client info (call button), problem description, photos (gallery view), map (client location), action buttons.
+6. **Order in Progress** — when started, sticky banner "Trip active" with elapsed time, big "Complete" button.
+7. **Task Photo Capture** — camera flow, before → after pairs.
+8. **Profile** — name, phone, subscription (plan, days left, history), access expiry, logout.
+9. **Settings** — language switcher (tk/ru), notification toggles, theme.
 
 ---
 
@@ -262,21 +302,39 @@ Build these screens in this order. Match JustLife visual style.
 
 ## 8. Local Testing
 
-Log in first, then use the token for everything else. Seeded masters (`php artisan db:seed`) have real phone numbers — pick one from the admin panel.
+Sign in as a client, apply, then approve the application in the admin panel —
+there are no seeded masters, and the approval is what opens the master endpoints.
 
 ```bash
-# 1. Request the code. If the SMS gateway isn't running you'll get
-#    delivery: "manual" — read the code from the admin panel's "OTP-коды" section.
-curl -X POST http://localhost:8000/api/v1/master/auth/request-otp \
+# 1. Request the code for any phone number. A client account is created on the
+#    fly. If the SMS gateway isn't running you'll get delivery: "manual" — read
+#    the code from the admin panel's "OTP-коды" section.
+curl -X POST http://localhost:8000/api/v1/client/auth/request-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+99362111222"}'
 
 # 2. Exchange the code for a token.
-curl -X POST http://localhost:8000/api/v1/master/auth/verify-otp \
+curl -X POST http://localhost:8000/api/v1/client/auth/verify-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+99362111222", "code": "1234"}'
 
-# 3. Use it. The id in the path must be the token owner's.
+# 3. Fill in the profile (name is required before applying).
+curl -X POST http://localhost:8000/api/v1/client/auth/complete-registration \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 1|abc..." \
+  -d '{"name": "Мерген", "city_id": 1}'
+
+# 4. Apply for the master role.
+curl -X POST http://localhost:8000/api/v1/client/master-application \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 1|abc..." \
+  -d '{"city_id": 1, "category_ids": [4], "experience_years": 5, "about": "…"}'
+
+# 5. Approve it at http://localhost:8000/master-applications (pick a plan —
+#    without one the master stays approved but without access).
+
+# 6. Same token now reaches the master endpoints. The id in the path must be
+#    the master profile's (read it from GET /api/v1/client/me → master_id).
 curl -X POST http://localhost:8000/api/v1/master/1/location \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer 1|abc..." \
