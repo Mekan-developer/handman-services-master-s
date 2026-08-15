@@ -29,6 +29,7 @@ services:
     command: php artisan queue:work --tries=3 --backoff=5
     depends_on:
       - db
+      - redis
     restart: unless-stopped
 
   reverb:
@@ -44,6 +45,7 @@ services:
       - 8080:8080
     depends_on:
       - db
+      - redis
     restart: unless-stopped  
 
   artisan:
@@ -60,5 +62,13 @@ services:
       - docker/db.env  
     container_name: handyman_db 
 
+  redis:
+    image: redis:7-alpine
+    container_name: handyman_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data  
+
 volumes:
   db_data:  
+  redis_data:
