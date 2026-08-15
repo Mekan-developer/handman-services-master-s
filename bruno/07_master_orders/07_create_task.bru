@@ -1,0 +1,56 @@
+meta {
+  name: Create Task
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{base_url}}/api/v1/master/orders/{{order_id}}/tasks
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "title": "Замена прокладки крана",
+    "description": "Заменил резиновую прокладку, кран перестал капать"
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setVar("task_id", res.body.data.id);
+  }
+}
+
+docs {
+  # Create Task
+
+  A line item of work done inside an order. Each task can carry before/after
+  photos (next request). Allowed only while the order is `in_progress`.
+
+  Saves the new task id into `{{task_id}}`.
+
+  **Response 201:**
+  ```json
+  {
+    "data": {
+      "id": 7,
+      "title": "Замена прокладки крана",
+      "description": "Заменил резиновую прокладку, кран перестал капать",
+      "before_photos": [],
+      "after_photos": []
+    }
+  }
+  ```
+}

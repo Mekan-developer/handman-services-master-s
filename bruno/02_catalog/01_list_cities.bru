@@ -1,0 +1,33 @@
+meta {
+  name: List Cities
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/client/cities
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # List Active Cities
+
+  Public endpoint. Returns active cities sorted by name. Used on the onboarding
+  screen and again in the master application form.
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      { "id": 1, "name": "Ашхабад" },
+      { "id": 2, "name": "Туркменабат" }
+    ]
+  }
+  ```
+}

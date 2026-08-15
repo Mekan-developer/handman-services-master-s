@@ -1,0 +1,37 @@
+meta {
+  name: List Regions
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/api/v1/client/regions
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Active regions (districts)
+
+  Public endpoint. Returns all active regions (districts within an oblast)
+  sorted by name. Each region includes a nested `oblast` object.
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "name": "Baharly",
+        "oblast_id": 1,
+        "oblast": { "id": 1, "name": "Ahal" }
+      }
+    ]
+  }
+  ```
+}

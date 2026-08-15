@@ -1,0 +1,50 @@
+meta {
+  name: Set Availability
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{base_url}}/api/v1/master/availability
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "is_available": false
+  }
+}
+
+docs {
+  # Set Master Availability
+
+  The master's own on/off switch for work. While `is_available` is `false` the
+  administrator cannot assign them to an order (the attempt returns 422) and
+  the auto-search skips them.
+
+  Blocking a master or letting their subscription lapse flips this to `false`
+  automatically — it is not left dangling as `true`.
+
+  **Body:**
+  | Field          | Type    | Required | Description                            |
+  |----------------|---------|----------|----------------------------------------|
+  | `is_available` | boolean | yes      | `true` = ready for work, `false` = not |
+
+  **Response 200:** `MasterProfileResource`
+
+  **Errors:**
+  - `401` — missing / invalid token
+  - `403` — token has no usable master profile (see `reason`)
+  - `422` — `is_available` missing or not boolean
+}

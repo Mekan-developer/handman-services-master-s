@@ -1,0 +1,60 @@
+meta {
+  name: Available Orders (auto-search feed)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/master/orders/available
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Available Orders
+
+  Unclaimed orders reachable from the master's **last known GPS position**,
+  matching their categories and inside the order's currently active search
+  radius. This is the feed the master app polls (or refreshes on a
+  `master.{id}` broadcast) to offer work.
+
+  A master who has never sent a location gets an empty list — a normal state
+  right after login, not an error. Send a ping from `06_master_profile` first.
+
+  The client's name and phone are **not** included: the order is not theirs yet.
+  They appear after a successful claim.
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": 42,
+        "category": "Сантехника",
+        "city": "Ашхабад",
+        "description": "Сломался кран на кухне",
+        "address": "Ashgabat, Korogly 12",
+        "latitude": 37.95,
+        "longitude": 58.38,
+        "distance_km": 1.8,
+        "search_radius_km": 3,
+        "search_started_at": "2026-08-15T10:00:00+05:00",
+        "photos": [{ "id": 1, "url": "https://...", "status": "done" }],
+        "created_at": "2026-08-15T10:00:00+05:00"
+      }
+    ]
+  }
+  ```
+
+  `search_radius_km` widens over time while the order goes unclaimed, so an
+  order out of reach now may show up later.
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Client App Settings
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/client/settings
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Client App Settings
+
+  Public endpoint. Returns the client-side rules/terms of use configured in the
+  admin panel. Show this before or during registration — no auth required.
+
+  **Response 200:**
+  ```json
+  {
+    "data": { "content": "<h1>Правила</h1><p>Текст правил пользования...</p>" }
+  }
+  ```
+
+  `content` is raw HTML — render it in a WebView or parse it. Returns an empty
+  string `""` when no rules have been configured yet.
+}

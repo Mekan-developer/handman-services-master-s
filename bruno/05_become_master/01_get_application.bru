@@ -1,0 +1,63 @@
+meta {
+  name: Get My Application
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/client/master-application
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Get My Master Application
+
+  The master profile attached to this account, in whatever state it is. This is
+  the screen behind the "become a master" button: `data: null` means the form
+  should be shown, anything else means the status should be.
+
+  **Response 200 — never applied:**
+  ```json
+  { "data": null }
+  ```
+
+  **Response 200 — applied:**
+  ```json
+  {
+    "data": {
+      "id": 7,
+      "status": "pending",
+      "experience_years": 5,
+      "about": "Работаю сантехником с 2019 года.",
+      "rejection_reason": null,
+      "reviewed_at": null,
+      "has_access": false,
+      "access_expires_at": null,
+      "city": { "id": 1, "name": "Ашхабад" },
+      "categories": [{ "id": 5, "name": "Замена труб" }],
+      "created_at": "2026-08-15 10:00:00"
+    }
+  }
+  ```
+
+  **What each status means for the app:**
+
+  | `status`   | Screen                                                        |
+  |------------|---------------------------------------------------------------|
+  | `pending`  | "Under review" — the administrator has not decided yet        |
+  | `approved` | Master mode; if `has_access` is `false`, the subscription is missing or expired |
+  | `rejected` | Show `rejection_reason` and let them submit again              |
+
+  `has_access` is the honest answer to "can this account work as a master right
+  now": approved **and** not blocked **and** subscription still running.
+}

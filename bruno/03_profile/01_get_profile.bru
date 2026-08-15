@@ -1,0 +1,54 @@
+meta {
+  name: Get Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/client/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Get Client Profile
+
+  The account's profile plus **where it stands as a master** — the app decides
+  from this single response whether to show "become a master", the review
+  status, or the role switch. No second request needed.
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "name": "Merdan Annagurdow",
+      "phone": "+99361111222",
+      "city_id": 1,
+      "city": { "id": 1, "name": "Ашхабад" },
+      "master_status": "approved",
+      "master_id": 7,
+      "has_master_access": true,
+      "created_at": "2026-08-15 10:00:00"
+    }
+  }
+  ```
+
+  | Field               | Values                                        |
+  |---------------------|-----------------------------------------------|
+  | `master_status`     | `null` / `pending` / `approved` / `rejected`  |
+  | `master_id`         | master profile id, `null` when never applied  |
+  | `has_master_access` | approved **and** active **and** subscribed     |
+
+  Poll this (or `05_become_master` → Get Application) to notice the
+  administrator's verdict while the applicant waits.
+}

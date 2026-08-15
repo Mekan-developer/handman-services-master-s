@@ -1,0 +1,51 @@
+meta {
+  name: Request OTP
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/client/auth/request-otp
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "phone": "{{phone}}"
+  }
+}
+
+docs {
+  # Request OTP
+
+  Sends a 6-digit OTP to the phone via the SMS gateway
+  (Socket.IO bridge in `socket-server/` → Flutter SMS-gateway phone).
+  The code is valid for 3 minutes.
+
+  There is **one** entry point for both roles: masters sign in here too, because
+  a master profile always sits on top of a client account.
+
+  **Response 200:**
+  ```json
+  {
+    "message": "OTP sent.",
+    "delivery": "gateway",
+    "delivery_message": null
+  }
+  ```
+
+  `delivery: "manual"` means no gateway phone was connected and the code was
+  written to the log for the administrator to pass on — `delivery_message`
+  carries the localized explanation to show the user.
+
+  **Errors:**
+  - `422` — phone validation error
+  - `503` — SMS gateway unreachable
+}

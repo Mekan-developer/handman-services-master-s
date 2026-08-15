@@ -1,0 +1,62 @@
+meta {
+  name: Get My Master Profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/master/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setVar("master_id", res.body.data.id);
+  }
+}
+
+docs {
+  # Get Master Profile
+
+  First call of the master side — the **same** `{{token}}` as everywhere else.
+  The `ensure.master` middleware resolves the master profile behind the client
+  account and hands it to the controller, so no separate master login exists.
+
+  Saves the profile id into `{{master_id}}` for the location endpoint.
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "name": "Aydogdy Ussadow",
+      "phone": "+99362111222",
+      "is_active": true,
+      "is_available": true,
+      "access_expires_at": "2026-12-31",
+      "city": { "id": 1, "name": "Ашхабад" },
+      "categories": [{ "id": 1, "name": "Сантехника" }]
+    }
+  }
+  ```
+
+  | Field              | Description                                      |
+  |--------------------|--------------------------------------------------|
+  | `is_active`        | Not blocked by the administrator                 |
+  | `is_available`     | Set by the master — ready for work right now     |
+  | `access_expires_at`| When the subscription runs out                   |
+
+  **403 — read the `reason`:** `not_a_master`, `application_pending`,
+  `application_rejected`, `disabled`, `access_expired`. See the collection docs
+  for what each one means.
+}

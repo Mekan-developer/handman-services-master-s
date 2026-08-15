@@ -1,0 +1,51 @@
+meta {
+  name: List My Orders
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/client/orders
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+params:query {
+  ~status: pending
+}
+
+docs {
+  # List My Orders
+
+  Paginated list of the authenticated client's orders. Optional `status` query
+  filter — uncomment to scope: `pending`, `assigned`, `in_progress`,
+  `completed`, `cancelled`.
+
+  An account that also works as a master keeps the two sides separate: orders
+  it **placed** live here, orders it **took** live in `07_master_orders`.
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "status": "pending",
+        "category": "Сантехника",
+        "address": "ул. Атамырата Ниязова, д. 42",
+        "created_at": "2026-05-16T10:00:00+05:00"
+      }
+    ],
+    "meta": { "current_page": 1, "last_page": 1 }
+  }
+  ```
+}
