@@ -230,16 +230,22 @@ Use the **`pusher_channels_flutter`** package (Pusher SDK is fully compatible wi
 
 ### Channels the master app subscribes to
 
+Verified directly against `routes/channels.php` and the `App\Events\*` classes — both events below are **implemented**, not planned.
+
 | Channel | When | Event | Payload |
 |---------|------|-------|---------|
-| `available-orders` | While online and available | `.order.search.started` | `{ order_id, radius_km }` |
-| `available-orders` | While online and available | `.order.search.radius.expanded` | `{ order_id, radius_km }` |
-| `private-master.{masterId}` | After login | `.order.assigned` | `{ order_id, client_name, address, lat, lng }` *(planned)* |
-| `private-order.{orderId}` | When viewing an active order | `.order.status.changed` | `{ status, by }` *(planned)* |
+| `available-orders` (public) | While online and available | `.order.search.started` | `{ order_id, radius_km }` |
+| `available-orders` (public) | While online and available | `.order.search.radius.expanded` | `{ order_id, radius_km }` |
+| `private-master.{masterId}` | After login, once `has_master_access` | `.master.assigned` | `{ order_id, client_name, master_id, master_name, master_phone }` |
+| `private-master.{masterId}` | After login | `.order.status.changed` | `{ order_id, client_name, from, to, to_label }` |
+
+There is no `private-order.{orderId}` channel — status changes for a master's own orders arrive on `private-master.{masterId}` above, keyed by `order_id` in the payload.
 
 > **`available-orders` is a public channel and carries no usable order data — treat both events purely as a "your feed may have changed" signal and re-fetch `GET /api/v1/master/orders/available`.** The payload is not filtered for you: an event fires for every order in the system, including ones outside your radius or categories. Only the endpoint applies the matching rules. Debounce the refetch (≈1 s) so a burst of scheduler ticks does not turn into a burst of requests.
 
 > The masters-map channel `masters-map.{cityId}` is for the **admin panel only**; the master app should NOT subscribe to it.
+
+> The client side of the same app listens on `private-client.{clientId}` for the identical `master.assigned` / `order.status.changed` events — see [`CLIENT_APP_SPEC.md`](./CLIENT_APP_SPEC.md) §7.
 
 ### Authorization for private channels
 
@@ -373,7 +379,10 @@ The following contracts are **stable** as of this document; the Flutter app can 
 - `POST /api/v1/master/{masterId}/location` request and response shape (Section 3.1)
 - The auto-search trio — `GET /orders/available`, `POST /orders/{id}/respond`, `POST /orders/{id}/decline` — and their response shapes (Section 3.3)
 - `master.location.updated` event payload shape (used by admin only, but the Flutter side won't break it)
+- `master.assigned` / `order.status.changed` event payload shapes on `private-master.{masterId}` (Section 4)
 - Order status enum values: `pending`, `assigned`, `in_progress`, `completed`, `cancelled` (`App\Enums\OrderStatus`)
-- Payment model values: `percentage`, `fixed_per_job`, `salary`, `salary_percentage` (`App\Enums\PaymentModel`)
+- Master status enum values: `pending`, `approved`, `rejected` (`App\Enums\MasterStatus`)
+
+The service is subscription-only — masters pay for access, the platform never pays masters, so there is no payment/commission model to account for on the mobile side.
 
 Anything marked **planned** in this doc may change before implementation. The generated API reference at `/docs` is authoritative when it disagrees with this file.
