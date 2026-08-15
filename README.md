@@ -131,8 +131,8 @@ Standalone: User (admin staff), Banner, Setting, PendingOtp
 |---|---|
 | `Oblast` / `Region` / `City` | Geography. Masters, clients and orders are all scoped to a city |
 | `Category` | Service catalog, self-nesting, bilingual, with an optional `CategoryContent` landing page |
-| `Master` | The handyman: access expiry (derived from subscriptions), availability flag, live location |
-| `Client` | Mobile app user, can be blocked by an administrator |
+| `Master` | The handyman — a profile **on top of a `Client` account** (`client_id`), never a standalone login. Carries the application (categories, `experience_years`, `about`), its review verdict (`App\Enums\MasterStatus`), access expiry derived from subscriptions, availability flag, live location |
+| `Client` | Mobile app user, can be blocked by an administrator. Optionally has one `Master` profile |
 | `Order` | The job. Carries status (`App\Enums\OrderStatus`), photos, tasks, one review, and the auto-search state (`search_started_at`, `search_radius_km`, `search_expired_at`) |
 | `OrderTask` | One discrete piece of work with before/after photos — e.g. "replaced hose" |
 | `OrderMasterDecline` | A master dismissed an auto-search offer — hides it from that master's feed only |
@@ -149,8 +149,9 @@ Standalone: User (admin staff), Banner, Setting, PendingOtp
 | `OrderStatus` | `pending`, `assigned`, `in_progress`, `completed`, `cancelled` (+ `label()`, `color()`, `isFinal()`) |
 | `UserRole` | `administrator`, `manager`, `operator` (+ `assignable()`, `canManage()`) |
 | `SubscriptionStatus` | `pending`, `active`, `expired`, `cancelled` (+ `label()`, `color()`, `isFinal()`, `canTransitionTo()`) |
+| `MasterStatus` | `pending`, `approved`, `rejected` — where a master application stands (+ `label()`, `color()`, `grantsAccess()`, `canTransitionTo()`) |
 | `OtpDeliveryChannel` | Delivery route of a generated OTP (SMS gateway vs. manual) |
-| `OtpRecipientType` | Whether the OTP belongs to a master or a client |
+| `OtpRecipientType` | Recipient a parked OTP belongs to |
 | `CategoryIconType` | Icon source for a category |
 
 ### Roles & Access
@@ -250,7 +251,7 @@ public/
 storage/maps/tiles.mbtiles      # Vector tile archive — NOT in git (~118 MB), copy manually
 
 socket-server/                  # Node.js Socket.IO OTP bridge (own package.json / .env)
-bruno-master/, bruno-client/    # Ready-to-run Bruno API request collections
+bruno/                          # Ready-to-run Bruno API request collection (one app, both roles)
 docs/                           # MASTER_APP_SPEC.md, MASTER_APP_MAP_INTEGRATION.md, tasks/
 
 tests/
@@ -622,6 +623,44 @@ The public `available-orders` channel carries nothing but an order id and a radi
 
 ---
 
+## Becoming a Master
+
+One mobile app, one account. Everyone registers as a **client**; the master role
+is applied for from inside the app and granted by an administrator.
+
+```
+client signs up (OTP)
+   └── POST /api/v1/client/master-application   city, categories, experience, bio
+          └── masters row, status = pending          ← grants nothing
+                 └── admin reviews at /master-applications
+                        ├── approve (+ subscription)  → status = approved, access opens
+                        └── reject  (+ reason)        → applicant sees why, may re-apply
+```
+
+| Piece | Where |
+|---|---|
+| Submit / read own application | `Api/V1/Client/MasterApplicationController` → `SubmitMasterApplicationAction` |
+| Admin review queue | `MasterApplicationController` → `ReviewMasterApplicationAction` |
+| Gate | `App\Http\Middleware\EnsureMaster` |
+| Status | `App\Enums\MasterStatus` |
+
+Design decisions worth keeping:
+
+- **Approval and access are separate.** Approving only flips the status; access
+  comes from a subscription, which the same screen can issue in one go because
+  the master pays the owner in person. An approved master with no subscription
+  is a valid state — the app shows "renew", not "apply".
+- **Re-applying reuses the row.** Only a `rejected` applicant may submit again;
+  the verdict fields are cleared and the same `masters` row goes back to
+  `pending`, so one client never accumulates several master profiles
+  (`masters.client_id` is unique).
+- **Losing the master role never signs anyone out.** Deactivation and rejection
+  leave Sanctum tokens alone — the token belongs to the client account.
+  `MasterObserver` only drops `is_available`.
+- **A master entered by hand in the admin panel** still gets a client account:
+  `CreateMasterAction` reuses the one matching the phone number or creates it,
+  and marks the profile `approved` — an administrator entering it *is* the review.
+
 ## Master Subscriptions
 
 The service owner sells masters timed access to the platform. **This is the only revenue stream** — the platform does not pay masters, does not hold a balance for them and does not track their per-order earnings. The client pays the master directly; `orders.final_price` is bookkeeping for reporting, nothing more.
@@ -633,11 +672,11 @@ The service owner sells masters timed access to the platform. **This is the only
 | `subscription_plans` | The owner's tariffs: bilingual name/description, `duration_days`, `price`, `is_active`, `sort_order`. **Soft deleted** so already sold subscriptions never lose their link |
 | `master_subscriptions` | A purchase. Carries a **snapshot** of `plan_name`, `price_paid` and `duration_days` — later edits to the plan must never rewrite history (same trick the old payout ledger used) |
 
-Default plans come from `SubscriptionPlanSeeder`: 30 / 90 / 180 days, prices in class constants.
+There is no seeder for plans — the owner creates them in the admin panel.
 
 ### `access_expires_at` has exactly one writer
 
-`Master::hasActiveAccess()` and every consumer of it (`EnsureMaster`, the OTP actions, `EnsuresMasterEligibility`, `MasterRepository` filters) are unchanged. What changed is **who writes the column**:
+`Master::hasActiveAccess()` and every consumer of it (`EnsureMaster`, `EnsuresMasterEligibility`, `MasterRepository` filters) are unchanged. What changed is **who writes the column**:
 
 - it is no longer editable by hand — `Store/UpdateMasterRequest` do not accept it;
 - every subscription action funnels through `App\Actions\Concerns\SyncsMasterAccess`, which sets it to `MAX(expires_at)` across the master's `active` + `pending` subscriptions;
@@ -688,7 +727,7 @@ The administrator issues subscriptions manually after taking payment, exactly li
 
 Two endpoints, and their auth is deliberately asymmetric:
 
-- `GET /api/v1/master/subscription-plans` is **public**. A master whose access lapsed cannot even obtain a token (`VerifyMasterOtpAction` refuses), so the price list has to be reachable without one. It is a price list: no PII, nothing to protect.
+- `GET /api/v1/master/subscription-plans` is **public**. Someone weighing whether to apply has no master profile yet, so the price list has to be reachable without one. It is a price list: no PII, nothing to protect.
 - `GET /api/v1/master/subscription` runs under `ensure.master:allow-expired`. The middleware parameter skips only the `hasActiveAccess()` check; "is a master" and `is_active` still apply.
 
 ### Web routes (administrator only)
@@ -759,12 +798,33 @@ Master 1 broadcasts a new location every 3 seconds for 3 minutes — open `/mast
 |---|---|
 | Base path | `/api/v1/` (registered in `bootstrap/app.php` → `routes/api/v1.php`) |
 | Controllers | `app/Http/Controllers/Api/V1/` (master) and `Api/V1/Client/` (client) |
-| Auth | Laravel Sanctum, token-based, no sessions. Master tokens are named `mobile` and gated by `ensure.master`; client tokens are named `mobile-client` and gated by `ensure.client` |
+| Auth | Laravel Sanctum, token-based, no sessions. **One token for both roles**: sign-in issues a `mobile-client` token gated by `ensure.client`, and the same token opens the master endpoints through `ensure.master` |
 | Responses | Always via Eloquent API Resources |
 | Errors | Localized JSON from the global handler in `bootstrap/app.php` |
 | Locale | Send `X-Locale: ru|tk` |
 
-`ensure.master` additionally rejects masters that are inactive (`403 api.master.disabled`) or whose paid access has expired (`403 api.master.access_expired`).
+### One account, two roles
+
+A single mobile app serves both sides. Everyone signs up as a **client**; "become
+a master" adds a master profile to that same account (`masters.client_id`), and
+an administrator reviews it. There is no separate master login.
+
+`EnsureMaster` therefore resolves the master profile from the authenticated
+client and swaps it into the request, so master controllers keep reading
+`$request->user()` as a `Master`. It answers `403` with a machine-readable
+`reason` so the app can route to the right screen:
+
+| `reason` | Meaning |
+|---|---|
+| `token_required` | Not a client token |
+| `not_a_master` | Never applied |
+| `application_pending` | Application still in review |
+| `application_rejected` | Application turned down (`rejection_reason` explains) |
+| `disabled` | Profile deactivated by an administrator |
+| `access_expired` | Subscription lapsed |
+
+`GET /api/v1/client/me` carries `master_status`, `master_id` and
+`has_master_access` so the app knows which half to show without a second call.
 
 Web (Inertia) and API controllers are **strictly separate**. Never reuse or share a controller between both.
 
@@ -777,9 +837,6 @@ Web (Inertia) and API controllers are **strictly separate**. Never reuse or shar
 | `GET` | `/api/v1/master/settings` | public | App rules/terms shown before registration |
 | `GET` | `/api/v1/master/subscription-plans` | public | Subscription price list — reachable without a token on purpose (see below) |
 | `GET` | `/api/v1/master/subscription` | Sanctum, `ensure.master:allow-expired` | Own subscription: current one, access deadline, history |
-| `POST` | `/api/v1/master/auth/request-otp` | public | Send OTP to the master's phone |
-| `POST` | `/api/v1/master/auth/verify-otp` | public | Verify OTP, returns a Sanctum token |
-| `POST` | `/api/v1/master/auth/logout` | Sanctum | Revoke the current token |
 | `GET` | `/api/v1/master/me` | Sanctum | Profile, access expiry, categories |
 | `PATCH` | `/api/v1/master/availability` | Sanctum | Toggle "ready for work" |
 | `POST` | `/api/v1/master/{master}/location` | Sanctum | GPS ping; `{master}` **must** match the token owner |
@@ -808,7 +865,9 @@ Web (Inertia) and API controllers are **strictly separate**. Never reuse or shar
 | `POST` | `/api/v1/client/auth/verify-otp` | public | Verify OTP, returns a Sanctum token |
 | `POST` | `/api/v1/client/auth/complete-registration` | Sanctum | Save name + city after first login |
 | `POST` | `/api/v1/client/auth/logout` | Sanctum | Revoke the current token |
-| `GET` `PATCH` | `/api/v1/client/me` | Sanctum | Read / update profile |
+| `GET` `PATCH` | `/api/v1/client/me` | Sanctum | Read / update profile (includes the master role on this account) |
+| `GET` | `/api/v1/client/master-application` | Sanctum | Own master application and its verdict, `null` if never applied |
+| `POST` | `/api/v1/client/master-application` | Sanctum | "Become a master": city, categories, years of experience, short bio |
 | `GET` `POST` | `/api/v1/client/orders` | Sanctum | List / create orders |
 | `GET` `PATCH` | `/api/v1/client/orders/{order}` | Sanctum | Read / update an order |
 | `POST` | `/api/v1/client/orders/{order}/cancel` | Sanctum | Cancel an order |
@@ -822,7 +881,7 @@ Run `php artisan route:list --path=api/v1` for the authoritative list.
 
 Scribe generates the docs (`php artisan scribe:generate`) and serves them at `/docs`, with `/docs.openapi` and `/docs.postman` alongside. Access is gated by `ProtectScribeDocs` (wired in `config/scribe.php` → `laravel.middleware`): open in local/dev, **administrators only in production**, everyone else gets a `404` so the endpoint is not discoverable.
 
-Ready-to-run request collections live in `bruno-master/` and `bruno-client/` (Bruno, with `environments/`).
+Ready-to-run requests live in the single `bruno/` collection ([Bruno](https://www.usebruno.com/) — open the folder, pick the `local` environment). It mirrors the mobile app: one collection, one `{{token}}` saved by **Verify OTP**, folders ordered the way a real session runs — sign in → catalog → order → become a master → master work. `{{locale}}` flips every request between `tk` and `ru`.
 
 ---
 
