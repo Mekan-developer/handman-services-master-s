@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Client;
-use App\Models\Master;
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -46,10 +45,14 @@ Broadcast::channel('client.{clientId}', function ($user, $clientId) {
 });
 
 /*
- * Private channel for a specific master — used by the mobile master app to receive:
- * master.assigned (new job) and order.status.changed events.
- * Auth: Sanctum token issued to the Master model.
+ * Private channel for a specific master — used by the master side of the mobile
+ * app to receive master.assigned (new job) and order.status.changed events.
+ *
+ * Auth: the client's Sanctum token. A master profile hangs off a client account,
+ * so both this channel and `client.{id}` are reachable over the same connection.
  */
 Broadcast::channel('master.{masterId}', function ($user, $masterId) {
-    return $user instanceof Master && (int) $user->id === (int) $masterId;
+    return $user instanceof Client
+        && $user->master !== null
+        && (int) $user->master->id === (int) $masterId;
 });

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\MasterStatus;
 use App\Enums\OrderStatus;
 use App\Enums\SubscriptionStatus;
 use App\Enums\UserRole;
@@ -31,6 +32,7 @@ class EnumLabelLocalizationTest extends TestCase
         $this->app->setLocale($locale);
 
         $cases = [
+            ...MasterStatus::cases(),
             ...OrderStatus::cases(),
             ...SubscriptionStatus::cases(),
             ...UserRole::cases(),

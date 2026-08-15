@@ -15,7 +15,7 @@ trait EnsuresMasterEligibility
     /** @throws OrderException */
     private function ensureMasterCanTakeOrders(Master $master): void
     {
-        if (! $master->is_active || ! $master->hasActiveAccess()) {
+        if (! $master->isApproved() || ! $master->is_active || ! $master->hasActiveAccess()) {
             throw OrderException::masterAccessExpired();
         }
 

@@ -8,6 +8,7 @@ return [
         'cities' => 'Şäherler',
         'categories' => 'Kategoriyalar',
         'masters' => 'Ussatlar',
+        'master_applications' => 'Ussa arzalary',
         'clients' => 'Müşderiler',
         'orders' => 'Sargytlar',
         'subscriptions' => 'Abunalar',

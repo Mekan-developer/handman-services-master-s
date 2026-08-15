@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MasterApplicationController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\MasterSubscriptionController;
 use App\Http\Controllers\NotificationController;
@@ -67,6 +68,11 @@ Route::middleware('auth')->group(function () {
         Route::get('masters/{master}/trajectory', [MasterController::class, 'trajectory'])->name('masters.trajectory');
         Route::resource('masters', MasterController::class)->only(['index', 'store', 'destroy']);
         Route::post('masters/{master}', [MasterController::class, 'update'])->name('masters.update');
+
+        // "Become a master" applications submitted from the mobile app.
+        Route::get('master-applications', [MasterApplicationController::class, 'index'])->name('master-applications.index');
+        Route::post('master-applications/{master}/approve', [MasterApplicationController::class, 'approve'])->name('master-applications.approve');
+        Route::post('master-applications/{master}/reject', [MasterApplicationController::class, 'reject'])->name('master-applications.reject');
 
         Route::resource('banners', BannerController::class)->only(['index', 'store', 'destroy']);
         Route::post('banners/{banner}', [BannerController::class, 'update'])->name('banners.update');

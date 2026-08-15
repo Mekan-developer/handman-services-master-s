@@ -2,172 +2,119 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Models\Client;
 use App\Models\Master;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
+/**
+ * There is no separate master login: the mobile app signs in as a client and
+ * the very same token opens the master endpoints once the account carries an
+ * approved, subscribed master profile. These tests cover that gate.
+ */
 class MasterAuthTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    // ── request-otp ───────────────────────────────────────────────────────────
-
-    public function test_active_master_can_request_otp(): void
+    private function tokenFor(Client $client): string
     {
-        Http::fake(['*/emit-otp' => Http::response(['message' => 'OTP event emitted'])]);
+        return $client->createToken('mobile-client')->plainTextToken;
+    }
 
+    // ── who gets through ──────────────────────────────────────────────────────
+
+    public function test_approved_master_reaches_the_master_api_with_their_client_token(): void
+    {
         $master = Master::factory()->create();
 
-        $this->postJson(route('api.v1.master.auth.request-otp'), ['phone' => $master->phone])
-            ->assertOk()
-            ->assertJson(['message' => 'OTP sent.']);
-
-        $this->assertNotNull(Cache::get("master_otp:{$master->phone}"));
-
-        Http::assertSent(fn ($request) => $request->url() === config('services.sms_gateway.url').'/emit-otp'
-            && $request['phone_number'] === substr($master->phone, 4));
-    }
-
-    public function test_otp_falls_back_to_manual_delivery_when_sms_gateway_is_unreachable(): void
-    {
-        Http::fake(['*/emit-otp' => Http::response(['message' => 'No gateway client connected'], 503)]);
-
-        $master = Master::factory()->create();
-
-        $this->postJson(route('api.v1.master.auth.request-otp'), ['phone' => $master->phone])
-            ->assertOk()
-            ->assertJsonPath('delivery', 'manual');
-
-        $code = Cache::get("master_otp:{$master->phone}");
-
-        $this->assertNotNull($code);
-        $this->assertDatabaseHas('pending_otps', [
-            'phone' => $master->phone,
-            'code' => $code,
-            'recipient_type' => 'master',
-            'recipient_name' => $master->name,
-        ]);
-    }
-
-    public function test_inactive_master_gets_no_parked_code(): void
-    {
-        Http::fake(['*/emit-otp' => Http::response(['message' => 'No gateway client connected'], 503)]);
-
-        $master = Master::factory()->inactive()->create();
-
-        $this->postJson(route('api.v1.master.auth.request-otp'), ['phone' => $master->phone])
-            ->assertForbidden();
-
-        $this->assertDatabaseCount('pending_otps', 0);
-    }
-
-    public function test_inactive_master_cannot_request_otp(): void
-    {
-        $master = Master::factory()->inactive()->create();
-
-        $this->postJson(route('api.v1.master.auth.request-otp'), ['phone' => $master->phone])
-            ->assertForbidden();
-
-        $this->assertNull(Cache::get("master_otp:{$master->phone}"));
-    }
-
-    public function test_expired_master_cannot_request_otp(): void
-    {
-        $master = Master::factory()->expired()->create();
-
-        $this->postJson(route('api.v1.master.auth.request-otp'), ['phone' => $master->phone])
-            ->assertForbidden();
-    }
-
-    // ── verify-otp ────────────────────────────────────────────────────────────
-
-    public function test_active_master_can_verify_otp_and_receive_token(): void
-    {
-        $master = Master::factory()->create();
-        Cache::put("master_otp:{$master->phone}", '123456', now()->addMinutes(5));
-
-        $response = $this->postJson(route('api.v1.master.auth.verify-otp'), [
-            'phone' => $master->phone,
-            'code' => '123456',
-        ]);
-
-        $response->assertOk()
-            ->assertJsonStructure(['token', 'master']);
-
-        $this->assertNull(Cache::get("master_otp:{$master->phone}"));
-    }
-
-    public function test_inactive_master_cannot_verify_otp(): void
-    {
-        $master = Master::factory()->inactive()->create();
-        Cache::put("master_otp:{$master->phone}", '123456', now()->addMinutes(5));
-
-        $this->postJson(route('api.v1.master.auth.verify-otp'), [
-            'phone' => $master->phone,
-            'code' => '123456',
-        ])->assertForbidden();
-    }
-
-    public function test_expired_master_cannot_verify_otp(): void
-    {
-        $master = Master::factory()->expired()->create();
-        Cache::put("master_otp:{$master->phone}", '123456', now()->addMinutes(5));
-
-        $this->postJson(route('api.v1.master.auth.verify-otp'), [
-            'phone' => $master->phone,
-            'code' => '123456',
-        ])->assertForbidden();
-    }
-
-    public function test_invalid_otp_returns_422(): void
-    {
-        $master = Master::factory()->create();
-        Cache::put("master_otp:{$master->phone}", '123456', now()->addMinutes(5));
-
-        $this->postJson(route('api.v1.master.auth.verify-otp'), [
-            'phone' => $master->phone,
-            'code' => '999999',
-        ])->assertUnprocessable();
-    }
-
-    // ── ensure.master middleware ──────────────────────────────────────────────
-
-    public function test_deactivated_master_existing_token_is_rejected(): void
-    {
-        $master = Master::factory()->create();
-        $token = $master->createToken('mobile')->plainTextToken;
-
-        // Bypass observer via raw query to simulate a token that survived deactivation (race condition)
-        Master::where('id', $master->id)->update(['is_active' => false]);
-
-        $this->withToken($token)
+        $this->withToken($this->tokenFor($master->client))
             ->getJson(route('api.v1.master.me'))
-            ->assertForbidden();
+            ->assertOk()
+            ->assertJsonPath('data.id', $master->id);
     }
 
-    public function test_deactivating_master_revokes_tokens(): void
+    public function test_client_without_a_master_profile_is_told_they_never_applied(): void
+    {
+        $client = Client::factory()->create();
+
+        $this->withToken($this->tokenFor($client))
+            ->getJson(route('api.v1.master.me'))
+            ->assertForbidden()
+            ->assertJsonPath('reason', 'not_a_master');
+    }
+
+    public function test_application_under_review_cannot_work_yet(): void
+    {
+        $master = Master::factory()->pending()->create();
+
+        $this->withToken($this->tokenFor($master->client))
+            ->getJson(route('api.v1.master.me'))
+            ->assertForbidden()
+            ->assertJsonPath('reason', 'application_pending');
+    }
+
+    public function test_rejected_application_cannot_work(): void
+    {
+        $master = Master::factory()->rejected()->create();
+
+        $this->withToken($this->tokenFor($master->client))
+            ->getJson(route('api.v1.master.me'))
+            ->assertForbidden()
+            ->assertJsonPath('reason', 'application_rejected');
+    }
+
+    public function test_deactivated_master_is_rejected(): void
     {
         $master = Master::factory()->create();
-        $master->createToken('mobile');
-
-        $this->assertCount(1, $master->tokens);
+        $token = $this->tokenFor($master->client);
 
         $master->update(['is_active' => false]);
 
-        $this->assertCount(0, $master->fresh()->tokens);
+        $this->withToken($token)
+            ->getJson(route('api.v1.master.me'))
+            ->assertForbidden()
+            ->assertJsonPath('reason', 'disabled');
     }
 
-    public function test_expired_master_existing_token_is_rejected(): void
+    public function test_master_with_a_lapsed_subscription_is_rejected(): void
     {
         $master = Master::factory()->create();
-        $token = $master->createToken('mobile')->plainTextToken;
+        $token = $this->tokenFor($master->client);
 
         $master->update(['access_expires_at' => now()->subDay()]);
 
         $this->withToken($token)
             ->getJson(route('api.v1.master.me'))
-            ->assertForbidden();
+            ->assertForbidden()
+            ->assertJsonPath('reason', 'access_expired');
+    }
+
+    public function test_unauthenticated_request_is_rejected(): void
+    {
+        $this->getJson(route('api.v1.master.me'))->assertUnauthorized();
+    }
+
+    // ── losing the master role leaves the client account intact ───────────────
+
+    public function test_deactivated_master_can_still_use_the_client_api(): void
+    {
+        $master = Master::factory()->create();
+        $token = $this->tokenFor($master->client);
+
+        $master->update(['is_active' => false]);
+
+        $this->withToken($token)
+            ->getJson(route('api.v1.client.me'))
+            ->assertOk()
+            ->assertJsonPath('data.id', $master->client_id);
+    }
+
+    public function test_deactivating_a_master_takes_them_off_the_available_list(): void
+    {
+        $master = Master::factory()->create(['is_available' => true]);
+
+        $master->update(['is_active' => false]);
+
+        $this->assertFalse($master->fresh()->is_available);
     }
 }

@@ -18,7 +18,7 @@ class MasterLocationApiTest extends TestCase
      */
     private function authHeaders(Master $master): array
     {
-        return ['Authorization' => 'Bearer '.$master->createToken('mobile')->plainTextToken];
+        return ['Authorization' => 'Bearer '.$master->client->createToken('mobile-client')->plainTextToken];
     }
 
     public function test_guest_cannot_post_location(): void

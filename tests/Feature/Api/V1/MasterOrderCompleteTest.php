@@ -16,7 +16,7 @@ class MasterOrderCompleteTest extends TestCase
     {
         $master = Master::factory()->create();
         $order = Order::factory()->forMaster($master)->inProgress()->create();
-        $token = $master->createToken('mobile')->plainTextToken;
+        $token = $master->client->createToken('mobile-client')->plainTextToken;
 
         $this->withToken($token)
             ->postJson(route('api.v1.master.orders.complete', $order))
@@ -29,7 +29,7 @@ class MasterOrderCompleteTest extends TestCase
     {
         $master = Master::factory()->create();
         $order = Order::factory()->forMaster($master)->inProgress()->create(['final_price' => null]);
-        $token = $master->createToken('mobile')->plainTextToken;
+        $token = $master->client->createToken('mobile-client')->plainTextToken;
 
         $this->withToken($token)
             ->postJson(route('api.v1.master.orders.complete', $order), ['final_price' => 999])
@@ -53,7 +53,7 @@ class MasterOrderCompleteTest extends TestCase
         $master = Master::factory()->create();
         $otherMaster = Master::factory()->create();
         $order = Order::factory()->forMaster($otherMaster)->inProgress()->create();
-        $token = $master->createToken('mobile')->plainTextToken;
+        $token = $master->client->createToken('mobile-client')->plainTextToken;
 
         $this->withToken($token)
             ->postJson(route('api.v1.master.orders.complete', $order))

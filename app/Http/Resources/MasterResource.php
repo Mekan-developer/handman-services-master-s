@@ -26,6 +26,22 @@ class MasterResource extends JsonResource
             ]),
             'access_expires_at' => $this->access_expires_at?->toDateTimeString(),
             'has_active_access' => $this->hasActiveAccess(),
+
+            // Application side of the profile — what the master filled in when
+            // they applied from the app, plus the review verdict.
+            'status' => $this->status->value,
+            'status_label' => $this->status->label(),
+            'status_color' => $this->status->color(),
+            'experience_years' => $this->experience_years,
+            'about' => $this->about,
+            'rejection_reason' => $this->rejection_reason,
+            'reviewed_at' => $this->reviewed_at?->format('d.m.Y H:i'),
+            'client' => $this->whenLoaded('client', fn () => [
+                'id' => $this->client->id,
+                'name' => $this->client->name,
+                'phone' => $this->client->phone,
+            ]),
+
             'is_active' => $this->is_active,
             'is_available' => $this->is_available,
             'photo' => $this->photo,

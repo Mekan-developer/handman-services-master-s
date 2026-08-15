@@ -12,9 +12,10 @@ class MasterSubscriptionApiTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
+    /** Master endpoints are reached with the client token the profile hangs off. */
     private function actingAsMaster(Master $master): Master
     {
-        $this->actingAs($master, 'sanctum');
+        $this->actingAs($master->client, 'sanctum');
 
         return $master;
     }

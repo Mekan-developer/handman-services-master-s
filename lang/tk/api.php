@@ -17,9 +17,18 @@ return [
 
     'master' => [
         'token_required' => 'Ussanyň awtorizasiýasy talap edilýär',
+        'not_a_master' => 'Siz entek ussa bolmak üçin arza tabşyrmadyňyz',
+        'application_pending' => 'Ussa bolmak arzaňyz entek seredilýär',
+        'application_rejected' => 'Ussa bolmak arzaňyz ret edildi',
         'disabled' => 'Ussanyň hasaby öçürilen',
         'access_expired' => 'Ussanyň girişiniň möhleti gutardy',
         'location_owner_mismatch' => 'Başga ussanyň adyndan koordinatalary ibermek bolmaýar',
+    ],
+
+    'master_application' => [
+        'under_review' => 'Arzaňyz eýýäm seredilýär',
+        'already_approved' => 'Siz eýýäm ussa hökmünde işleýärsiňiz',
+        'name_missing' => 'Ilki bilen profilde adyňyzy dolduryň',
     ],
 
     'client' => [

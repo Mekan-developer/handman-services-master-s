@@ -61,7 +61,7 @@ class MasterDeclineOrderTest extends TestCase
     {
         $this->app['auth']->forgetGuards();
 
-        return $this->withToken($master->createToken('mobile')->plainTextToken);
+        return $this->withToken($master->client->createToken('mobile-client')->plainTextToken);
     }
 
     private function feedFor(Master $master): array
