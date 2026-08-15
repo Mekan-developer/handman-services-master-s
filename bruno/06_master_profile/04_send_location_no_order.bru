@@ -1,0 +1,38 @@
+meta {
+  name: Send Location (no order)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/api/v1/master/{{master_id}}/location
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "latitude": 37.920000,
+    "longitude": 58.390000
+  }
+}
+
+docs {
+  # Send Location (minimal ping)
+
+  The master is online but not on a specific order trip. Backend defaults
+  `recorded_at` to server `now()`.
+
+  Send at least one of these before opening the auto-search feed — without a
+  known position **Available Orders** returns an empty list.
+}

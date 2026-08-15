@@ -1,0 +1,35 @@
+meta {
+  name: Decline (dismiss offer)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/master/orders/{{order_id}}/decline
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Decline — dismiss an offer
+
+  Hides the order from **this master's** feed only. The auto-search keeps
+  running, other masters still see it, and the order stays `pending`. Nothing
+  is cancelled.
+
+  **Response:** `204 No Content`
+
+  **Errors:**
+  - `422` — the order is no longer up for grabs (already claimed or assigned)
+  - `404` — order not found
+  - `403` — token has no usable master profile (see `reason`)
+}

@@ -1,0 +1,55 @@
+docs {
+  # HANDYMAN — Mobile App API
+
+  One Flutter app, one account, two roles. Everyone signs up as a client;
+  "become a master" adds a master profile on top of the same account. There is
+  a **single** Sanctum token (`{{token}}`) — it opens the client endpoints
+  immediately and the master endpoints once an administrator has approved the
+  application and issued a subscription.
+
+  ## Run order (fresh database)
+
+  1. `01_auth` → Request OTP, then put the received code into the `otp` env
+     variable and run Verify OTP — it saves `{{token}}`. When the response says
+     `delivery: "manual"` no gateway phone was connected and the code is in
+     `storage/logs/laravel.log` / the admin panel instead of an SMS.
+  2. `01_auth` → Complete Registration — name + city are required before ordering.
+  3. `04_orders` → Create Order — saves `{{order_id}}`.
+  4. `05_become_master` → Submit Application — status becomes `pending`.
+  5. Admin panel → **Заявки мастеров** → approve + issue a subscription.
+  6. `06_master_profile` → Get My Profile — the same token now passes `ensure.master`.
+
+  ## Folders
+
+  | Folder                 | Token needed | Notes                                  |
+  |------------------------|--------------|----------------------------------------|
+  | `01_auth`              | partly       | OTP is public, the rest needs a token  |
+  | `02_catalog`           | no           | public catalog                         |
+  | `03_profile`           | yes          | client profile                         |
+  | `04_orders`            | yes          | client orders                          |
+  | `05_become_master`     | yes          | application + review status            |
+  | `06_master_profile`    | yes, approved| profile, availability, GPS             |
+  | `07_master_orders`     | yes, approved| auto-search feed, work, tasks          |
+  | `08_master_subscription`| partly      | price list public, own subscription not|
+  | `09_settings`          | no           | T&C for both roles                     |
+  | `10_realtime`          | yes          | Reverb private-channel auth            |
+
+  ## Why the master endpoints may answer 403
+
+  Every rejection carries a machine-readable `reason` so the app can route to
+  the right screen instead of guessing from the message.
+
+  | `reason`               | Meaning                                        |
+  |------------------------|------------------------------------------------|
+  | `token_required`       | Not a client token at all                      |
+  | `not_a_master`         | Never applied — show "become a master"         |
+  | `application_pending`  | Waiting for the administrator                  |
+  | `application_rejected` | Rejected — `rejection_reason` explains why     |
+  | `disabled`             | Blocked by the administrator                   |
+  | `access_expired`       | Subscription ran out — show the renewal screen |
+
+  ## Localization
+
+  Every request sends `X-Locale: {{locale}}`. Flip the `locale` env variable
+  between `tk` and `ru` to check translated names and error messages.
+}

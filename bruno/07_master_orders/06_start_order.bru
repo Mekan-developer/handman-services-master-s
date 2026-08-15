@@ -1,0 +1,38 @@
+meta {
+  name: Start Order
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/api/v1/master/orders/{{order_id}}/start
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Start Order
+
+  Changes order status: `assigned` → `in_progress`. Tasks can only be created
+  and deleted inside this window.
+
+  **Response 200:**
+  ```json
+  {
+    "data": { "id": 1, "status": "in_progress" }
+  }
+  ```
+
+  **Errors:**
+  - `422` — order not in `assigned` status
+  - `404` — order not assigned to this master
+}

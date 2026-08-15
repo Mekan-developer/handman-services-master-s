@@ -1,0 +1,48 @@
+meta {
+  name: Complete Order
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{base_url}}/api/v1/master/orders/{{order_id}}/complete
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "final_price": 150.00
+  }
+}
+
+docs {
+  # Complete Order
+
+  Changes order status: `in_progress` → `completed`. `final_price` is recorded
+  for reporting only — the platform does not pay masters, it earns from their
+  access subscriptions instead.
+
+  After this the client can leave a review (`04_orders` → Leave Review).
+
+  **Response 200:**
+  ```json
+  {
+    "data": { "id": 1, "status": "completed", "final_price": 150.00 }
+  }
+  ```
+
+  **Errors:**
+  - `422` — order not in `in_progress` status
+  - `404` — order not assigned to this master
+}

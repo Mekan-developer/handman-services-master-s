@@ -1,0 +1,44 @@
+meta {
+  name: Complete Registration
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/client/auth/complete-registration
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "name": "Merdan Annagurdow",
+    "city_id": {{city_id}}
+  }
+}
+
+docs {
+  # Complete Registration
+
+  Called after `verify-otp` when `is_new: true`. Saves the name and city.
+
+  Worth doing before anything else: an order cannot be created without them,
+  and the master application copies the name onto the master profile — an
+  applicant with no name is rejected with `422`.
+
+  **Response 200:** `ClientProfileResource`
+
+  **Errors:**
+  - `422` — name or city_id validation error
+  - `401` — missing or invalid token
+}

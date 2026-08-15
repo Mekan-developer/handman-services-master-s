@@ -1,0 +1,69 @@
+meta {
+  name: Submit Application
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/api/v1/client/master-application
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "city_id": {{city_id}},
+    "category_ids": [{{category_id}}],
+    "experience_years": 5,
+    "about": "Работаю сантехником с 2019 года. Устанавливаю смесители, меняю трубы, устраняю протечки."
+  }
+}
+
+docs {
+  # Submit Master Application
+
+  The "become a master" form. Creates a master profile on this client account
+  with status `pending` and puts it in the administrator's review queue. It
+  grants nothing by itself — the master endpoints stay closed until the
+  administrator approves the profile **and** issues a subscription after taking
+  payment in person.
+
+  Name and phone are copied from the client account, so complete the profile
+  first (`01_auth` → Complete Registration) or this returns `422`.
+
+  **Fields:**
+
+  | Field              | Rules                                                      |
+  |--------------------|------------------------------------------------------------|
+  | `city_id`          | required, must exist in `cities`                            |
+  | `category_ids`     | required, 1..10 ids, **subcategories only** (`parent_id` not null) |
+  | `experience_years` | required, integer 0..70                                     |
+  | `about`            | optional, up to 1000 chars                                  |
+
+  Root categories are rejected on purpose: they are headings in the catalog,
+  not trades. Take the ids from `children[]` in `02_catalog` → List Categories.
+
+  **Response 201:** `MasterApplicationResource` with `status: "pending"`.
+
+  **Re-applying:** allowed only after a rejection — the same row is reused and
+  goes back to `pending`, keeping one master profile per account.
+
+  **Errors:**
+  - `422` — validation error, root category id, client has no name yet, or
+    already applied:
+    ```json
+    { "message": "Ваша заявка уже на рассмотрении" }
+    { "message": "Вы уже являетесь мастером" }
+    ```
+  - `401` — missing / invalid token
+}

@@ -1,0 +1,60 @@
+meta {
+  name: Broadcasting Auth
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/broadcasting/auth
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "socket_id": "123456.7890123",
+    "channel_name": "private-client.1"
+  }
+}
+
+docs {
+  # Broadcast Channel Auth (Reverb)
+
+  Private-channel authorization for the mobile app. Flutter points its Echo
+  `authEndpoint` at this route and passes the same Sanctum Bearer token; the
+  guard config (`web` + `sanctum`) lets `Broadcast::auth()` resolve both
+  session-based admin users and token-based Client models.
+
+  `socket_id` comes from the live Reverb connection — the hardcoded value here
+  only exercises the auth path, a real subscription needs the real id.
+
+  ## Channels
+
+  | Channel                    | Who passes                                        |
+  |----------------------------|---------------------------------------------------|
+  | `private-client.{id}`      | the client that owns the account                  |
+  | `private-master.{id}`      | the account whose master profile has that id      |
+
+  **One connection covers both.** Since a master profile hangs off the same
+  client account and there is only one token, the app opens a single WebSocket
+  and subscribes to both channels — no second login, no second socket.
+
+  **Response 200:**
+  ```json
+  { "auth": "app-key:signature..." }
+  ```
+
+  **Errors:**
+  - `403` — the token does not own that channel
+  - `401` — missing / invalid token
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Logout
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/api/v1/client/auth/logout
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Logout
+
+  Revokes the current Sanctum token. Since one token serves both roles, this
+  signs the account out of the master side as well — there is nothing left to
+  revoke separately.
+
+  **Response:** `204 No Content`
+}
