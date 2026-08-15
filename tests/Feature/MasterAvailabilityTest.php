@@ -16,7 +16,7 @@ class MasterAvailabilityTest extends TestCase
 
     private function actingAsMaster(Master $master): string
     {
-        return $master->createToken('mobile')->plainTextToken;
+        return $master->client->createToken('mobile-client')->plainTextToken;
     }
 
     private function actingAsAdmin(): void

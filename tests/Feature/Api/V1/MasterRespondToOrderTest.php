@@ -67,7 +67,7 @@ class MasterRespondToOrderTest extends TestCase
     {
         $this->app['auth']->forgetGuards();
 
-        return $this->withToken($master->createToken('mobile')->plainTextToken)
+        return $this->withToken($master->client->createToken('mobile-client')->plainTextToken)
             ->postJson(route('api.v1.master.orders.respond', $order));
     }
 

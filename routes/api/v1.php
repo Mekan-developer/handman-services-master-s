@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\V1\Client\ClientCatalogController;
 use App\Http\Controllers\Api\V1\Client\ClientOrderController;
 use App\Http\Controllers\Api\V1\Client\ClientProfileController;
 use App\Http\Controllers\Api\V1\Client\ClientSettingController;
-use App\Http\Controllers\Api\V1\MasterAuthController;
+use App\Http\Controllers\Api\V1\Client\MasterApplicationController;
 use App\Http\Controllers\Api\V1\MasterAvailabilityController;
 use App\Http\Controllers\Api\V1\MasterLocationController;
 use App\Http\Controllers\Api\V1\MasterOrderController;
@@ -18,10 +18,13 @@ use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Mobile API v1 — used by Master and Client mobile apps (Flutter).
- * Auth: OTP → Sanctum personal access token (Bearer).
- *   - Master token name: `mobile`        (require middleware: ensure.master)
- *   - Client token name: `mobile-client` (require middleware: ensure.client)
+ * Mobile API v1 — one Flutter app serving both roles.
+ *
+ * Everyone signs up as a client: OTP → Sanctum personal access token (Bearer),
+ * token name `mobile-client`, guarded by `ensure.client`. "Become a master" adds
+ * a master profile on top of that same account; once an administrator approves
+ * it and issues a subscription, the very same token also opens the `master/*`
+ * endpoints, guarded by `ensure.master`.
  */
 
 /*
@@ -49,16 +52,7 @@ Route::prefix('master')->group(function () {
         ->middleware(['auth:sanctum', 'ensure.master:allow-expired'])
         ->name('api.v1.master.subscription');
 
-    // Auth
-    Route::prefix('auth')->name('api.v1.master.auth.')->group(function () {
-        Route::post('request-otp', [MasterAuthController::class, 'requestOtp'])->name('request-otp');
-        Route::post('verify-otp', [MasterAuthController::class, 'verifyOtp'])->name('verify-otp');
-        Route::post('logout', [MasterAuthController::class, 'logout'])
-            ->middleware(['auth:sanctum', 'ensure.master'])
-            ->name('logout');
-    });
-
-    // Protected — requires Sanctum token + master tokenable
+    // Protected — client token whose account carries an approved master profile
     Route::middleware(['auth:sanctum', 'ensure.master'])->group(function () {
 
         Route::get('me', [MasterProfileController::class, 'show'])->name('api.v1.master.me');
@@ -122,6 +116,10 @@ Route::prefix('client')->group(function () {
 
         Route::get('me', [ClientProfileController::class, 'show'])->name('api.v1.client.me');
         Route::patch('me', [ClientProfileController::class, 'update'])->name('api.v1.client.me.update');
+
+        // "Become a master" — submit the application and follow its review.
+        Route::get('master-application', [MasterApplicationController::class, 'show'])->name('api.v1.client.master-application.show');
+        Route::post('master-application', [MasterApplicationController::class, 'store'])->name('api.v1.client.master-application.store');
 
         Route::prefix('orders')->name('api.v1.client.orders.')->group(function () {
             Route::get('/', [ClientOrderController::class, 'index'])->name('index');

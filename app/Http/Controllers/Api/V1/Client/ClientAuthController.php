@@ -39,7 +39,10 @@ class ClientAuthController extends Controller
         return response()->json([
             'token' => $result['token']->plainTextToken,
             'is_new' => $result['is_new'],
-            'client' => new ClientProfileResource($result['client']->load('city')),
+
+            // `master` comes along so the app knows straight after sign-in
+            // whether this account also works as a master.
+            'client' => new ClientProfileResource($result['client']->load('city', 'master')),
         ]);
     }
 

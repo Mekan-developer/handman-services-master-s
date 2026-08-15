@@ -8,6 +8,7 @@ return [
         'cities' => 'Города',
         'categories' => 'Категории',
         'masters' => 'Мастера',
+        'master_applications' => 'Заявки мастеров',
         'clients' => 'Клиенты',
         'orders' => 'Заказы',
         'subscriptions' => 'Подписки',

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MasterStatus;
 use Database\Factories\MasterFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,9 +19,16 @@ class Master extends Authenticatable
 
     /** @var array<int, string> */
     protected $fillable = [
+        'client_id',
         'city_id',
         'name',
         'phone',
+        'status',
+        'experience_years',
+        'about',
+        'reviewed_at',
+        'reviewed_by',
+        'rejection_reason',
         'access_expires_at',
         'is_active',
         'is_available',
@@ -30,10 +38,25 @@ class Master extends Authenticatable
     protected function casts(): array
     {
         return [
+            'status' => MasterStatus::class,
+            'experience_years' => 'integer',
+            'reviewed_at' => 'datetime',
             'access_expires_at' => 'datetime',
             'is_active' => 'boolean',
             'is_available' => 'boolean',
         ];
+    }
+
+    /** The account the master signed in with — a master profile never exists on its own. */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    /** Administrator who approved or rejected the application. */
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function city(): BelongsTo
@@ -74,5 +97,16 @@ class Master extends Authenticatable
     public function hasActiveAccess(): bool
     {
         return $this->access_expires_at === null || $this->access_expires_at->isFuture();
+    }
+
+    /** Waiting for an administrator to review the application. */
+    public function isPending(): bool
+    {
+        return $this->status === MasterStatus::Pending;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === MasterStatus::Approved;
     }
 }

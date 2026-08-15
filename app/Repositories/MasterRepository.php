@@ -2,15 +2,18 @@
 
 namespace App\Repositories;
 
+use App\Enums\MasterStatus;
+use App\Models\Client;
 use App\Models\Master;
 use App\Models\MasterLocation;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class MasterRepository
 {
-    /** @param array{search?: string, city_id?: int|string} $filters */
+    /** @param array{search?: string, city_id?: int|string, status?: string} $filters */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         return Master::with(['city', 'categories'])
@@ -24,15 +27,48 @@ class MasterRepository
                 );
             })
             ->when($filters['city_id'] ?? null, fn ($q, $id) => $q->where('city_id', $id))
+            ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /** Applications awaiting review, oldest first — the admin works through a queue. */
+    public function pendingApplications(int $perPage = 15): LengthAwarePaginator
+    {
+        return Master::with(['city', 'categories', 'client'])
+            ->where('status', MasterStatus::Pending)
+            ->oldest()
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function countPendingApplications(): int
+    {
+        return Master::query()->where('status', MasterStatus::Pending)->count();
+    }
+
+    /**
+     * Record the administrator's verdict. Access itself is not granted here —
+     * that is the subscription's job (see IssueMasterSubscriptionAction).
+     */
+    public function review(Master $master, MasterStatus $status, User $reviewer, ?string $rejectionReason = null): Master
+    {
+        $master->update([
+            'status' => $status,
+            'reviewed_at' => now(),
+            'reviewed_by' => $reviewer->id,
+            'rejection_reason' => $rejectionReason,
+        ]);
+
+        return $master->refresh();
     }
 
     /** All active masters with latest location — for map view. */
     public function forMap(?int $cityId = null): Collection
     {
         return Master::with(['city', 'latestLocation'])
+            ->where('status', MasterStatus::Approved)
             ->where('is_active', true)
             ->where(function ($q) {
                 $q->whereNull('access_expires_at')
@@ -42,10 +78,17 @@ class MasterRepository
             ->get();
     }
 
-    /** Every master, name-ordered — feeds admin pickers such as the subscription dropdown. */
+    /**
+     * Approved masters, name-ordered — feeds admin pickers such as the
+     * subscription dropdown. Applicants are excluded: a subscription sold before
+     * approval would not open anything and only muddles the queue.
+     */
     public function allForSelect(): Collection
     {
-        return Master::query()->orderBy('name')->get();
+        return Master::query()
+            ->where('status', MasterStatus::Approved)
+            ->orderBy('name')
+            ->get();
     }
 
     /** Location history for a single master — for trajectory. */
@@ -60,6 +103,16 @@ class MasterRepository
     public function findOrFail(int $id): Master
     {
         return Master::findOrFail($id);
+    }
+
+    /**
+     * The master profile attached to a client account, in any status.
+     * Always re-read: callers gate access on the result, so a stale relation
+     * cached on the Client model must never decide it.
+     */
+    public function findByClient(Client $client): ?Master
+    {
+        return Master::query()->where('client_id', $client->id)->first();
     }
 
     /** Most recent GPS ping, or null when the master has never reported a position. */
@@ -110,6 +163,7 @@ class MasterRepository
     public function eligibleForOrder(int $cityId, ?int $categoryId = null): Collection
     {
         return Master::with(['categories', 'latestLocation'])
+            ->where('status', MasterStatus::Approved)
             ->where('city_id', $cityId)
             ->where('is_active', true)
             ->where(function ($q) {

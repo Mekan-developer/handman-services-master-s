@@ -53,7 +53,7 @@ class MasterAvailableOrdersTest extends TestCase
 
     private function available(): TestResponse
     {
-        return $this->withToken($this->master->createToken('mobile')->plainTextToken)
+        return $this->withToken($this->master->client->createToken('mobile-client')->plainTextToken)
             ->getJson(route('api.v1.master.orders.available'));
     }
 
@@ -164,7 +164,7 @@ class MasterAvailableOrdersTest extends TestCase
 
         Order::factory()->forCategory($this->category)->at(self::LAT, self::LNG)->searching(20)->create();
 
-        $this->withToken($stranded->createToken('mobile')->plainTextToken)
+        $this->withToken($stranded->client->createToken('mobile-client')->plainTextToken)
             ->getJson(route('api.v1.master.orders.available'))
             ->assertOk()
             ->assertJsonCount(0, 'data');
