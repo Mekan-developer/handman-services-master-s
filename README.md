@@ -680,6 +680,34 @@ Design decisions worth keeping:
   `CreateMasterAction` reuses the one matching the phone number or creates it,
   and marks the profile `approved` — an administrator entering it *is* the review.
 
+### Deleting accounts
+
+Because a master is a role on a client account, the two deletes are not symmetric.
+
+| Action | Effect |
+|---|---|
+| Delete **master** | Removes the role only. The client account, its orders, its login and its avatar all stay |
+| Delete **client** | Takes the master profile, the orders this person *placed*, their tasks, photos and reviews, and the avatar file |
+
+Both are blocked while the master has work on the books — `DeleteMasterAction` and
+`DeleteClientAction` throw `MasterException` / `ClientException`, the controller turns it
+into a `notifyError`:
+
+- **completed orders** — the client who ordered the job keeps seeing it, its review and its
+  before/after photos; erasing the master would gut that history;
+- **assigned / in-progress orders** — `orders.master_id` is `ON DELETE SET NULL`, so
+  deleting mid-job would leave an order sitting in `assigned` with nobody assigned to it.
+
+Cancelled orders never block anything.
+
+**Why the children are deleted through Eloquent, not the foreign keys.** `masters.client_id`
+and `orders.client_id` are both `ON DELETE CASCADE`, and a database-level cascade **never
+fires model events** — the rows would vanish while their uploaded files stayed on disk
+forever. `ClientObserver::deleting` therefore deletes the master profile and the client's
+orders through the models, which lets `OrderObserver::deleted` drop `orders/{id}` from the
+public disk in one call. The foreign keys stay as the backstop for anything that bypasses
+the model (raw SQL, `->where(...)->delete()`).
+
 ## Master Subscriptions
 
 The service owner sells masters timed access to the platform. **This is the only revenue stream** — the platform does not pay masters, does not hold a balance for them and does not track their per-order earnings. The client pays the master directly; `orders.final_price` is bookkeeping for reporting, nothing more.
