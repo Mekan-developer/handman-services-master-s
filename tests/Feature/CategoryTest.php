@@ -275,9 +275,9 @@ class CategoryTest extends TestCase
         ])->assertSessionHasErrors('icon');
     }
 
-    public function test_can_create_category_with_uploaded_svg_icon(): void
+    public function test_can_create_category_with_uploaded_image_icon(): void
     {
-        Storage::fake('service_icons');
+        Storage::fake('public');
         $this->actingAsAdmin();
 
         $this->post(route('categories.store'), [
@@ -285,21 +285,49 @@ class CategoryTest extends TestCase
             'name_tk' => 'Santehnika',
             'is_active' => true,
             'parent_id' => null,
-            'icon_type' => 'custom',
-            'icon_file' => $this->fakeSvg('plumber.svg'),
+            'icon_type' => 'image',
+            'icon_file' => UploadedFile::fake()->image('plumber.png', 900, 900),
         ])->assertRedirect(route('categories.index'));
 
         $category = Category::where('name_ru', 'Сантехника')->firstOrFail();
 
-        $this->assertSame('custom', $category->icon_type->value);
+        $this->assertSame('image', $category->icon_type->value);
         $this->assertNotNull($category->icon);
-        $this->assertMatchesRegularExpression('/^u-/', $category->icon);
-        Storage::disk('service_icons')->assertExists("{$category->icon}.svg");
+        $this->assertStringStartsWith('category-icons/', $category->icon);
+        $this->assertStringEndsWith('.webp', $category->icon);
+        Storage::disk('public')->assertExists($category->icon);
     }
 
-    public function test_store_rejects_non_svg_icon_file(): void
+    public function test_uploaded_image_is_stored_as_webp_within_the_size_budget(): void
     {
-        Storage::fake('service_icons');
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $this->post(route('categories.store'), [
+            'name_ru' => 'Сантехника',
+            'name_tk' => 'Santehnika',
+            'is_active' => true,
+            'parent_id' => null,
+            'icon_type' => 'image',
+            'icon_file' => UploadedFile::fake()->image('plumber.jpg', 2000, 1500),
+        ])->assertRedirect(route('categories.index'));
+
+        $category = Category::where('name_ru', 'Сантехника')->firstOrFail();
+        $absolutePath = Storage::disk('public')->path($category->icon);
+
+        $this->assertLessThanOrEqual(CategoryIcon::IMAGE_MAX_BYTES, filesize($absolutePath));
+
+        [$width, , $type] = getimagesize($absolutePath);
+        $this->assertSame(IMAGETYPE_WEBP, $type);
+        $this->assertLessThanOrEqual(CategoryIcon::IMAGE_MAX_WIDTH, $width);
+
+        // The original upload is removed once converted
+        $this->assertCount(1, Storage::disk('public')->files(CategoryIcon::IMAGE_DIRECTORY));
+    }
+
+    public function test_store_rejects_svg_icon_file(): void
+    {
+        Storage::fake('public');
         $this->actingAsAdmin();
 
         $this->post(route('categories.store'), [
@@ -307,44 +335,33 @@ class CategoryTest extends TestCase
             'name_tk' => 'Test',
             'is_active' => true,
             'parent_id' => null,
-            'icon_type' => 'custom',
-            'icon_file' => UploadedFile::fake()->create('photo.png', 10, 'image/png'),
+            'icon_type' => 'image',
+            'icon_file' => $this->fakeSvg('plumber.svg'),
         ])->assertSessionHasErrors('icon_file');
     }
 
-    public function test_uploaded_svg_becomes_a_shared_asset_for_all_categories(): void
+    public function test_store_requires_a_file_when_icon_type_is_image(): void
     {
-        Storage::fake('service_icons');
         $this->actingAsAdmin();
 
-        // Category A uploads an icon
         $this->post(route('categories.store'), [
-            'name_ru' => 'Сантехника',
-            'name_tk' => 'Santehnika',
+            'name_ru' => 'Тест',
+            'name_tk' => 'Test',
             'is_active' => true,
             'parent_id' => null,
-            'icon_type' => 'custom',
-            'icon_file' => $this->fakeSvg('plumber.svg'),
-        ]);
-
-        $categoryA = Category::where('name_ru', 'Сантехника')->firstOrFail();
-        $uploadedKey = $categoryA->icon;
-
-        // The key appears in the uploaded icon pool
-        $this->assertContains($uploadedKey, CategoryIcon::uploadedKeys());
+            'icon_type' => 'image',
+        ])->assertSessionHasErrors('icon_file');
     }
 
-    public function test_updating_category_with_new_svg_keeps_old_uploaded_file(): void
+    public function test_replacing_image_icon_deletes_the_previous_file(): void
     {
-        Storage::fake('service_icons');
+        Storage::fake('public');
         $this->actingAsAdmin();
 
-        // Seed an existing custom icon directly on the disk
-        $oldKey = 'u-old-uuid';
-        Storage::disk('service_icons')->put("{$oldKey}.svg", '<svg/>');
+        $oldPath = UploadedFile::fake()->image('old.png', 100, 100)->store(CategoryIcon::IMAGE_DIRECTORY, 'public');
         $category = Category::factory()->create([
-            'icon_type' => 'custom',
-            'icon' => $oldKey,
+            'icon_type' => 'image',
+            'icon' => $oldPath,
         ]);
 
         $this->put(route('categories.update', $category), [
@@ -352,21 +369,88 @@ class CategoryTest extends TestCase
             'name_tk' => $category->name_tk,
             'is_active' => true,
             'parent_id' => null,
-            'icon_type' => 'custom',
-            'icon_file' => $this->fakeSvg('new.svg'),
+            'icon_type' => 'image',
+            'icon_file' => UploadedFile::fake()->image('new.png', 400, 400),
         ])->assertRedirect(route('categories.index'));
 
         $category->refresh();
 
-        // New icon stored
-        $this->assertNotSame($oldKey, $category->icon);
-        Storage::disk('service_icons')->assertExists("{$category->icon}.svg");
-
-        // Old file kept — it's a shared asset that other categories might reference
-        Storage::disk('service_icons')->assertExists("{$oldKey}.svg");
+        $this->assertNotSame($oldPath, $category->icon);
+        Storage::disk('public')->assertExists($category->icon);
+        Storage::disk('public')->assertMissing($oldPath);
     }
 
-    public function test_keeping_custom_icon_on_update_without_reupload(): void
+    public function test_keeping_image_icon_on_update_without_reupload(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $path = UploadedFile::fake()->image('icon.png', 100, 100)->store(CategoryIcon::IMAGE_DIRECTORY, 'public');
+        $category = Category::factory()->create([
+            'icon_type' => 'image',
+            'icon' => $path,
+        ]);
+
+        // Mirrors the frontend: icon_type stays image, no file, icon = null.
+        $this->put(route('categories.update', $category), [
+            'name_ru' => 'Обновлённое',
+            'name_tk' => 'Täzelenen',
+            'is_active' => true,
+            'parent_id' => null,
+            'icon_type' => 'image',
+            'icon' => null,
+        ])->assertRedirect(route('categories.index'));
+
+        $category->refresh();
+        $this->assertSame('image', $category->icon_type->value);
+        $this->assertSame($path, $category->icon);
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_switching_from_image_to_preset_deletes_the_image(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $path = UploadedFile::fake()->image('icon.png', 100, 100)->store(CategoryIcon::IMAGE_DIRECTORY, 'public');
+        $category = Category::factory()->create([
+            'icon_type' => 'image',
+            'icon' => $path,
+        ]);
+
+        $this->put(route('categories.update', $category), [
+            'name_ru' => $category->name_ru,
+            'name_tk' => $category->name_tk,
+            'is_active' => true,
+            'parent_id' => null,
+            'icon_type' => 'preset',
+            'icon' => 'wrench',
+        ])->assertRedirect(route('categories.index'));
+
+        $category->refresh();
+        $this->assertSame('preset', $category->icon_type->value);
+        $this->assertSame('wrench', $category->icon);
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_deleting_category_purges_image_icon(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $path = UploadedFile::fake()->image('icon.png', 100, 100)->store(CategoryIcon::IMAGE_DIRECTORY, 'public');
+        $category = Category::factory()->create([
+            'icon_type' => 'image',
+            'icon' => $path,
+        ]);
+
+        $this->delete(route('categories.destroy', $category))
+            ->assertRedirect(route('categories.index'));
+
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_keeping_legacy_custom_icon_on_update_without_reupload(): void
     {
         Storage::fake('service_icons');
         $this->actingAsAdmin();
@@ -439,6 +523,31 @@ class CategoryTest extends TestCase
         $category->refresh();
         $this->assertNull($category->icon_type);
         $this->assertNull($category->icon);
+    }
+
+    public function test_clearing_an_image_icon_deletes_the_file(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $path = UploadedFile::fake()->image('icon.png', 100, 100)->store(CategoryIcon::IMAGE_DIRECTORY, 'public');
+        $category = Category::factory()->create([
+            'icon_type' => 'image',
+            'icon' => $path,
+        ]);
+
+        $this->put(route('categories.update', $category), [
+            'name_ru' => $category->name_ru,
+            'name_tk' => $category->name_tk,
+            'is_active' => true,
+            'parent_id' => null,
+            'icon_type' => null,
+        ])->assertRedirect(route('categories.index'));
+
+        $category->refresh();
+        $this->assertNull($category->icon_type);
+        $this->assertNull($category->icon);
+        Storage::disk('public')->assertMissing($path);
     }
 
     public function test_deleting_category_does_not_purge_uploaded_icon_file(): void

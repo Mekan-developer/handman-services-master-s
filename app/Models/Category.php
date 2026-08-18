@@ -61,16 +61,20 @@ class Category extends Model
     }
 
     /**
-     * Resolved public URL of the category icon — preset asset or uploaded file.
-     * Returns null when no icon is set. Consumed by web (CSS mask) and the mobile API.
+     * Resolved public URL of the category icon — preset SVG or uploaded image.
+     * Returns null when no icon is set. Consumed by web and the mobile API;
+     * `icon_type` tells the client whether it's a monochrome SVG (CSS mask)
+     * or a raster WebP (plain <img>).
      */
     protected function iconUrl(): Attribute
     {
         return Attribute::get(fn (): ?string => match (true) {
             $this->icon_type === CategoryIconType::Preset && $this->icon !== null => asset("icons/services/{$this->icon}.svg"),
-            // New-style custom: bare key (u-uuid) stored in public/icons/services/
+            // Uploaded WebP on the public Storage disk (category-icons/uuid.webp)
+            $this->icon_type === CategoryIconType::Image && $this->icon !== null => asset("storage/{$this->icon}"),
+            // Legacy custom SVG: bare key (u-uuid) stored in public/icons/services/
             $this->icon_type === CategoryIconType::Custom && $this->icon !== null && ! str_contains($this->icon, '/') => asset("icons/services/{$this->icon}.svg"),
-            // Legacy custom: path with directory separator on the public Storage disk
+            // Oldest custom icons: path with directory separator on the public Storage disk
             $this->icon_type === CategoryIconType::Custom && $this->icon !== null => asset("storage/{$this->icon}"),
             default => null,
         });

@@ -15,6 +15,7 @@ const props = defineProps({
 })
 
 const existingIconUrl = computed(() => props.editing?.icon_url ?? null)
+const existingIconType = computed(() => props.editing?.icon_type ?? null)
 
 const emit = defineEmits(['close', 'submit'])
 
@@ -217,6 +218,7 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
                         :form="form"
                         :icon-groups="iconGroups"
                         :existing-icon-url="existingIconUrl"
+                        :existing-icon-type="existingIconType"
                     />
                     <p v-if="form.errors.icon || form.errors.icon_file" class="mt-1.5 flex items-center gap-1 text-xs text-red-500">
                         <svg class="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
