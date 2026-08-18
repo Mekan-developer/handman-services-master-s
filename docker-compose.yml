@@ -8,7 +8,8 @@ x-php-build: &php-build
 services:
   php:
     <<: *php-build  # yesli ne tak budesh sdelat a pisat kazhdem meste togda dilya kazhdiy chast on budet builditsa atdelno
-    container_name: handyman_php     
+    container_name: handyman_php  
+    user: www-data   
 
   nginx:
     image: nginx:1.30-alpine
@@ -51,6 +52,7 @@ services:
   artisan:
     <<: *php-build
     entrypoint: ["php", "/var/www/laravel/artisan"]
+    user: www-data
 
   db:
     image: mysql:8.0 
