@@ -14,6 +14,8 @@ class ClientProfileResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
+            'photo' => $this->photo,
+            'photo_url' => $this->photo_url,
             'city_id' => $this->city_id,
             'city' => $this->whenLoaded('city', fn () => $this->city ? [
                 'id' => $this->city->id,

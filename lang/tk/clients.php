@@ -16,6 +16,11 @@ return [
     'block' => 'Petikle',
     'unblock' => 'Açyk et',
 
+    'photo' => 'Surat',
+    'photo_add' => 'Goş',
+    'photo_change' => 'Üýtget',
+    'photo_hint' => '3×4 format, JPG/PNG, 5 MB çenli. Ussa profilinde-de ulanylýar',
+
     'delete_confirm' => 'Bu müşderini pozmak isleýärsiňizmi?',
     'block_confirm' => 'Müşderini petiklemek isleýärsiňizmi? Ol programma girip bilmez.',
     'unblock_confirm' => 'Müşderini açmak isleýärsiňizmi?',

@@ -29,7 +29,6 @@ const form = useForm({
     phone: '',
     is_active: true,
     category_ids: [],
-    photo: null,
     // Only submitted when creating — access is derived from subscriptions.
     subscription_plan_id: null,
     subscription_price: null,
@@ -50,7 +49,6 @@ function openEdit(master) {
     form.phone = master.phone
     form.is_active = master.is_active
     form.category_ids = master.category_ids ? [...master.category_ids] : []
-    form.photo = null
     form.clearErrors()
     showModal.value = true
 }

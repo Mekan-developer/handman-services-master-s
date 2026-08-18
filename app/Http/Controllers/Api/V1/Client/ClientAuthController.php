@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Client;
 
 use App\Actions\RequestClientOtpAction;
+use App\Actions\UpdateClientAction;
 use App\Actions\VerifyClientOtpAction;
 use App\Enums\OtpDeliveryChannel;
 use App\Http\Controllers\Controller;
@@ -10,7 +11,7 @@ use App\Http\Requests\Api\V1\Client\CompleteRegistrationRequest;
 use App\Http\Requests\Api\V1\Client\RequestOtpRequest;
 use App\Http\Requests\Api\V1\Client\VerifyOtpRequest;
 use App\Http\Resources\Api\V1\Client\ClientProfileResource;
-use App\Repositories\ClientRepository;
+use App\Models\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -46,15 +47,15 @@ class ClientAuthController extends Controller
         ]);
     }
 
-    public function completeRegistration(CompleteRegistrationRequest $request, ClientRepository $repository): JsonResponse
+    public function completeRegistration(CompleteRegistrationRequest $request, UpdateClientAction $action): JsonResponse
     {
-        $client = $repository->update(
-            $request->user(),
-            $request->validated(),
-        );
+        /** @var Client $client */
+        $client = $request->user();
+
+        $updated = $action->handle($client, $request->validated());
 
         return response()->json([
-            'client' => new ClientProfileResource($client->load('city')),
+            'client' => new ClientProfileResource($updated->load('city')),
         ]);
     }
 

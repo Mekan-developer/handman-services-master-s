@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/Components/Modal.vue'
 import PhoneInput from '@/Components/PhoneInput.vue'
@@ -27,27 +27,6 @@ const selectedPlan = computed(() =>
 watch(selectedPlan, (plan) => {
     props.form.subscription_price = plan ? plan.price : null
 })
-
-// ── Photo (3:4 portrait) ────────────────────────────────────────────────────
-const photoInput = ref(null)
-const photoPreview = ref(null)
-
-watch(() => props.show, (shown) => {
-    photoPreview.value = shown ? (props.editing?.photo_url ?? null) : null
-})
-
-function onPhotoChange(e) {
-    const file = e.target.files[0]
-    if (!file) { return }
-    props.form.photo = file
-    photoPreview.value = URL.createObjectURL(file)
-}
-
-function triggerPhotoInput() {
-    photoInput.value?.click()
-}
-
-const hasPhoto = computed(() => !!photoPreview.value)
 
 const inputBase = 'w-full rounded-xl border bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all'
 const inputNormal = 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'
@@ -77,63 +56,8 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
         <form @submit.prevent="emit('submit')" class="flex flex-1 flex-col overflow-hidden">
             <div class="flex-1 space-y-4 overflow-y-auto px-6 py-5">
 
-                <!-- Photo upload — 3:4 portrait -->
-                <div class="flex flex-col items-center gap-2">
-                    <input
-                        ref="photoInput"
-                        type="file"
-                        accept="image/jpeg,image/png,image/jpg,image/webp"
-                        class="hidden"
-                        @change="onPhotoChange"
-                    />
-
-                    <button
-                        type="button"
-                        @click="triggerPhotoInput"
-                        :class="[
-                            'group relative w-28 overflow-hidden rounded-xl border-2 transition-colors',
-                            form.errors.photo
-                                ? 'border-red-400 dark:border-red-500'
-                                : 'border-dashed border-gray-300 hover:border-blue-400 dark:border-slate-600 dark:hover:border-blue-500',
-                        ]"
-                        style="aspect-ratio: 3 / 4;"
-                    >
-                        <img
-                            v-if="hasPhoto"
-                            :src="photoPreview"
-                            class="h-full w-full object-cover"
-                            alt="master photo"
-                        />
-
-                        <div
-                            v-else
-                            class="flex h-full flex-col items-center justify-center gap-1.5 text-gray-400 dark:text-slate-500"
-                        >
-                            <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                            </svg>
-                            <span class="text-[11px] font-medium">{{ t('masters.photo_add') }}</span>
-                        </div>
-
-                        <div
-                            v-if="hasPhoto"
-                            class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
-                        >
-                            <span class="rounded-md bg-white/90 px-2 py-1 text-[11px] font-medium text-gray-800">
-                                {{ t('masters.photo_change') }}
-                            </span>
-                        </div>
-                    </button>
-
-                    <p class="text-xs text-gray-400 dark:text-slate-500">{{ t('masters.photo_hint') }}</p>
-
-                    <p v-if="form.errors.photo" class="flex items-center gap-1 text-xs text-red-500">
-                        <svg class="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        {{ form.errors.photo }}
-                    </p>
-                </div>
+                <!-- Photo lives on the client account this profile hangs off —
+                     edit it in Clients, the master reads the same file. -->
 
                 <!-- Name + Phone row -->
                 <div class="grid grid-cols-2 gap-4">

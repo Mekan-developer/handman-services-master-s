@@ -14,6 +14,8 @@ class ClientResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
+            'photo' => $this->photo,
+            'photo_url' => $this->photo_url,
             'is_blocked' => $this->is_blocked,
             'city_id' => $this->city_id,
             'city' => $this->whenLoaded('city', fn () => [

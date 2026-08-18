@@ -17,6 +17,10 @@ class UpdateClientProfileRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'city_id' => ['sometimes', 'integer', 'exists:cities,id'],
+
+            // Multipart only, so the app has to spoof the method:
+            // POST /client/me with `_method=PATCH`.
+            'photo' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ];
     }
 }

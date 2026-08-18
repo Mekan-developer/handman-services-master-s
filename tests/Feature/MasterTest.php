@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Client;
 use App\Models\Master;
 use App\Models\MasterLocation;
 use App\Models\OrderReview;
@@ -261,8 +262,42 @@ class MasterTest extends TestCase
     }
 
     // ── Photo ─────────────────────────────────────────────────────────────────
+    //
+    // A master has no photo of its own: the avatar belongs to the client account
+    // the profile hangs off, and is uploaded on the clients screen (ClientTest).
 
-    public function test_creating_master_stores_photo_as_width_300_webp(): void
+    public function test_master_photo_is_read_from_the_client_account(): void
+    {
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create(['photo' => 'clients/ava.webp']);
+        Master::factory()->create(['client_id' => $client->id]);
+
+        $this->get(route('masters.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Masters/Index')
+                ->where('masters.data.0.photo', 'clients/ava.webp')
+                ->where('masters.data.0.photo_url', asset('storage/clients/ava.webp'))
+            );
+    }
+
+    public function test_master_photo_is_null_when_the_client_has_no_avatar(): void
+    {
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create(['photo' => null]);
+        Master::factory()->create(['client_id' => $client->id]);
+
+        $this->get(route('masters.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('masters.data.0.photo', null)
+                ->where('masters.data.0.photo_url', null)
+            );
+    }
+
+    public function test_master_form_no_longer_accepts_a_photo(): void
     {
         Storage::fake('public');
         $this->actingAsAdmin();
@@ -274,76 +309,8 @@ class MasterTest extends TestCase
 
         $this->post(route('masters.store'), $payload)->assertRedirect();
 
-        $master = Master::where('phone', '+99362123456')->firstOrFail();
-        $this->assertNotNull($master->photo);
-        $this->assertStringEndsWith('.webp', $master->photo);
-        Storage::disk('public')->assertExists($master->photo);
-
-        $info = getimagesizefromstring(Storage::disk('public')->get($master->photo));
-        $this->assertSame(300, $info[0]);
-        $this->assertSame(400, $info[1]);
-        $this->assertSame('image/webp', $info['mime']);
-    }
-
-    public function test_creating_master_without_photo_leaves_it_null(): void
-    {
-        Storage::fake('public');
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-
-        $this->post(route('masters.store'), $this->validPayload($city))->assertRedirect();
-
-        $this->assertNull(Master::where('phone', '+99362123456')->firstOrFail()->photo);
-    }
-
-    public function test_store_rejects_non_image_photo(): void
-    {
-        Storage::fake('public');
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-
-        $payload = array_merge($this->validPayload($city), [
-            'photo' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
-        ]);
-
-        $this->post(route('masters.store'), $payload)->assertSessionHasErrors('photo');
-    }
-
-    public function test_updating_master_replaces_photo_and_deletes_old_one(): void
-    {
-        Storage::fake('public');
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $master = Master::factory()->create(['city_id' => $city->id, 'photo' => 'masters/old.webp']);
-        Storage::disk('public')->put('masters/old.webp', 'dummy');
-
-        $payload = array_merge($this->validPayload($city), [
-            'phone' => $master->phone,
-            'photo' => UploadedFile::fake()->image('new.jpg', 600, 800),
-        ]);
-
-        $this->post(route('masters.update', $master), $payload)->assertRedirect();
-
-        $master->refresh();
-        Storage::disk('public')->assertMissing('masters/old.webp');
-        $this->assertStringEndsWith('.webp', $master->photo);
-        Storage::disk('public')->assertExists($master->photo);
-    }
-
-    public function test_updating_master_without_photo_keeps_existing_one(): void
-    {
-        Storage::fake('public');
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $master = Master::factory()->create(['city_id' => $city->id, 'photo' => 'masters/keep.webp']);
-        Storage::disk('public')->put('masters/keep.webp', 'dummy');
-
-        $payload = array_merge($this->validPayload($city), ['phone' => $master->phone]);
-
-        $this->post(route('masters.update', $master), $payload)->assertRedirect();
-
-        $this->assertSame('masters/keep.webp', $master->refresh()->photo);
-        Storage::disk('public')->assertExists('masters/keep.webp');
+        // Silently ignored rather than stored: the file belongs on the client.
+        $this->assertCount(0, Storage::disk('public')->allFiles());
     }
 
     // ── Destroy ───────────────────────────────────────────────────────────────

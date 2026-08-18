@@ -8,10 +8,6 @@ return [
 
     'name' => 'Ady',
     'name_placeholder' => 'Ussadyň adyny giriziň',
-    'photo' => 'Surat',
-    'photo_add' => 'Goş',
-    'photo_change' => 'Üýtget',
-    'photo_hint' => '3×4 format, JPG/PNG, 5 MB çenli',
     'phone' => 'Telefon',
     'phone_placeholder' => '+99361XXXXXXX',
     'city' => 'Şäher',

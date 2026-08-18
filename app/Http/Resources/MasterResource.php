@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class MasterResource extends JsonResource
 {
@@ -44,8 +43,11 @@ class MasterResource extends JsonResource
 
             'is_active' => $this->is_active,
             'is_available' => $this->is_available,
-            'photo' => $this->photo,
-            'photo_url' => $this->photo ? Storage::url($this->photo) : null,
+
+            // One person, one photo: the avatar belongs to the client account
+            // the master signed in with, and is uploaded there.
+            'photo' => $this->client?->photo,
+            'photo_url' => $this->client?->photo_url,
             'reviews_avg_rating' => $this->reviews_avg_rating !== null ? round((float) $this->reviews_avg_rating, 1) : null,
             'reviews_count' => (int) ($this->reviews_count ?? 0),
             'categories' => $this->whenLoaded('categories', fn () => $this->categories->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])
