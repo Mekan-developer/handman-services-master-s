@@ -154,17 +154,20 @@ alone is not enough (an approved master can still be waiting on a subscription).
 // Category (from GET /client/categories — tree)
 {
   "id": 1, "name_ru": "string", "name_tk": "string", "parent_id": null,
-  "icon_type": "preset" | "custom", "icon": "string",
+  "icon_type": "preset" | "image" | "custom", "icon": "string",
   "children": [ /* same shape, one level deep */ ]
 }
 
 // CategorySearchResult (from GET /client/categories/search)
 {
   "id": 4, "name": "string", "parent_id": 1,
-  "icon_type": "preset" | "custom", "icon": "string", "icon_url": "https://…",
+  "icon_type": "preset" | "image" | "custom", "icon": "string", "icon_url": "https://…",
   "parent": { "id": 1, "name": "string" } | null
 }
 ```
+`icon_type` tells you how to draw `icon_url`: `preset` and legacy `custom` are monochrome
+SVGs meant to be tinted with the current text color, `image` is a full-color WebP (≤ 50 KB)
+that should be rendered as a plain image.
 `categories` gives you raw `name_ru`/`name_tk` (pick by current locale yourself);
 `categories/search` is already localized server-side into `name`. Only **leaf** categories
 (non-null `parent_id`) are valid picks for creating an order or applying as a master.
