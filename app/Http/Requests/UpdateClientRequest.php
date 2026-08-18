@@ -19,6 +19,10 @@ class UpdateClientRequest extends FormRequest
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20', Rule::unique('clients', 'phone')->ignore($this->route('client'))],
+
+            // Left out of the request when nothing new was picked — the stored
+            // avatar must survive an edit that only touches the name.
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ];
     }
 }

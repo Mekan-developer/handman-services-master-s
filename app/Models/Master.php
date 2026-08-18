@@ -32,7 +32,6 @@ class Master extends Authenticatable
         'access_expires_at',
         'is_active',
         'is_available',
-        'photo',
     ];
 
     protected function casts(): array

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\ClientFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +21,7 @@ class Client extends Authenticatable
         'city_id',
         'name',
         'phone',
+        'photo',
         'is_blocked',
     ];
 
@@ -28,6 +30,22 @@ class Client extends Authenticatable
         return [
             'is_blocked' => 'boolean',
         ];
+    }
+
+    /**
+     * Public URL of the account avatar, or null when none was uploaded.
+     *
+     * The one avatar in the system: a `Master` profile on this account shows
+     * this very file, so every consumer — the mobile API, the admin clients
+     * table, the masters table — reads it from here instead of rebuilding the
+     * path. Resolved with `asset()` so the URL carries the host that served the
+     * request, not a hard-coded `APP_URL`.
+     */
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::get(
+            fn (): ?string => $this->photo !== null ? asset("storage/{$this->photo}") : null
+        );
     }
 
     public function city(): BelongsTo

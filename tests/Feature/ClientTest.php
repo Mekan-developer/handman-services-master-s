@@ -8,6 +8,8 @@ use App\Models\Oblast;
 use App\Models\Region;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ClientTest extends TestCase
@@ -92,7 +94,7 @@ class ClientTest extends TestCase
         $client = Client::factory()->create();
         $newCity = City::factory()->create();
 
-        $this->put(route('clients.update', $client->id), [
+        $this->post(route('clients.update', $client->id), [
             'city_id' => $newCity->id,
             'name' => 'Обновлённое имя',
             'phone' => $client->phone,
@@ -110,7 +112,7 @@ class ClientTest extends TestCase
         $this->actingAsAdmin();
         $client = Client::factory()->create(['phone' => '+99361111222']);
 
-        $this->put(route('clients.update', $client->id), [
+        $this->post(route('clients.update', $client->id), [
             'city_id' => $client->city_id,
             'name' => $client->name,
             'phone' => '+99361111222',
@@ -128,6 +130,83 @@ class ClientTest extends TestCase
             ->assertRedirect(route('clients.index'));
 
         $this->assertModelMissing($client);
+    }
+
+    // ── Photo ─────────────────────────────────────────────────────────────────
+
+    public function test_admin_can_attach_a_photo_when_creating_a_client(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+        $city = City::factory()->create();
+
+        $payload = array_merge($this->validPayload($city), [
+            'photo' => UploadedFile::fake()->image('ava.jpg', 900, 1200),
+        ]);
+
+        $this->post(route('clients.store'), $payload)->assertRedirect(route('clients.index'));
+
+        $client = Client::where('phone', '+99361111222')->firstOrFail();
+
+        $this->assertStringEndsWith('.webp', $client->photo);
+        Storage::disk('public')->assertExists($client->photo);
+
+        $info = getimagesizefromstring(Storage::disk('public')->get($client->photo));
+        $this->assertSame(512, $info[0]);
+        $this->assertSame('image/webp', $info['mime']);
+    }
+
+    public function test_admin_photo_upload_rejects_a_non_image(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+        $city = City::factory()->create();
+
+        $payload = array_merge($this->validPayload($city), [
+            'photo' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),
+        ]);
+
+        $this->post(route('clients.store'), $payload)->assertSessionHasErrors('photo');
+    }
+
+    public function test_updating_a_client_replaces_the_photo_and_deletes_the_old_file(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create(['photo' => 'clients/old.webp']);
+        Storage::disk('public')->put('clients/old.webp', 'stale');
+
+        $this->post(route('clients.update', $client->id), [
+            'city_id' => $client->city_id,
+            'name' => $client->name,
+            'phone' => $client->phone,
+            'photo' => UploadedFile::fake()->image('new.jpg', 900, 1200),
+        ])->assertRedirect(route('clients.index'));
+
+        $client->refresh();
+
+        $this->assertNotSame('clients/old.webp', $client->photo);
+        Storage::disk('public')->assertMissing('clients/old.webp');
+        Storage::disk('public')->assertExists($client->photo);
+    }
+
+    public function test_updating_a_client_without_a_photo_keeps_the_existing_one(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create(['photo' => 'clients/keep.webp']);
+        Storage::disk('public')->put('clients/keep.webp', 'kept');
+
+        $this->post(route('clients.update', $client->id), [
+            'city_id' => $client->city_id,
+            'name' => 'Новое имя',
+            'phone' => $client->phone,
+        ])->assertRedirect(route('clients.index'));
+
+        $this->assertSame('clients/keep.webp', $client->refresh()->photo);
+        Storage::disk('public')->assertExists('clients/keep.webp');
     }
 
     // ── Toggle Block ──────────────────────────────────────────────────────────

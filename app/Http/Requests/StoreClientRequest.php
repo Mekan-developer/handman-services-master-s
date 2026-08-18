@@ -18,6 +18,10 @@ class StoreClientRequest extends FormRequest
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:20', 'unique:clients,phone'],
+
+            // The one avatar in the system — a master profile on this account
+            // reads the same file.
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
         ];
     }
 }

@@ -16,7 +16,9 @@ class MasterRepository
     /** @param array{search?: string, city_id?: int|string, status?: string} $filters */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        return Master::with(['city', 'categories'])
+        // `client` carries the avatar shown in the list — eager loaded to keep
+        // the resource from firing a query per row.
+        return Master::with(['city', 'categories', 'client'])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->when($filters['search'] ?? null, function ($q, $search) {
@@ -67,7 +69,7 @@ class MasterRepository
     /** All active masters with latest location — for map view. */
     public function forMap(?int $cityId = null): Collection
     {
-        return Master::with(['city', 'latestLocation'])
+        return Master::with(['city', 'latestLocation', 'client'])
             ->where('status', MasterStatus::Approved)
             ->where('is_active', true)
             ->where(function ($q) {
@@ -85,7 +87,7 @@ class MasterRepository
      */
     public function allForSelect(): Collection
     {
-        return Master::query()
+        return Master::with('client')
             ->where('status', MasterStatus::Approved)
             ->orderBy('name')
             ->get();
@@ -162,7 +164,7 @@ class MasterRepository
     /** Active masters in given city, optionally filtered by category — for order assignment dropdown. */
     public function eligibleForOrder(int $cityId, ?int $categoryId = null): Collection
     {
-        return Master::with(['categories', 'latestLocation'])
+        return Master::with(['categories', 'latestLocation', 'client'])
             ->where('status', MasterStatus::Approved)
             ->where('city_id', $cityId)
             ->where('is_active', true)

@@ -33,7 +33,6 @@ class MasterFactory extends Factory
             'reviewed_at' => now(),
             'access_expires_at' => now()->addDays(30),
             'is_active' => true,
-            'photo' => null,
         ];
     }
 

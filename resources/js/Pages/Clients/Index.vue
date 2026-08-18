@@ -64,6 +64,7 @@ const form = useForm({
     city_id: null,
     name: '',
     phone: '',
+    photo: null,
 })
 
 function openCreate() {
@@ -78,6 +79,8 @@ function openEdit(client) {
     form.city_id = client.city_id
     form.name = client.name
     form.phone = client.phone
+    // Left null so an edit that doesn't touch the avatar keeps the stored one.
+    form.photo = null
     form.clearErrors()
     showModal.value = true
 }
@@ -90,8 +93,9 @@ function closeModal() {
 }
 
 function submit() {
+    // File uploads require multipart/POST — the update route is registered as POST.
     if (editingClient.value) {
-        form.put(route('clients.update', editingClient.value.id), {
+        form.post(route('clients.update', editingClient.value.id), {
             onSuccess: closeModal,
         })
     } else {
@@ -232,8 +236,25 @@ const activeFilters = computed(() => ({
                                 <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
                                     {{ index + 1 + ((paginationMeta?.current_page ?? 1) - 1) * (paginationMeta?.per_page ?? 20) }}
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-slate-200">
-                                    {{ client.name }}
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-12 w-9 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 ring-1 ring-gray-200 dark:bg-slate-700 dark:ring-slate-600">
+                                            <img
+                                                v-if="client.photo_url"
+                                                :src="client.photo_url"
+                                                :alt="client.name"
+                                                class="h-full w-full object-cover"
+                                            />
+                                            <div v-else class="flex h-full w-full items-center justify-center text-gray-300 dark:text-slate-500">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-slate-200">
+                                            {{ client.name }}
+                                        </span>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
                                     {{ formatPhone(client.phone) }}

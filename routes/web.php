@@ -79,7 +79,11 @@ Route::middleware('auth')->group(function () {
         Route::post('banners/{banner}/toggle', [BannerController::class, 'toggle'])->name('banners.toggle');
 
         Route::post('clients/{client}/toggle-block', [ClientController::class, 'toggleBlock'])->name('clients.toggle-block');
-        Route::resource('clients', ClientController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('clients', ClientController::class)->only(['index', 'store', 'destroy']);
+
+        // POST rather than PUT: the form carries the avatar, and PHP only fills
+        // $_FILES on POST. Same reason as masters and banners above.
+        Route::post('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
 
         Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
         Route::post('orders/{order}/assign', [OrderController::class, 'assign'])->name('orders.assign');

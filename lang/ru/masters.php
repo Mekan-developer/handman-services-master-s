@@ -8,10 +8,6 @@ return [
 
     'name' => 'Имя',
     'name_placeholder' => 'Введите имя мастера',
-    'photo' => 'Фото',
-    'photo_add' => 'Добавить',
-    'photo_change' => 'Изменить',
-    'photo_hint' => 'Формат 3×4, JPG/PNG, до 5 МБ',
     'phone' => 'Телефон',
     'phone_placeholder' => '+99361XXXXXXX',
     'city' => 'Город',

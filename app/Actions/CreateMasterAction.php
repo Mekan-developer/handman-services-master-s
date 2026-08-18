@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Repositories\ClientRepository;
 use App\Repositories\MasterRepository;
 use App\Repositories\SubscriptionPlanRepository;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class CreateMasterAction
@@ -17,7 +16,6 @@ class CreateMasterAction
     public function __construct(
         private readonly MasterRepository $repository,
         private readonly ClientRepository $clients,
-        private readonly StoreMasterPhotoAction $storePhoto,
         private readonly SubscriptionPlanRepository $plans,
         private readonly IssueMasterSubscriptionAction $issueSubscription,
     ) {}
@@ -40,12 +38,6 @@ class CreateMasterAction
         $note = $data['subscription_note'] ?? null;
 
         unset($data['subscription_plan_id'], $data['subscription_price'], $data['subscription_note']);
-
-        if (isset($data['photo']) && $data['photo'] instanceof UploadedFile) {
-            $data['photo'] = $this->storePhoto->handle($data['photo']);
-        } else {
-            unset($data['photo']);
-        }
 
         // No subscription means no access — never leave the deadline null, which
         // Master::hasActiveAccess() reads as unlimited.
