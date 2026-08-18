@@ -17,7 +17,11 @@ const props = defineProps({
     existingIconType: { type: String, default: null },
 })
 
-const tab = ref('preset') // 'preset' | 'upload'
+// Набор готовых иконок временно скрыт — админ загружает только изображение.
+// Чтобы вернуть вкладку, достаточно поставить true: остальной код нетронут.
+const PRESET_TAB_VISIBLE = false
+
+const tab = ref(PRESET_TAB_VISIBLE ? 'preset' : 'upload') // 'preset' | 'upload'
 const search = ref('')
 const dragging = ref(false)
 const uploadPreview = ref(null) // object URL for a freshly chosen file
@@ -25,7 +29,15 @@ const uploadPreview = ref(null) // object URL for a freshly chosen file
 // Open the tab that matches the current selection.
 watch(
     () => props.form.icon_type,
-    (type) => { tab.value = (type === 'image' || type === 'custom') ? 'upload' : 'preset' },
+    (type) => {
+        if (!PRESET_TAB_VISIBLE) {
+            tab.value = 'upload'
+
+            return
+        }
+
+        tab.value = (type === 'image' || type === 'custom') ? 'upload' : 'preset'
+    },
     { immediate: true },
 )
 
@@ -118,8 +130,8 @@ const tabBtn = (active) =>
             </button>
         </div>
 
-        <!-- Tabs -->
-        <div class="mb-3 flex gap-4 border-b border-gray-200 dark:border-slate-700">
+        <!-- Tabs: скрыты целиком, пока доступна одна вкладка -->
+        <div v-if="PRESET_TAB_VISIBLE" class="mb-3 flex gap-4 border-b border-gray-200 dark:border-slate-700">
             <button
                 type="button"
                 @click="tab = 'preset'"
@@ -139,7 +151,7 @@ const tabBtn = (active) =>
         </div>
 
         <!-- Preset set -->
-        <div v-show="tab === 'preset'">
+        <div v-show="PRESET_TAB_VISIBLE && tab === 'preset'">
             <input
                 v-model="search"
                 type="text"
