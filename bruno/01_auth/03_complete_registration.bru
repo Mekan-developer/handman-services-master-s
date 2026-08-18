@@ -6,7 +6,7 @@ meta {
 
 post {
   url: {{base_url}}/api/v1/client/auth/complete-registration
-  body: json
+  body: multipartForm
   auth: bearer
 }
 
@@ -15,9 +15,14 @@ auth:bearer {
 }
 
 headers {
-  Content-Type: application/json
   Accept: application/json
   X-Locale: {{locale}}
+}
+
+body:multipart-form {
+  name: Merdan Annagurdow
+  city_id: {{city_id}}
+  ~photo: @file()
 }
 
 body:json {
@@ -30,15 +35,31 @@ body:json {
 docs {
   # Complete Registration
 
-  Called after `verify-otp` when `is_new: true`. Saves the name and city.
+  Called after `verify-otp` when `is_new: true`. Saves the name, city and
+  (optionally) the avatar.
 
   Worth doing before anything else: an order cannot be created without them,
   and the master application copies the name onto the master profile — an
   applicant with no name is rejected with `422`.
 
+  **Body:** `multipart/form-data` when sending `photo`, plain JSON otherwise
+  (switch the body type in Bruno — both are accepted).
+
+  **Fields:**
+  - `name` — required, max 255.
+  - `city_id` — required, must exist in `cities`.
+  - `photo` — optional avatar, `jpeg|png|jpg|webp`, max 5 MB. Converted
+    **inline** (no queue) to WebP and downscaled to **512 px wide**, height
+    proportional; images already narrower are not upscaled. Re-sending the
+    endpoint with a new `photo` replaces the file and deletes the old one;
+    omitting `photo` keeps whatever is stored.
+
+  The saved path comes back as `client.photo` and the public URL as
+  `client.photo_url`.
+
   **Response 200:** `ClientProfileResource`
 
   **Errors:**
-  - `422` — name or city_id validation error
+  - `422` — name / city_id / photo validation error
   - `401` — missing or invalid token
 }

@@ -99,7 +99,7 @@ Every other list endpoint below (`oblasts`, `regions`, `cities`, `categories`, `
 |---|---|---|---|---|
 | Request code | `POST /client/auth/request-otp` | public | `{ "phone": "+993..." }` | `{ "message", "delivery": "sms"\|"manual", "delivery_message": string\|null }` |
 | Verify code | `POST /client/auth/verify-otp` | public | `{ "phone", "code": "123456" }` (code = 6 chars) | `{ "token", "is_new": bool, "client": ClientProfile }` |
-| Finish profile | `POST /client/auth/complete-registration` | **[auth]** | `{ "name", "city_id": int }` | `{ "client": ClientProfile }` |
+| Finish profile | `POST /client/auth/complete-registration` | **[auth]** | `{ "name", "city_id": int, "photo"? }` — multipart when `photo` is sent | `{ "client": ClientProfile }` |
 | Logout | `POST /client/auth/logout` | **[auth]** | — | `204` |
 
 **Handle `delivery: "manual"`** — the SMS gateway was unreachable; the code is still valid
@@ -113,6 +113,21 @@ required by several endpoints below and by the master application form.
 `POST /client/auth/logout` invalidates the token **server-side** — always clear local
 storage in the same call site, don't rely on a 401 to catch a stale token later.
 
+**Avatar** — send `photo` on `complete-registration` as `multipart/form-data`
+(`jpeg|png|jpg|webp`, max 5 MB). The server downscales it to **512 px wide**
+(height proportional, smaller images untouched) and re-encodes it as WebP inline, so the
+response already carries the final `photo_url` — no polling, no conversion status. Upload
+the original straight from the camera roll; client-side resizing is wasted work.
+Re-posting the endpoint with a new `photo` replaces the file; omitting it keeps the
+current one. See §5 for changing the avatar later.
+
+`photo_url` is **absolute** — scheme, host and port of the server that answered the request,
+so it can go straight into an `Image.network(...)` with no base-URL concatenation.
+`photo` next to it is the raw storage path, kept for clients that build their own URLs.
+
+There is exactly **one** avatar per person: if the account also carries a master profile,
+the master half of the app shows this same file. There is no separate master photo upload.
+
 ### ClientProfile
 
 ```json
@@ -120,6 +135,8 @@ storage in the same call site, don't rely on a 401 to catch a stale token later.
   "id": 1,
   "name": "string",
   "phone": "string",
+  "photo": "clients/abc123.webp" | null,
+  "photo_url": "https://.../storage/clients/abc123.webp" | null,
   "city_id": 1,
   "city": { "id": 1, "name": "string" } | null,
   "master_status": "pending" | "approved" | "rejected" | null,
@@ -179,7 +196,14 @@ that should be rendered as a plain image.
 | Endpoint | Body | Response |
 |---|---|---|
 | `GET /client/me` **[auth]** | — | `ClientProfile` (§3) |
-| `PATCH /client/me` **[auth]** | `{ "name"?, "city_id"? }` (both optional) | `ClientProfile` |
+| `PATCH /client/me` **[auth]** | `{ "name"?, "city_id"?, "photo"? }` (all optional) | `ClientProfile` |
+
+**Changing the avatar** — `photo` is a file, so the request has to be
+`multipart/form-data`, and PHP only fills `$_FILES` on `POST`. Send it as
+`POST /client/me` with a `_method=PATCH` field (same trick as updating order photos, §6);
+a genuine `PATCH` arrives with the file silently dropped. Same rules as on registration:
+`jpeg|png|jpg|webp`, max 5 MB, converted inline to a 512 px-wide WebP, previous file
+deleted. Leaving `photo` out of the request never blanks the stored avatar.
 
 ---
 
@@ -346,11 +370,17 @@ curl -X POST http://localhost:8000/api/v1/client/auth/verify-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+99362111222", "code": "1234"}'
 
-# 3. Finish the profile.
+# 3. Finish the profile (multipart — drop -F photo to register without an avatar).
 curl -X POST http://localhost:8000/api/v1/client/auth/complete-registration \
-  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
   -H "Authorization: Bearer 1|abc..." \
-  -d '{"name": "Aman", "city_id": 1}'
+  -F "name=Aman" -F "city_id=1" -F "photo=@avatar.jpg"
+
+# 3b. Change the avatar later (POST + _method=PATCH — see §5).
+curl -X POST http://localhost:8000/api/v1/client/me \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer 1|abc..." \
+  -F "_method=PATCH" -F "photo=@new-avatar.jpg"
 
 # 4. Browse the catalog (no token needed).
 curl http://localhost:8000/api/v1/client/categories
