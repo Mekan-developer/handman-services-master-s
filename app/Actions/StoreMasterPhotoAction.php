@@ -32,7 +32,9 @@ class StoreMasterPhotoAction
                 str_replace(Storage::disk('public')->path(''), '', $webpAbsolute),
                 DIRECTORY_SEPARATOR
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            report($e);
+
             return $path;
         }
     }
