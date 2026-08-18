@@ -29,6 +29,8 @@ return [
     'type_child_desc' => 'Başga kategoriýanyň içinde',
     'add_child' => 'Çaga kategoriýa goş',
     'delete_has_children' => 'Çaga kategoriýalary bolan kategoriýany öçürmek bolmaýar',
+    'delete_has_orders' => 'Kategoriýany öçürip bolmaýar: oňa degişli :count sargyt bar. Ilki şol sargytlary öçüriň ýa-da başga kategoriýa geçiriň.',
+    'delete_failed' => 'Kategoriýany öçürip bolmady — ol başga ýazgylarda ulanylýar',
 
     'icon' => 'Nyşan',
     'icon_remove' => 'Aýyr',

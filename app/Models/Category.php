@@ -95,6 +95,12 @@ class Category extends Model
         return $this->hasOne(CategoryContent::class);
     }
 
+    /** Orders placed in this category — they block its deletion (ON DELETE RESTRICT). */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function isRoot(): bool
     {
         return $this->parent_id === null;
