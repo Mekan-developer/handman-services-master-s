@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\OrderStatus;
 use App\Models\City;
 use App\Models\Client;
+use App\Models\Master;
 use App\Models\Oblast;
+use App\Models\Order;
 use App\Models\Region;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -130,6 +133,75 @@ class ClientTest extends TestCase
             ->assertRedirect(route('clients.index'));
 
         $this->assertModelMissing($client);
+    }
+
+    public function test_deleting_a_client_takes_their_master_profile_and_orders(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create(['photo' => 'clients/ava.webp']);
+        $master = Master::factory()->create(['client_id' => $client->id]);
+        $order = Order::factory()->create(['client_id' => $client->id, 'status' => OrderStatus::Pending]);
+
+        Storage::disk('public')->put('clients/ava.webp', 'avatar');
+        Storage::disk('public')->put("orders/{$order->id}/problem/leak.webp", 'photo');
+
+        $this->delete(route('clients.destroy', $client->id))->assertRedirect();
+
+        $this->assertModelMissing($client);
+        $this->assertModelMissing($master);
+        $this->assertModelMissing($order);
+        Storage::disk('public')->assertMissing('clients/ava.webp');
+        Storage::disk('public')->assertMissing("orders/{$order->id}/problem/leak.webp");
+    }
+
+    /** Orders this person worked on as a master belong to whoever placed them. */
+    public function test_deleting_a_client_master_keeps_other_clients_orders(): void
+    {
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create();
+        $master = Master::factory()->create(['client_id' => $client->id]);
+
+        $someoneElse = Client::factory()->create();
+        $order = Order::factory()->create([
+            'client_id' => $someoneElse->id,
+            'master_id' => $master->id,
+            'status' => OrderStatus::Pending,
+        ]);
+
+        $this->delete(route('clients.destroy', $client->id))->assertRedirect();
+
+        $this->assertModelExists($order);
+        $this->assertNull($order->refresh()->master_id);
+    }
+
+    public function test_client_whose_master_has_completed_orders_cannot_be_deleted(): void
+    {
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create();
+        $master = Master::factory()->create(['client_id' => $client->id]);
+        Order::factory()->create(['master_id' => $master->id, 'status' => OrderStatus::Completed]);
+
+        $this->delete(route('clients.destroy', $client->id))->assertRedirect();
+
+        $this->assertModelExists($client);
+        $this->assertModelExists($master);
+    }
+
+    public function test_client_whose_master_has_an_active_order_cannot_be_deleted(): void
+    {
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create();
+        $master = Master::factory()->create(['client_id' => $client->id]);
+        Order::factory()->create(['master_id' => $master->id, 'status' => OrderStatus::Assigned]);
+
+        $this->delete(route('clients.destroy', $client->id))->assertRedirect();
+
+        $this->assertModelExists($client);
     }
 
     // ── Photo ─────────────────────────────────────────────────────────────────
