@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ServiceIcon from '@/Components/ServiceIcon.vue'
+import CategoryIcon from '@/Components/CategoryIcon.vue'
 
 const { t } = useI18n()
 
@@ -120,9 +120,10 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                             @change="toggleAllChildren(root)"
                             class="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500/20 dark:border-slate-500 dark:bg-slate-700"
                         />
-                        <ServiceIcon
+                        <CategoryIcon
                             v-if="root.icon_url"
                             :url="root.icon_url"
+                            :type="root.icon_type"
                             class="h-3.5 w-3.5 text-gray-400 dark:text-slate-500"
                         />
                         <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
@@ -137,7 +138,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                             @click="select(child.id)"
                             :class="chipClass(child.id)"
                         >
-                            <ServiceIcon v-if="child.icon_url" :url="child.icon_url" class="h-4 w-4" />
+                            <CategoryIcon v-if="child.icon_url" :url="child.icon_url" :type="child.icon_type" class="h-4 w-4" />
                             {{ child.name }}
                         </button>
                     </div>
@@ -150,7 +151,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                     @click="select(root.id)"
                     :class="chipClass(root.id)"
                 >
-                    <ServiceIcon v-if="root.icon_url" :url="root.icon_url" class="h-4 w-4" />
+                    <CategoryIcon v-if="root.icon_url" :url="root.icon_url" :type="root.icon_type" class="h-4 w-4" />
                     {{ root.name }}
                 </button>
             </div>
