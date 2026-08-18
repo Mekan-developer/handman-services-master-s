@@ -132,7 +132,7 @@ Standalone: User (admin staff), Banner, Setting, PendingOtp
 | `Oblast` / `Region` / `City` | Geography. Masters, clients and orders are all scoped to a city |
 | `Category` | Service catalog, self-nesting, bilingual, with an optional `CategoryContent` landing page |
 | `Master` | The handyman — a profile **on top of a `Client` account** (`client_id`), never a standalone login. Carries the application (categories, `experience_years`, `about`), its review verdict (`App\Enums\MasterStatus`), access expiry derived from subscriptions, availability flag, live location |
-| `Client` | Mobile app user, can be blocked by an administrator. Optionally has one `Master` profile |
+| `Client` | Mobile app user, can be blocked by an administrator. Owns the account's avatar (`photo`) — the `Master` profile shows the same file. Optionally has one `Master` profile |
 | `Order` | The job. Carries status (`App\Enums\OrderStatus`), photos, tasks, one review, and the auto-search state (`search_started_at`, `search_radius_km`, `search_expired_at`) |
 | `OrderTask` | One discrete piece of work with before/after photos — e.g. "replaced hose" |
 | `OrderMasterDecline` | A master dismissed an auto-search offer — hides it from that master's feed only |
@@ -293,7 +293,7 @@ php artisan key:generate
 touch database/database.sqlite
 php artisan migrate --seed
 
-# 5. Storage symlink (order/task photos, banners, master avatars)
+# 5. Storage symlink (order/task photos, banners, client avatars)
 php artisan storage:link
 
 # 6. Basemap archive (optional — only for map screens)
@@ -521,14 +521,21 @@ Upload (order photo / task photo)
 
 Row status values live as constants on the photo models: `pending` · `converting` · `done` · `failed`, so the UI can show progress and never blocks on processing.
 
-Small **admin-panel** uploads are the exception — they convert inline because there is no
-status column to poll and the payload is tiny:
+Single **profile-sized** uploads are the exception — they convert inline because there is
+no status column to poll and the payload is tiny:
 
 | Upload | Helper | Result |
 |---|---|---|
-| Master photo | `PhotoConverter::convertToWidth()` | WebP, width 300 |
+| Client avatar | `PhotoConverter::convertToWidth()` | WebP, width 512 |
 | Category content image | `PhotoConverter::convertContent()` | WebP, width 700 when > 800 KB |
 | Category icon | `PhotoConverter::convertToMaxBytes()` | WebP ≤ 50 KB, width ≤ 512 (`CategoryIcon`) |
+
+**One person, one avatar.** A master profile always hangs off a client account, so the
+photo lives on `clients.photo` and `MasterResource` reads it through the relation —
+`masters` has no photo column. It is uploaded in three places, all landing in
+`StoreClientPhotoAction`: the admin clients form, `POST /client/auth/complete-registration`
+and `PATCH /client/me`. The last one is multipart-only via `POST` + `_method=PATCH`,
+since PHP fills `$_FILES` on `POST` alone.
 
 `convertToMaxBytes()` steps the WebP quality down (85 → 25) and, if the budget is still
 missed, shrinks the canvas by 25 % and retries — transparency is preserved throughout.

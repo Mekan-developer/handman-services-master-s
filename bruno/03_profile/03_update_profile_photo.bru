@@ -1,0 +1,54 @@
+meta {
+  name: Update Profile Photo
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/client/me
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:multipart-form {
+  _method: PATCH
+  photo: @file()
+  ~name: Merdan Annagurdow
+  ~city_id: {{city_id}}
+}
+
+docs {
+  # Update Profile Photo
+
+  Same endpoint as **Update Profile** (`PATCH /client/me`), used whenever the
+  edit carries the avatar.
+
+  **Why `POST` + `_method: PATCH` instead of a real PATCH verb:**
+  PHP only populates file uploads (`$_FILES`) for `POST` requests — a genuine
+  `PATCH` with a `multipart/form-data` body arrives with the file silently
+  dropped. Laravel's documented workaround is to send `POST` with a `_method`
+  field spoofing the real verb; the router then dispatches it to the same
+  `update` action as a `PATCH`. `name` and `city_id` may ride along.
+
+  **Fields:**
+  - `photo` — `jpeg|png|jpg|webp`, max 5 MB. Converted **inline** (no queue) to
+    WebP and downscaled to **512 px wide**, height proportional; smaller images
+    are not upscaled. The previous file is deleted.
+
+  Omitting `photo` never blanks the stored avatar — it stays as it is.
+
+  **Response 200:** `ClientProfileResource` with `photo` / `photo_url`
+
+  **Errors:**
+  - `422` — validation error (not an image, over 5 MB, city_id not found)
+  - `401` — missing / invalid token
+}
