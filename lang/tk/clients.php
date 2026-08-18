@@ -21,7 +21,12 @@ return [
     'photo_change' => 'Üýtget',
     'photo_hint' => '3×4 format, JPG/PNG, 5 MB çenli. Ussa profilinde-de ulanylýar',
 
-    'delete_confirm' => 'Bu müşderini pozmak isleýärsiňizmi?',
+    'delete_confirm' => 'Müşderini pozmalymy? Onuň sargytlary, ýerine ýetirilen işleri we ähli suratlary hem pozular.',
+
+    'errors' => [
+        'delete_master_has_completed_orders' => 'Müşderini pozup bolmaýar: ol :count ýerine ýetirilen sargytly ussa. Bu taryh sargyt eden müşderilere gerek.',
+        'delete_master_has_active_orders' => 'Müşderini pozup bolmaýar: ol işdäki :count sargytly ussa. Ilki olary tamamlaň ýa-da ýatyryň.',
+    ],
     'block_confirm' => 'Müşderini petiklemek isleýärsiňizmi? Ol programma girip bilmez.',
     'unblock_confirm' => 'Müşderini açmak isleýärsiňizmi?',
 

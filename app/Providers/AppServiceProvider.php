@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Client;
 use App\Models\Master;
+use App\Models\Order;
+use App\Observers\ClientObserver;
 use App\Observers\MasterObserver;
+use App\Observers\OrderObserver;
 use App\Services\SystemStatusService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
@@ -21,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
+        Client::observe(ClientObserver::class);
         Master::observe(MasterObserver::class);
+        Order::observe(OrderObserver::class);
 
         $this->registerQueueHeartbeat();
         $this->registerProcessedJobsCounter();

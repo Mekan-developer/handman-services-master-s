@@ -63,4 +63,9 @@ class ClientRepository
 
         return $client->fresh();
     }
+
+    public function delete(Client $client): void
+    {
+        $client->delete();
+    }
 }

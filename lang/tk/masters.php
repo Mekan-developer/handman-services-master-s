@@ -48,6 +48,8 @@ return [
     'applications_empty' => 'Arza ýok',
     'errors' => [
         'not_under_review' => 'Bu arza eýýäm seredildi',
+        'delete_has_completed_orders' => 'Ussany pozup bolmaýar: onuň :count ýerine ýetirilen sargydy bar. Bu taryh sargyt eden müşderilere gerek.',
+        'delete_has_active_orders' => 'Ussany pozup bolmaýar: onuň işdäki :count sargydy bar. Ilki olary tamamlaň ýa-da ýatyryň.',
     ],
     'active' => 'Işjeň',
     'inactive' => 'Işjeň däl',

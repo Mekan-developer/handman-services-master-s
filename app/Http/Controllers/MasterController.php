@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\CreateMasterAction;
 use App\Actions\DeleteMasterAction;
 use App\Actions\UpdateMasterAction;
+use App\Exceptions\MasterException;
 use App\Exceptions\SubscriptionException;
 use App\Http\Requests\StoreMasterRequest;
 use App\Http\Requests\UpdateMasterRequest;
@@ -84,8 +85,13 @@ class MasterController extends Controller
     public function destroy(int $id, DeleteMasterAction $action): RedirectResponse
     {
         $master = $this->repository->findOrFail($id);
-        $action->handle($master);
-        $this->notifySuccess('notifications.deleted', ['resource' => __('resources.master')]);
+
+        try {
+            $action->handle($master);
+            $this->notifySuccess('notifications.deleted', ['resource' => __('resources.master')]);
+        } catch (MasterException $e) {
+            $this->notifyError($e->getMessage());
+        }
 
         return redirect()->route('masters.index');
     }

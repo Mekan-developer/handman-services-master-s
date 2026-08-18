@@ -6,6 +6,7 @@ use App\Actions\CreateClientAction;
 use App\Actions\DeleteClientAction;
 use App\Actions\ToggleClientBlockAction;
 use App\Actions\UpdateClientAction;
+use App\Exceptions\ClientException;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
@@ -54,8 +55,13 @@ class ClientController extends Controller
     public function destroy(int $client, DeleteClientAction $action): RedirectResponse
     {
         $model = $this->repository->findOrFail($client);
-        $action->handle($model);
-        $this->notifySuccess('notifications.deleted', ['resource' => __('resources.client')]);
+
+        try {
+            $action->handle($model);
+            $this->notifySuccess('notifications.deleted', ['resource' => __('resources.client')]);
+        } catch (ClientException $e) {
+            $this->notifyError($e->getMessage());
+        }
 
         return redirect()->route('clients.index');
     }

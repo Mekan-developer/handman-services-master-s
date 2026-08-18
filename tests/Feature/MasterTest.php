@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Enums\OrderStatus;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Client;
 use App\Models\Master;
 use App\Models\MasterLocation;
+use App\Models\Order;
 use App\Models\OrderReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -322,6 +324,57 @@ class MasterTest extends TestCase
 
         $this->delete(route('masters.destroy', $master))
             ->assertRedirect(route('masters.index'));
+
+        $this->assertModelMissing($master);
+    }
+
+    /** Losing the master role must never cost someone their account. */
+    public function test_deleting_a_master_keeps_the_client_account(): void
+    {
+        $this->actingAsAdmin();
+
+        $client = Client::factory()->create();
+        $master = Master::factory()->create(['client_id' => $client->id]);
+
+        $this->delete(route('masters.destroy', $master))->assertRedirect();
+
+        $this->assertModelMissing($master);
+        $this->assertModelExists($client);
+    }
+
+    public function test_master_with_completed_orders_cannot_be_deleted(): void
+    {
+        $this->actingAsAdmin();
+
+        $master = Master::factory()->create();
+        Order::factory()->create(['master_id' => $master->id, 'status' => OrderStatus::Completed]);
+
+        $this->delete(route('masters.destroy', $master))->assertRedirect();
+
+        $this->assertModelExists($master);
+    }
+
+    public function test_master_with_an_order_in_progress_cannot_be_deleted(): void
+    {
+        $this->actingAsAdmin();
+
+        $master = Master::factory()->create();
+        Order::factory()->create(['master_id' => $master->id, 'status' => OrderStatus::InProgress]);
+
+        $this->delete(route('masters.destroy', $master))->assertRedirect();
+
+        $this->assertModelExists($master);
+    }
+
+    /** Cancelled work is not history worth keeping — it must not block the delete. */
+    public function test_master_with_only_cancelled_orders_can_be_deleted(): void
+    {
+        $this->actingAsAdmin();
+
+        $master = Master::factory()->create();
+        Order::factory()->create(['master_id' => $master->id, 'status' => OrderStatus::Cancelled]);
+
+        $this->delete(route('masters.destroy', $master))->assertRedirect();
 
         $this->assertModelMissing($master);
     }

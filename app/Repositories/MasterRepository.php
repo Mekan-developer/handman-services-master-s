@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enums\MasterStatus;
+use App\Enums\OrderStatus;
 use App\Models\Client;
 use App\Models\Master;
 use App\Models\MasterLocation;
@@ -148,6 +149,20 @@ class MasterRepository
     public function delete(Master $master): void
     {
         $master->delete();
+    }
+
+    /** Jobs the master actually finished — the history that blocks deletion. */
+    public function completedOrdersCount(Master $master): int
+    {
+        return $master->orders()->where('status', OrderStatus::Completed)->count();
+    }
+
+    /** Jobs in flight: taken but not yet finished or cancelled. */
+    public function activeOrdersCount(Master $master): int
+    {
+        return $master->orders()
+            ->whereIn('status', [OrderStatus::Assigned, OrderStatus::InProgress])
+            ->count();
     }
 
     /**
