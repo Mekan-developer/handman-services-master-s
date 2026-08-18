@@ -42,7 +42,8 @@ class UpsertCategoryContentAction
                     DIRECTORY_SEPARATOR
                 );
                 $this->repository->addImage($content, $webpRelative);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                report($e);
                 $this->repository->addImage($content, $path);
             }
         }
