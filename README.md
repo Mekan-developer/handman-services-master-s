@@ -152,7 +152,7 @@ Standalone: User (admin staff), Banner, Setting, PendingOtp
 | `MasterStatus` | `pending`, `approved`, `rejected` — where a master application stands (+ `label()`, `color()`, `grantsAccess()`, `canTransitionTo()`) |
 | `OtpDeliveryChannel` | Delivery route of a generated OTP (SMS gateway vs. manual) |
 | `OtpRecipientType` | Recipient a parked OTP belongs to |
-| `CategoryIconType` | Icon source for a category |
+| `CategoryIconType` | Icon source for a category: `preset` (SVG from the set), `image` (uploaded WebP ≤ 50 KB), `custom` (legacy SVG, read-only) |
 
 ### Roles & Access
 
@@ -205,7 +205,7 @@ app/
 └── Support/                    # Framework-agnostic helpers (PhotoConverter, CategoryIcon)
 
 resources/js/
-├── Components/                 # CategoryPicker, CityFilterSelect, ConfirmModal, IconPicker,
+├── Components/                 # CategoryIcon, CategoryPicker, CityFilterSelect, ConfirmModal, IconPicker,
 │                               # ImageLightbox, Modal, NotificationPanel, OblastCitySelect,
 │                               # Pagination, PasswordInput, PendingOtpPanel, PhoneInput,
 │                               # ServiceIcon, form primitives
@@ -520,6 +520,18 @@ Upload (order photo / task photo)
 ```
 
 Row status values live as constants on the photo models: `pending` · `converting` · `done` · `failed`, so the UI can show progress and never blocks on processing.
+
+Small **admin-panel** uploads are the exception — they convert inline because there is no
+status column to poll and the payload is tiny:
+
+| Upload | Helper | Result |
+|---|---|---|
+| Master photo | `PhotoConverter::convertToWidth()` | WebP, width 300 |
+| Category content image | `PhotoConverter::convertContent()` | WebP, width 700 when > 800 KB |
+| Category icon | `PhotoConverter::convertToMaxBytes()` | WebP ≤ 50 KB, width ≤ 512 (`CategoryIcon`) |
+
+`convertToMaxBytes()` steps the WebP quality down (85 → 25) and, if the budget is still
+missed, shrinks the canvas by 25 % and retries — transparency is preserved throughout.
 
 ---
 
