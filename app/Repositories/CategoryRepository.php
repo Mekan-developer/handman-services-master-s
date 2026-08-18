@@ -98,6 +98,12 @@ class CategoryRepository
         return $category;
     }
 
+    /** How many orders still reference the category — non-zero means it cannot be deleted. */
+    public function ordersCount(Category $category): int
+    {
+        return $category->orders()->count();
+    }
+
     public function delete(Category $category): void
     {
         $category->delete();

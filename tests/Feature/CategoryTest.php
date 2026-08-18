@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Order;
 use App\Models\User;
 use App\Support\CategoryIcon;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -202,6 +203,40 @@ class CategoryTest extends TestCase
         $this->actingAsAdmin();
 
         $this->delete(route('categories.destroy', 9999))->assertNotFound();
+    }
+
+    public function test_deleting_a_category_used_by_orders_is_rejected(): void
+    {
+        $this->actingAsAdmin();
+        $category = Category::factory()->create();
+        Order::factory()->forCategory($category)->create();
+
+        $this->delete(route('categories.destroy', $category))
+            ->assertRedirect(route('categories.index'))
+            ->assertSessionHas('notification', fn ($notification) => $notification['type'] === 'error'
+                && ! str_contains($notification['message'], 'SQLSTATE'));
+
+        $this->assertModelExists($category);
+    }
+
+    public function test_rejected_deletion_keeps_the_category_icon_file(): void
+    {
+        Storage::fake('public');
+        $this->actingAsAdmin();
+
+        $path = UploadedFile::fake()->image('icon.png', 100, 100)->store(CategoryIcon::IMAGE_DIRECTORY, 'public');
+        $category = Category::factory()->create([
+            'icon_type' => 'image',
+            'icon' => $path,
+        ]);
+        Order::factory()->forCategory($category)->create();
+
+        $this->delete(route('categories.destroy', $category))
+            ->assertRedirect(route('categories.index'));
+
+        // The row survived, so its icon must survive with it.
+        $this->assertModelExists($category);
+        Storage::disk('public')->assertExists($path);
     }
 
     // ── Icons ─────────────────────────────────────────────────────────────────
