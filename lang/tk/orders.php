@@ -41,10 +41,8 @@ return [
     ],
 
     'actions' => [
-        'assign_master' => 'Ussa belle',
-        'change_master' => 'Ussany çalyş',
-        'set_price' => 'Bahany goý',
         'edit' => 'Redaktirle',
+        'restart_search' => 'Usta gözlegini täzeden başlat',
         'change_status' => 'Ýagdaýy üýtget',
         'view_on_map' => 'Kartada görkez',
         'call_master' => 'Ussa jaň et',
@@ -77,21 +75,13 @@ return [
     ],
 
     'modals' => [
-        'assign_title' => 'Sargyda ussa belle',
-        'price_title' => 'Jemi bahany goý',
-        'price_placeholder' => 'Bahany giriziň',
         'edit_title' => 'Sargydy redaktirle',
         'create_title' => 'Müşderiden täze sargyt',
         'select_city' => 'Şäheri saýlaň',
         'select_category' => 'Kategoriýany saýlaň',
         'status_title' => 'Sargydyň ýagdaýyny üýtget',
         'cancel_reason' => 'Ýatyrylan sebäbi',
-        'no_eligible_masters' => 'Bu şäher we kategoriýa üçin elýeterli ussa ýok',
         'complete_no_price_warning' => 'Jemi baha görkezilmedi. Göterimli tölegli ussa 0 hasaplanar. Dogry hasaplama üçin bahany giriziň.',
-        'change_reason_label' => 'Ussany çalyşmagyň sebäbi',
-        'change_reason_placeholder' => 'Mysal üçin: usta elýeterli däl, ýalňyşyp bellenildi…',
-        'confirm_master_change_title' => 'Ussanyň çalşylmagyny tassyklaň',
-        'confirm_master_change' => 'Tassykla',
         'back' => 'Yza',
     ],
 
@@ -114,8 +104,7 @@ return [
     ],
 
     'notifications' => [
-        'master_assigned' => 'Usta üstünlikli bellenildi',
-        'price_set' => 'Baha goýuldy',
+        'search_restarted' => 'Usta gözlegi täzeden başladyldy',
         'status_updated' => 'Ýagdaý täzelendi',
         'completed_without_price' => 'Sargyt tamamlandy, ýöne jemi baha görkezilmedi — ussa 0 hasaplandy',
         'new_order' => ':client müşderisinden täze sargyt — :category',
@@ -139,15 +128,16 @@ return [
         'already_reviewed' => 'Siz eýýäm bu sargyda syn goýduňyz',
         'already_claimed' => 'Sargydy başga usta eýýäm aldy',
         'out_of_search_radius' => 'Sargyt siziň gözleg radiusyňyzdan daşarda',
-        'search_expired' => 'Bu sargyt boýunça awtomatik gözleg tamamlandy — ony administrator belleýär',
+        'search_expired' => 'Bu sargyt boýunça awtomatik gözleg tamamlandy — administrator gözlegi täzeden başladyp biler',
         'master_location_unknown' => 'Siziň ýerleşişiňiz kesgitlenmedi — geolokasiýany açyň',
         'already_responded' => 'Siz eýýäm bu sargyda teklip beripsiňiz',
         'response_not_pending' => 'Bu teklip boýunça eýýäm çözgüt kabul edildi',
+        'search_restart_not_allowed' => 'Gözlegi diňe usta bellenilmedik täze sargyt üçin täzeden başlatyp bolýar',
     ],
 
     'search' => [
-        'needs_manual_assignment' => 'El bilen bellemegi talap edýär',
-        'needs_manual_assignment_hint' => 'Ussany awtomatik gözlemek iň ýokary radiusa ýetdi, hiç kim jogap bermedi',
+        'needs_manual_assignment' => 'Usta gözlegi netije bermedi',
+        'needs_manual_assignment_hint' => 'Ussany awtomatik gözlemek iň ýokary radiusa ýetdi, hiç kim jogap bermedi — sargyt sahypasynda gözlegi täzeden başladyň',
         'in_progress' => 'Ussa gözlenilýär',
         'radius' => 'Radius :km km',
         'exhausted_notification' => '№:order sargyt: ussany awtomatik gözlemek netije bermedi (:radius km)',

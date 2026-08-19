@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\AssignMasterAction;
 use App\Actions\CreateOrderForClientAction;
 use App\Actions\DeleteOrderAction;
-use App\Actions\SetOrderFinalPriceAction;
+use App\Actions\RestartOrderSearchAction;
 use App\Actions\UpdateOrderAction;
 use App\Actions\UpdateOrderStatusAction;
 use App\Enums\OrderStatus;
 use App\Exceptions\OrderException;
-use App\Http\Requests\AssignMasterToOrderRequest;
-use App\Http\Requests\SetOrderFinalPriceRequest;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
@@ -20,7 +17,6 @@ use App\Http\Traits\WithNotification;
 use App\Models\MasterLocation;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ClientRepository;
-use App\Repositories\MasterRepository;
 use App\Repositories\OblastRepository;
 use App\Repositories\OrderRepository;
 use Illuminate\Http\JsonResponse;
@@ -35,7 +31,6 @@ class OrderController extends Controller
 
     public function __construct(
         private readonly OrderRepository $repository,
-        private readonly MasterRepository $masterRepository,
     ) {}
 
     public function index(Request $request): Response
@@ -61,28 +56,11 @@ class OrderController extends Controller
         $order = $this->repository->findOrFail($id);
 
         $isPending = $order->status === OrderStatus::Pending;
-        $isAssignable = ! in_array($order->status, [OrderStatus::Completed, OrderStatus::Cancelled]);
 
         return Inertia::render('Orders/Show', [
             'order' => (new OrderResource($order))->resolve(),
             'oblasts' => $isPending ? app(OblastRepository::class)->allWithCities() : collect(),
             'categories' => $isPending ? app(CategoryRepository::class)->treeForSelect() : [],
-            'eligibleMasters' => $isAssignable
-                ? $this->masterRepository
-                    ->eligibleForOrder($order->city_id, $order->category_id)
-                    ->filter(fn ($m) => $m->id !== $order->master_id)
-                    ->map(fn ($m) => [
-                        'id' => $m->id,
-                        'name' => $m->name,
-                        'phone' => $m->phone,
-                        'categories' => $m->categories->pluck('name'),
-                        'latest_location' => $m->latestLocation ? [
-                            'latitude' => $m->latestLocation->latitude,
-                            'longitude' => $m->latestLocation->longitude,
-                        ] : null,
-                    ])
-                    ->values()
-                : collect(),
             'statuses' => collect(OrderStatus::cases())->map(fn ($s) => [
                 'value' => $s->value,
                 'label' => $s->label(),
@@ -126,28 +104,13 @@ class OrderController extends Controller
         return redirect()->route('orders.index');
     }
 
-    public function assign(AssignMasterToOrderRequest $request, int $id, AssignMasterAction $action): RedirectResponse
+    public function restartSearch(int $id, RestartOrderSearchAction $action): RedirectResponse
     {
         $order = $this->repository->findOrFail($id);
 
         try {
-            $data = $request->validated();
-            $action->handle($order, (int) $data['master_id'], $data['change_reason'] ?? null);
-            $this->notifySuccess('orders.notifications.master_assigned');
-        } catch (OrderException $e) {
-            $this->notifyError($e->getMessage());
-        }
-
-        return redirect()->route('orders.show', $order->id);
-    }
-
-    public function setPrice(SetOrderFinalPriceRequest $request, int $id, SetOrderFinalPriceAction $action): RedirectResponse
-    {
-        $order = $this->repository->findOrFail($id);
-
-        try {
-            $action->handle($order, (float) $request->validated()['final_price']);
-            $this->notifySuccess('orders.notifications.price_set');
+            $action->handle($order);
+            $this->notifySuccess('orders.notifications.search_restarted');
         } catch (OrderException $e) {
             $this->notifyError($e->getMessage());
         }

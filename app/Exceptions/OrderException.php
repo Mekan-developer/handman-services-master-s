@@ -99,4 +99,10 @@ class OrderException extends ApiException
     {
         return new self((string) __('orders.errors.response_not_pending'));
     }
+
+    /** The auto-search can only be (re)started while the order is pending and unassigned. */
+    public static function searchRestartNotAllowed(): self
+    {
+        return new self((string) __('orders.errors.search_restart_not_allowed'));
+    }
 }

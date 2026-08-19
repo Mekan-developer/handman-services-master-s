@@ -116,8 +116,7 @@ class OrderTest extends TestCase
         $this->get(route('orders.show', $order))
             ->assertOk()
             ->assertInertia(fn ($page) => $page->component('Orders/Show')
-                ->where('order.id', $order->id)
-                ->has('eligibleMasters'));
+                ->where('order.id', $order->id));
     }
 
     public function test_show_returns_404_for_unknown_order(): void
@@ -126,31 +125,30 @@ class OrderTest extends TestCase
         $this->get(route('orders.show', 999))->assertNotFound();
     }
 
-    public function test_eligible_masters_excludes_current_master_and_stays_a_list(): void
+    // ── Restart search ───────────────────────────────────────────────────────
+
+    public function test_admin_can_restart_search_on_a_pending_order(): void
     {
         $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $category = Category::factory()->create();
+        $order = Order::factory()->searching(20, now()->subMinutes(10))->searchExpired()->create();
 
-        $masters = Master::factory()->count(3)->create(['city_id' => $city->id]);
-        $masters->each(fn (Master $m) => $m->categories()->sync([$category->id]));
+        $this->post(route('orders.restart-search', $order))
+            ->assertRedirect(route('orders.show', $order));
 
-        // Assigned master sits in the middle of the eligible set, so filtering it out
-        // leaves non-sequential collection keys — must still serialize as a JSON array.
-        $order = Order::factory()->forMaster($masters[1])->assigned()->create([
-            'city_id' => $city->id,
-            'category_id' => $category->id,
-        ]);
+        $this->assertNull($order->fresh()->search_expired_at);
+    }
 
-        $this->get(route('orders.show', $order))
-            ->assertOk()
-            ->assertInertia(fn ($page) => $page
-                ->where('eligibleMasters', fn ($eligible) => count($eligible) === 2
-                    // Keys must be sequential (0,1) — otherwise Inertia serializes the
-                    // collection as a JSON object and the Vue Array prop reads as empty.
-                    && array_is_list(collect($eligible)->all())
-                    && collect($eligible)->pluck('id')->doesntContain($masters[1]->id))
-            );
+    public function test_admin_cannot_restart_search_on_an_assigned_order(): void
+    {
+        $this->actingAsAdmin();
+        $master = Master::factory()->create();
+        $order = Order::factory()->forMaster($master)->assigned()->create();
+        $previousExpiredAt = $order->search_expired_at;
+
+        $this->post(route('orders.restart-search', $order))
+            ->assertRedirect();
+
+        $this->assertEquals($previousExpiredAt, $order->fresh()->search_expired_at);
     }
 
     // ── Store ─────────────────────────────────────────────────────────────────
@@ -251,151 +249,6 @@ class OrderTest extends TestCase
         ]);
 
         $this->post(route('orders.store'), $payload)->assertSessionHasErrors('photos');
-    }
-
-    // ── Assign master ─────────────────────────────────────────────────────────
-
-    public function test_admin_can_assign_eligible_master(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $category = Category::factory()->create();
-        $master = Master::factory()->create(['city_id' => $city->id]);
-        $master->categories()->sync([$category->id]);
-        $order = Order::factory()->create(['city_id' => $city->id, 'category_id' => $category->id]);
-
-        $this->post(route('orders.assign', $order), ['master_id' => $master->id])
-            ->assertRedirect(route('orders.show', $order));
-
-        $this->assertDatabaseHas('orders', [
-            'id' => $order->id,
-            'master_id' => $master->id,
-            'status' => 'assigned',
-        ]);
-    }
-
-    public function test_admin_can_reassign_a_different_master_with_a_reason(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $category = Category::factory()->create();
-        $firstMaster = Master::factory()->create(['city_id' => $city->id]);
-        $secondMaster = Master::factory()->create(['city_id' => $city->id]);
-        $firstMaster->categories()->sync([$category->id]);
-        $secondMaster->categories()->sync([$category->id]);
-        $order = Order::factory()->forMaster($firstMaster)->assigned()->create([
-            'city_id' => $city->id,
-            'category_id' => $category->id,
-        ]);
-
-        $this->post(route('orders.assign', $order), [
-            'master_id' => $secondMaster->id,
-            'change_reason' => 'Первый мастер недоступен',
-        ])->assertRedirect(route('orders.show', $order));
-
-        $fresh = $order->fresh();
-        $this->assertEquals($secondMaster->id, $fresh->master_id);
-        $this->assertEquals('Первый мастер недоступен', $fresh->master_change_reason);
-    }
-
-    public function test_first_time_assignment_ignores_change_reason(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $category = Category::factory()->create();
-        $master = Master::factory()->create(['city_id' => $city->id]);
-        $master->categories()->sync([$category->id]);
-        $order = Order::factory()->create(['city_id' => $city->id, 'category_id' => $category->id]);
-
-        $this->post(route('orders.assign', $order), [
-            'master_id' => $master->id,
-            'change_reason' => 'Не должно сохраниться',
-        ])->assertRedirect(route('orders.show', $order));
-
-        $this->assertNull($order->fresh()->master_change_reason);
-    }
-
-    public function test_assigning_inactive_master_fails(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $category = Category::factory()->create();
-        $master = Master::factory()->inactive()->create(['city_id' => $city->id]);
-        $master->categories()->sync([$category->id]);
-        $order = Order::factory()->create(['city_id' => $city->id, 'category_id' => $category->id]);
-
-        $this->post(route('orders.assign', $order), ['master_id' => $master->id])
-            ->assertRedirect();
-
-        $this->assertNull($order->fresh()->master_id);
-    }
-
-    public function test_assigning_master_from_different_city_fails(): void
-    {
-        $this->actingAsAdmin();
-        $cityA = City::factory()->create();
-        $cityB = City::factory()->create();
-        $category = Category::factory()->create();
-        $master = Master::factory()->create(['city_id' => $cityB->id]);
-        $master->categories()->sync([$category->id]);
-        $order = Order::factory()->create(['city_id' => $cityA->id, 'category_id' => $category->id]);
-
-        $this->post(route('orders.assign', $order), ['master_id' => $master->id])
-            ->assertRedirect();
-
-        $this->assertNull($order->fresh()->master_id);
-    }
-
-    public function test_assigning_master_without_matching_category_fails(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $orderCategory = Category::factory()->create();
-        $masterCategory = Category::factory()->create();
-        $master = Master::factory()->create(['city_id' => $city->id]);
-        $master->categories()->sync([$masterCategory->id]);
-        $order = Order::factory()->create(['city_id' => $city->id, 'category_id' => $orderCategory->id]);
-
-        $this->post(route('orders.assign', $order), ['master_id' => $master->id])
-            ->assertRedirect();
-
-        $this->assertNull($order->fresh()->master_id);
-    }
-
-    // ── Set final price ───────────────────────────────────────────────────────
-
-    public function test_admin_can_set_final_price(): void
-    {
-        $this->actingAsAdmin();
-        $master = Master::factory()->create();
-        $order = Order::factory()->forMaster($master)->assigned()->create();
-
-        $this->post(route('orders.set-price', $order), ['final_price' => 350.50])
-            ->assertRedirect(route('orders.show', $order));
-
-        $this->assertEquals('350.50', $order->fresh()->final_price);
-    }
-
-    public function test_setting_price_on_completed_order_fails(): void
-    {
-        $this->actingAsAdmin();
-        $order = Order::factory()->completed()->create();
-
-        $this->post(route('orders.set-price', $order), ['final_price' => 100])
-            ->assertRedirect();
-
-        $this->assertEquals('completed', $order->fresh()->status->value);
-    }
-
-    public function test_setting_price_without_a_master_fails(): void
-    {
-        $this->actingAsAdmin();
-        $order = Order::factory()->create();
-
-        $this->post(route('orders.set-price', $order), ['final_price' => 100])
-            ->assertRedirect();
-
-        $this->assertNull($order->fresh()->final_price);
     }
 
     // ── Update status ─────────────────────────────────────────────────────────

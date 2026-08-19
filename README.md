@@ -78,7 +78,7 @@ HTTP Request
 | **Thin Controllers** | Only handle HTTP: receive request, call action/service, return response |
 | **Repository Pattern** | ALL database queries live in Repositories — never in Controllers or Services |
 | **Services** | Complex multi-step business logic or external integrations (`OtpGatewayService`) |
-| **Actions** | Single-purpose operations (e.g. `AssignMasterAction`, `CreditMasterBalanceAction`) |
+| **Actions** | Single-purpose operations (e.g. `RestartOrderSearchAction`, `CreditMasterBalanceAction`) |
 | **Form Requests** | All validation — never `$request->validate()` in controllers |
 | **API Resources** | All API responses — never return raw models or arrays |
 | **Jobs** | All background/async processing (image conversion) |
@@ -593,7 +593,7 @@ Both bounds are configurable at **Settings → Авто-поиск мастер�
 2. `orders:expand-search-radius` runs **every minute** (`bootstrap/app.php` → `withSchedule`, `withoutOverlapping`) and hands each searching order to `ExpandOrderSearchRadiusAction`.
 3. On each widening → `OrderSearchRadiusExpanded` broadcasts on the public `available-orders` channel. Master apps treat both events as a "reload your feed" signal and call `GET /api/v1/master/orders/available`.
 4. A master claims the order with `POST /api/v1/master/orders/{order}/respond` → `RespondToOrderAction`.
-5. Once `radius(n)` would exceed the maximum → `search_expired_at` is set, `OrderSearchExhausted` fires, `NotifyAdminsOnOrderSearchExhausted` sends `OrderSearchExhaustedNotification` to admin staff, and the order shows a **«Требует ручного назначения»** badge in `/orders`. From then on masters can neither see nor claim it — only `AssignMasterAction` (administrator) can.
+5. Once `radius(n)` would exceed the maximum → `search_expired_at` is set, `OrderSearchExhausted` fires, `NotifyAdminsOnOrderSearchExhausted` sends `OrderSearchExhaustedNotification` to admin staff, and the order shows a **«Поиск мастера не дал результата»** badge in `/orders`. From then on masters can neither see nor claim it — an administrator restarts the search from the order page (`POST orders/{order}/restart-search` → `RestartOrderSearchAction`), which resets `search_started_at`/`search_radius_km` and clears `search_expired_at`. There is no manual master-assignment path in the admin panel — masters only end up on an order through their own accepted response (`ApproveOrderResponseAction`).
 
 > **Both `schedule:work` and `queue:work` must be running.** Without the scheduler the radius never grows; without the queue worker admins never receive the exhaustion notification.
 
@@ -606,7 +606,7 @@ A master sees an order only when **all** of these hold:
 - distance(master's last GPS ping → order) ≤ the order's current `search_radius_km`
 - the master has not declined that order
 
-**City is deliberately not part of the match** — an 80 km radius crosses city borders by design. `city_id` stays a reporting/filtering dimension in the admin panel, and manual assignment via `AssignMasterAction` still enforces `cityMismatch()`.
+**City is deliberately not part of the match** — an 80 km radius crosses city borders by design. `city_id` stays a reporting/filtering dimension in the admin panel.
 
 A master with no row in `master_locations` is excluded: `GET .../available` returns an empty list (a normal state right after login), and `respond` fails with `master_location_unknown`.
 
