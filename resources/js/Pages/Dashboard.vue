@@ -1,214 +1,371 @@
 <script setup>
-import { computed } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
+import { Head, router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import { Head } from '@inertiajs/vue3'
-import OrderStatusBadge from '@/Pages/Orders/Partials/OrderStatusBadge.vue'
-import PendingOtpPanel from '@/Components/PendingOtpPanel.vue'
 
-const { t } = useI18n()
+const { t, tm } = useI18n()
 
 const props = defineProps({
-    stats: {
+    period: { type: String, default: 'monthly' },
+    year: { type: Number, default: null },
+    availableYears: { type: Array, default: () => [] },
+    series: {
         type: Object,
-        default: () => ({
-            total_orders: 0,
-            active_masters: 0,
-            pending_orders: 0,
-            total_cities: 0,
-            completed_orders: 0,
-            in_progress_orders: 0,
-        }),
+        default: () => ({ dates: [], new: [], active: [], revenue: [] }),
     },
-    ordersByStatus: { type: Array, default: () => [] },
-    recentOrders: { type: Array, default: () => [] },
 })
 
-const cards = [
-    {
-        key: 'total_orders',
-        labelKey: 'dashboard.stats.total_orders',
-        iconPath: 'M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z',
-        iconBg: 'bg-indigo-100 dark:bg-indigo-900/40',
-        iconColor: 'text-indigo-600 dark:text-indigo-400',
-    },
-    {
-        key: 'active_masters',
-        labelKey: 'dashboard.stats.active_masters',
-        iconPath: 'M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z',
-        iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
-        iconColor: 'text-emerald-600 dark:text-emerald-400',
-    },
-    {
-        key: 'pending_orders',
-        labelKey: 'dashboard.stats.pending_orders',
-        iconPath: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z',
-        iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-        iconColor: 'text-amber-600 dark:text-amber-400',
-    },
-    {
-        key: 'total_cities',
-        labelKey: 'dashboard.stats.total_cities',
-        iconPath: 'M15 10.5a3 3 0 11-6 0 3 3 0 016 0zM19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z',
-        iconBg: 'bg-sky-100 dark:bg-sky-900/40',
-        iconColor: 'text-sky-600 dark:text-sky-400',
-    },
-    {
-        key: 'completed_orders',
-        labelKey: 'dashboard.stats.completed_orders',
-        iconPath: 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-        iconBg: 'bg-green-100 dark:bg-green-900/40',
-        iconColor: 'text-green-600 dark:text-green-400',
-    },
-    {
-        key: 'in_progress_orders',
-        labelKey: 'dashboard.stats.in_progress_orders',
-        iconPath: 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99',
-        iconBg: 'bg-violet-100 dark:bg-violet-900/40',
-        iconColor: 'text-violet-600 dark:text-violet-400',
-    },
-]
+const periodOptions = ['daily', 'weekly', 'monthly', 'yearly']
 
-const statusBarColors = {
-    yellow: 'bg-yellow-400',
-    blue: 'bg-blue-500',
-    indigo: 'bg-indigo-500',
-    green: 'bg-green-500',
-    red: 'bg-red-400',
+const metricMeta = {
+    new: { titleKey: 'dashboard.kpi.new', dot: 'bg-brand-green', ring: 'border-brand-green', line: '#0c8f0a' },
+    active: { titleKey: 'dashboard.kpi.active', dot: 'bg-indigo-600', ring: 'border-indigo-600', line: '#4f46e5' },
+    revenue: { titleKey: 'dashboard.kpi.revenue', dot: 'bg-amber-500', ring: 'border-amber-500', line: '#f59e0b' },
 }
 
-const statusLabelColors = {
-    yellow: 'text-yellow-600 dark:text-yellow-400',
-    blue: 'text-blue-600 dark:text-blue-400',
-    indigo: 'text-indigo-600 dark:text-indigo-400',
-    green: 'text-green-600 dark:text-green-400',
-    red: 'text-red-500 dark:text-red-400',
+const metric = ref('active')
+const hoverIndex = ref(null)
+
+function goTo(period, year = null) {
+    hoverIndex.value = null
+    router.get(route('dashboard'), {
+        period,
+        year: period === 'monthly' && year ? year : undefined,
+    }, { preserveState: true, preserveScroll: true, replace: true })
 }
 
-const totalOrders = computed(() => props.stats.total_orders || 1)
+function onYearChange(e) {
+    const value = e.target.value
+    goTo('monthly', value ? Number(value) : null)
+}
+
+const monthsShort = computed(() => tm('dashboard.chart.months_short'))
+const monthsFull = computed(() => tm('dashboard.chart.months_full'))
+
+function fmtCount(n) {
+    return Math.round(n).toLocaleString('ru-RU')
+}
+
+function fmtMoney(n) {
+    return `${Number(n).toFixed(2)} ${t('subscriptions.currency')}`
+}
+
+function fmtMoneyAxis(n) {
+    return n >= 1000
+        ? `${Math.round(n / 1000)}k ${t('subscriptions.currency')}`
+        : `${Math.round(n)} ${t('subscriptions.currency')}`
+}
+
+function axisLabel(dateStr) {
+    if (!dateStr) { return '' }
+    const d = new Date(`${dateStr}T00:00:00`)
+
+    if (props.period === 'yearly') { return String(d.getFullYear()) }
+    if (props.period === 'monthly') { return monthsShort.value[d.getMonth()] ?? '' }
+
+    return `${d.getDate()} ${monthsShort.value[d.getMonth()] ?? ''}`
+}
+
+function niceCeil(v) {
+    if (v <= 0) { return 10 }
+
+    const exp = Math.floor(Math.log10(v))
+    const base = 10 ** exp
+    const n = v / base
+
+    let niceN
+    if (n <= 1) { niceN = 1 }
+    else if (n <= 2) { niceN = 2 }
+    else if (n <= 2.5) { niceN = 2.5 }
+    else if (n <= 5) { niceN = 5 }
+    else { niceN = 10 }
+
+    return niceN * base
+}
+
+const CHART_W = 880
+const CHART_H = 300
+const PAD_L = 52
+const PAD_R = 16
+const PAD_T = 14
+const PAD_B = 30
+
+const chart = computed(() => {
+    const dates = props.series.dates ?? []
+    const values = props.series[metric.value] ?? []
+    const n = values.length
+    const isMoney = metric.value === 'revenue'
+    const axisMax = niceCeil(Math.max(1, ...values, 0) * 1.1)
+
+    const plotW = CHART_W - PAD_L - PAD_R
+    const plotH = CHART_H - PAD_T - PAD_B
+    const xAt = (i) => PAD_L + (n <= 1 ? 0 : i * (plotW / (n - 1)))
+    const yAt = (v) => PAD_T + (1 - v / axisMax) * plotH
+
+    const points = values.map((v, i) => {
+        const x = xAt(i)
+        const y = yAt(v)
+
+        return {
+            x,
+            y,
+            xPct: (x / CHART_W) * 100,
+            yPct: (y / CHART_H) * 100,
+            label: axisLabel(dates[i]),
+            valueDisplay: isMoney ? fmtMoney(v) : fmtCount(v),
+            r: hoverIndex.value === i ? 6 : 4,
+        }
+    })
+
+    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+    const baseline = PAD_T + plotH
+    const areaPath = n
+        ? `${linePath} L${points[n - 1].x.toFixed(1)},${baseline} L${points[0].x.toFixed(1)},${baseline} Z`
+        : ''
+
+    const yTicks = [0, 0.25, 0.5, 0.75, 1].map((f) => {
+        const v = axisMax * f
+        return { y: yAt(v), label: isMoney ? fmtMoneyAxis(v) : fmtCount(v) }
+    })
+
+    const hasHover = hoverIndex.value != null && !!points[hoverIndex.value]
+
+    return {
+        points,
+        yTicks,
+        linePath,
+        areaPath,
+        hasHover,
+        hoverPoint: hasHover ? points[hoverIndex.value] : null,
+        pointsGridTemplate: `repeat(${Math.max(n, 1)},1fr)`,
+        viewBox: `0 0 ${CHART_W} ${CHART_H}`,
+    }
+})
+
+function kpiOf(key, isMoney) {
+    const arr = props.series[key] ?? []
+    const val = arr.length ? arr[arr.length - 1] : 0
+    const prev = arr.length > 1 ? arr[arr.length - 2] : val
+    const deltaPct = prev ? ((val - prev) / prev) * 100 : 0
+
+    return {
+        value: isMoney ? fmtMoney(val) : fmtCount(val),
+        delta: `${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(1)}%`,
+    }
+}
+
+const newKpi = computed(() => kpiOf('new', false))
+const activeKpi = computed(() => kpiOf('active', false))
+const revenueKpi = computed(() => kpiOf('revenue', true))
+
+const periodCompareLabel = computed(() => t(`dashboard.compare.${props.period}`))
+
+const chartSubtitle = computed(() => {
+    if (props.period === 'daily') { return t('dashboard.chart.subtitle.daily') }
+    if (props.period === 'weekly') { return t('dashboard.chart.subtitle.weekly') }
+    if (props.period === 'yearly') { return t('dashboard.chart.subtitle.yearly') }
+    if (!props.year) { return t('dashboard.chart.subtitle.monthly_all') }
+
+    const full = monthsFull.value
+    const isCurrentYear = Number(props.year) === new Date().getFullYear()
+    const toIdx = isCurrentYear ? new Date().getMonth() : 11
+
+    return t('dashboard.chart.subtitle.monthly_year', {
+        from: full[0] ?? '',
+        to: full[toIdx] ?? '',
+        year: props.year,
+    })
+})
 </script>
 
 <template>
     <Head :title="t('dashboard.title')" />
 
     <AdminLayout :title="t('dashboard.title')">
-        <div class="space-y-6">
-            <!-- OTP codes waiting for manual delivery (SMS gateway down) -->
-            <PendingOtpPanel />
+        <div class="mb-6">
+            <h1 class="text-[28px] font-extrabold text-brand-navy dark:text-[#f1f5f9]">{{ t('dashboard.title') }}</h1>
+            <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ t('dashboard.subtitle') }}</p>
+        </div>
 
-            <!-- Stat cards -->
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <!-- KPI cards -->
+        <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+            <!-- New subscriptions -->
+            <div class="relative rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div
-                    v-for="card in cards"
-                    :key="card.key"
-                    class="flex items-center gap-4 rounded-xl bg-white p-5 shadow-sm dark:bg-slate-800"
+                    v-if="metric === 'new'"
+                    class="pointer-events-none absolute -inset-px rounded-[14px] border-2 border-brand-green shadow-[0_8px_20px_rgba(12,143,10,0.18)] dark:shadow-[0_8px_20px_rgba(12,143,10,0.25)]"
+                />
+                <button
+                    type="button"
+                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-brand-green/[0.03] dark:hover:bg-white/[0.03]"
+                    @click="metric = 'new'"
                 >
-                    <div
-                        :class="['flex h-12 w-12 shrink-0 items-center justify-center rounded-xl', card.iconBg]"
-                    >
-                        <svg
-                            :class="['h-6 w-6', card.iconColor]"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
+                    <div class="flex items-center gap-2.5">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-green-100 text-green-800">
+                            <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 17 9 11 13 15 21 7" />
+                                <polyline points="14 7 21 7 21 14" />
+                            </svg>
+                        </div>
+                        <span class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.new') }}</span>
+                    </div>
+                    <div class="text-[30px] font-extrabold leading-none text-brand-navy dark:text-[#f1f5f9]">{{ newKpi.value }}</div>
+                    <div class="flex items-center gap-1.5 text-[12.5px]">
+                        <span class="font-bold text-green-800 dark:text-green-400">▲ {{ newKpi.delta }}</span>
+                        <span class="text-slate-400">{{ periodCompareLabel }}</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Active subscriptions -->
+            <div class="relative rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                <div
+                    v-if="metric === 'active'"
+                    class="pointer-events-none absolute -inset-px rounded-[14px] border-2 border-indigo-600 shadow-[0_8px_20px_rgba(79,70,229,0.18)] dark:shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
+                />
+                <button
+                    type="button"
+                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-indigo-600/[0.03] dark:hover:bg-white/[0.03]"
+                    @click="metric = 'active'"
+                >
+                    <div class="flex items-center gap-2.5">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-indigo-100 text-indigo-800">
+                            <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="8" r="3.25" />
+                                <path d="M3.5 20c0-3.6 2.5-6.2 5.5-6.2s5.5 2.6 5.5 6.2" />
+                                <circle cx="17.2" cy="9" r="2.3" />
+                                <path d="M15.7 13.8c1.9.5 3.3 2.4 3.3 4.9" />
+                            </svg>
+                        </div>
+                        <span class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.active') }}</span>
+                    </div>
+                    <div class="text-[30px] font-extrabold leading-none text-brand-navy dark:text-[#f1f5f9]">{{ activeKpi.value }}</div>
+                    <div class="flex items-center gap-1.5 text-[12.5px]">
+                        <span class="font-bold text-indigo-800 dark:text-indigo-400">▲ {{ activeKpi.delta }}</span>
+                        <span class="text-slate-400">{{ periodCompareLabel }}</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Revenue -->
+            <div class="relative rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                <div
+                    v-if="metric === 'revenue'"
+                    class="pointer-events-none absolute -inset-px rounded-[14px] border-2 border-amber-500 shadow-[0_8px_20px_rgba(245,158,11,0.18)] dark:shadow-[0_8px_20px_rgba(245,158,11,0.25)]"
+                />
+                <button
+                    type="button"
+                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-amber-500/[0.03] dark:hover:bg-white/[0.03]"
+                    @click="metric = 'revenue'"
+                >
+                    <div class="flex items-center gap-2.5">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-amber-100 text-amber-800">
+                            <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                <line x1="2" y1="10" x2="22" y2="10" />
+                            </svg>
+                        </div>
+                        <span class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.revenue') }}</span>
+                    </div>
+                    <div class="text-[30px] font-extrabold leading-none text-brand-navy dark:text-[#f1f5f9]">{{ revenueKpi.value }}</div>
+                    <div class="flex items-center gap-1.5 text-[12.5px]">
+                        <span class="font-bold text-amber-800 dark:text-amber-400">▲ {{ revenueKpi.delta }}</span>
+                        <span class="text-slate-400">{{ periodCompareLabel }}</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chart card -->
+        <div class="rounded-[14px] border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+            <div class="mb-5 flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="h-2 w-2 shrink-0 rounded-full" :class="metricMeta[metric].dot" />
+                        <h2 class="text-lg font-bold text-brand-navy dark:text-[#f1f5f9]">{{ t(metricMeta[metric].titleKey) }}</h2>
+                    </div>
+                    <p class="ml-4 mt-1.5 text-[13px] text-slate-400">{{ chartSubtitle }}</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <div v-if="period === 'monthly'" class="relative">
+                        <select
+                            :value="year ?? ''"
+                            class="cursor-pointer appearance-none rounded-full border border-[#dde3ec] bg-white py-2 pl-3.5 pr-8 text-[12.5px] font-bold text-slate-700 outline-none dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9]"
+                            @change="onYearChange"
                         >
-                            <path stroke-linecap="round" stroke-linejoin="round" :d="card.iconPath" />
+                            <option value="">{{ t('dashboard.chart.year_all') }}</option>
+                            <option v-for="y in availableYears" :key="y" :value="y">{{ y }}</option>
+                        </select>
+                        <svg class="pointer-events-none absolute right-[11px] top-1/2 h-[13px] w-[13px] -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9" />
                         </svg>
                     </div>
-                    <div>
-                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
-                            {{ stats[card.key] ?? 0 }}
-                        </p>
-                        <p class="text-sm text-gray-500 dark:text-slate-400">{{ t(card.labelKey) }}</p>
+
+                    <div class="flex items-center gap-0.5 rounded-full bg-slate-100 p-[3px] dark:bg-slate-700">
+                        <button
+                            v-for="p in periodOptions"
+                            :key="p"
+                            type="button"
+                            :class="[
+                                'rounded-full px-3 py-[7px] text-[12.5px] font-bold transition-colors',
+                                period === p ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200',
+                            ]"
+                            @click="goTo(p)"
+                        >
+                            {{ t(`dashboard.chart.periods.${p}`) }}
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom row: status breakdown + recent orders -->
-            <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <!-- Orders by status -->
-                <div class="rounded-xl bg-white p-5 shadow-sm dark:bg-slate-800">
-                    <h2 class="mb-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                        {{ t('dashboard.orders_by_status') }}
-                    </h2>
-                    <div class="space-y-3">
-                        <div
-                            v-for="item in ordersByStatus"
-                            :key="item.status"
-                            class="space-y-1"
-                        >
-                            <div class="flex items-center justify-between text-sm">
-                                <span :class="['font-medium', statusLabelColors[item.color] ?? 'text-gray-600 dark:text-slate-300']">
-                                    {{ t('orders.statuses.' + item.status) }}
-                                </span>
-                                <span class="font-semibold text-gray-900 dark:text-white">{{ item.count }}</span>
-                            </div>
-                            <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-slate-700">
-                                <div
-                                    :class="['h-full rounded-full transition-all', statusBarColors[item.color] ?? 'bg-gray-400']"
-                                    :style="{ width: totalOrders > 0 ? (item.count / totalOrders * 100) + '%' : '0%' }"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="relative">
+                <svg :viewBox="chart.viewBox" class="block w-full overflow-visible" style="aspect-ratio:880/300">
+                    <line v-for="(tick, i) in chart.yTicks" :key="`grid-${i}`" x1="52" x2="864" :y1="tick.y" :y2="tick.y" stroke="#eef1f5" stroke-width="1" />
+                    <text v-for="(tick, i) in chart.yTicks" :key="`ytick-${i}`" x="44" :y="tick.y" text-anchor="end" dominant-baseline="middle" font-size="11" fill="#94a3b8">{{ tick.label }}</text>
+                    <text v-for="(p, i) in chart.points" :key="`xlabel-${i}`" :x="p.x" y="292" text-anchor="middle" font-size="11" fill="#94a3b8">{{ p.label }}</text>
 
-                <!-- Recent orders -->
-                <div class="rounded-xl bg-white shadow-sm dark:bg-slate-800 lg:col-span-2">
-                    <div class="flex items-center justify-between px-5 pt-5 pb-3">
-                        <h2 class="text-sm font-semibold text-gray-700 dark:text-slate-200">
-                            {{ t('dashboard.recent_orders') }}
-                        </h2>
-                        <Link
-                            :href="route('orders.index')"
-                            class="text-xs text-indigo-600 hover:underline dark:text-indigo-400"
-                        >
-                            {{ t('dashboard.view_all') }}
-                        </Link>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="border-b border-gray-100 dark:border-slate-700">
-                                    <th class="px-5 pb-2 text-left text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('dashboard.table.id') }}</th>
-                                    <th class="px-3 pb-2 text-left text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('dashboard.table.client') }}</th>
-                                    <th class="px-3 pb-2 text-left text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('dashboard.table.category') }}</th>
-                                    <th class="px-3 pb-2 text-left text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('dashboard.table.city') }}</th>
-                                    <th class="px-3 pb-2 text-left text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('dashboard.table.status') }}</th>
-                                    <th class="px-5 pb-2 text-left text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('dashboard.table.date') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50 dark:divide-slate-700/60">
-                                <tr
-                                    v-for="order in recentOrders"
-                                    :key="order.id"
-                                    class="hover:bg-gray-50 dark:hover:bg-slate-700/30"
-                                >
-                                    <td class="px-5 py-2.5 font-medium text-gray-900 dark:text-white">
-                                        <Link
-                                            :href="route('orders.show', order.id)"
-                                            class="hover:text-indigo-600 dark:hover:text-indigo-400"
-                                        >
-                                            #{{ order.id }}
-                                        </Link>
-                                    </td>
-                                    <td class="px-3 py-2.5 text-gray-700 dark:text-slate-300">{{ order.client_name }}</td>
-                                    <td class="px-3 py-2.5 text-gray-600 dark:text-slate-400">{{ order.category }}</td>
-                                    <td class="px-3 py-2.5 text-gray-600 dark:text-slate-400">{{ order.city }}</td>
-                                    <td class="px-3 py-2.5">
-                                        <OrderStatusBadge
-                                            :status="order.status"
-                                            :color="order.color"
-                                            :label="t('orders.statuses.' + order.status)"
-                                        />
-                                    </td>
-                                    <td class="px-5 py-2.5 text-gray-500 dark:text-slate-500">{{ order.created_at }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <defs>
+                        <linearGradient id="dashboardChartGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" :stop-color="metricMeta[metric].line" stop-opacity="0.22" />
+                            <stop offset="100%" :stop-color="metricMeta[metric].line" stop-opacity="0" />
+                        </linearGradient>
+                    </defs>
+                    <path :d="chart.areaPath" fill="url(#dashboardChartGrad)" stroke="none" />
+                    <path :d="chart.linePath" fill="none" :stroke="metricMeta[metric].line" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
+                    <circle
+                        v-for="(p, i) in chart.points"
+                        :key="`pt-${i}`"
+                        :cx="p.x"
+                        :cy="p.y"
+                        :r="p.r"
+                        fill="#ffffff"
+                        :stroke="metricMeta[metric].line"
+                        stroke-width="2.5"
+                        style="cursor:pointer"
+                        @mouseenter="hoverIndex = i"
+                        @mouseleave="hoverIndex = null"
+                    ><title>{{ p.label }}</title></circle>
+
+                    <line v-if="chart.hasHover" :x1="chart.hoverPoint.x" :x2="chart.hoverPoint.x" y1="14" y2="270" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,3" />
+                </svg>
+
+                <div
+                    v-if="chart.hasHover"
+                    class="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-[12.5px] font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.25)]"
+                    :style="{ left: `${chart.hoverPoint.xPct}%`, top: `${chart.hoverPoint.yPct}%`, transform: 'translate(-50%, -135%)' }"
+                >
+                    <div class="mb-0.5 text-[11px] font-medium text-slate-400">{{ chart.hoverPoint.label }}</div>
+                    {{ chart.hoverPoint.valueDisplay }}
+                </div>
+            </div>
+
+            <div class="mt-4 grid gap-1 border-t border-[#eef1f5] pt-4 dark:border-white/[0.08]" :style="{ gridTemplateColumns: chart.pointsGridTemplate }">
+                <div v-for="(p, i) in chart.points" :key="`lbl-${i}`" class="min-w-0 text-center">
+                    <div class="truncate text-[10.5px] text-slate-400">{{ p.label }}</div>
+                    <div class="mt-0.5 truncate text-[12.5px] font-bold text-brand-navy dark:text-[#f1f5f9]">{{ p.valueDisplay }}</div>
                 </div>
             </div>
         </div>
