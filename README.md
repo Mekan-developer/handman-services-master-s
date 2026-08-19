@@ -1047,6 +1047,8 @@ php artisan test --compact --filter=it_creates_a_city   # Single test
 
 Every feature, action and model must have PHPUnit tests covering the happy path, validation failure and edge cases. Tests are never deleted without approval.
 
+**Test environment**: `phpunit.xml` is the single source of truth (sqlite `:memory:`, `array` cache, `sync` queue). `tests/bootstrap.php` copies those `<env>` entries into `$_SERVER` before Laravel boots — required because `docker-compose` injects the real `.env` into the container via `env_file`, and Laravel's env repository reads `$_SERVER` ahead of `putenv()`. Without it the suite silently runs against the live Redis and MySQL. Add new test-only variables to `phpunit.xml`; the bootstrap picks them up automatically.
+
 ---
 
 ## Useful Commands
