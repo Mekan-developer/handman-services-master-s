@@ -25,6 +25,25 @@ class ClientObserver
     }
 
     /**
+     * `masters.name` and `masters.phone` are copied from the client at
+     * application time and never read live from the relation elsewhere (see
+     * MasterResource's top-level `name`) — a master profile is the same
+     * person as the client, not a separate record, so both must stay in
+     * lockstep whenever the client edits either field.
+     */
+    public function updated(Client $client): void
+    {
+        if (! $client->wasChanged(['name', 'phone'])) {
+            return;
+        }
+
+        $client->master()->first()?->update([
+            'name' => $client->name,
+            'phone' => $client->phone,
+        ]);
+    }
+
+    /**
      * The avatar goes only once the row is actually gone — a delete rejected by
      * the database must not leave the client behind without their photo.
      */
