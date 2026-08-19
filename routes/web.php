@@ -86,8 +86,7 @@ Route::middleware('auth')->group(function () {
         Route::post('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
 
         Route::resource('orders', OrderController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
-        Route::post('orders/{order}/assign', [OrderController::class, 'assign'])->name('orders.assign');
-        Route::post('orders/{order}/price', [OrderController::class, 'setPrice'])->name('orders.set-price');
+        Route::post('orders/{order}/restart-search', [OrderController::class, 'restartSearch'])->name('orders.restart-search');
         Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::get('orders/{order}/master-trajectory', [OrderController::class, 'masterTrajectoryForOrder'])->name('orders.master-trajectory');
 

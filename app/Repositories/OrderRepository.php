@@ -312,6 +312,17 @@ class OrderRepository
         return $order->fresh();
     }
 
+    public function restartSearch(Order $order, int $radiusKm): Order
+    {
+        $order->update([
+            'search_started_at' => now(),
+            'search_radius_km' => $radiusKm,
+            'search_expired_at' => null,
+        ]);
+
+        return $order->fresh();
+    }
+
     /** Hide the order from this master's feed for good; other masters still see it. */
     public function declineForMaster(Order $order, int $masterId): void
     {

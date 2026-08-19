@@ -4,8 +4,6 @@ import { Link, router, usePage } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import OrderStatusBadge from '@/Pages/Orders/Partials/OrderStatusBadge.vue'
-import AssignMasterModal from '@/Pages/Orders/Partials/AssignMasterModal.vue'
-import SetPriceModal from '@/Pages/Orders/Partials/SetPriceModal.vue'
 import ChangeStatusModal from '@/Pages/Orders/Partials/ChangeStatusModal.vue'
 import EditOrderModal from '@/Pages/Orders/Partials/EditOrderModal.vue'
 import ImageLightbox from '@/Components/ImageLightbox.vue'
@@ -21,12 +19,9 @@ const props = defineProps({
     order: { type: Object, required: true },
     oblasts: { type: Array, default: () => [] },
     categories: { type: Array, default: () => [] },
-    eligibleMasters: { type: Array, default: () => [] },
     statuses: { type: Array, default: () => [] },
 })
 
-const showAssignModal = ref(false)
-const showPriceModal = ref(false)
 const showStatusModal = ref(false)
 const showEditModal = ref(false)
 
@@ -125,50 +120,8 @@ onMounted(async () => {
         }
     }
 
-    // Кандидаты на замену показываем всегда, а не только пока мастер не назначен —
-    // иначе после назначения их пины пропадают с карты и переназначить некого выбрать.
-    props.eligibleMasters.forEach((m) => {
-        if (!m.latest_location) { return }
-
-        const lat = parseFloat(m.latest_location.latitude)
-        const lng = parseFloat(m.latest_location.longitude)
-        const distanceKm = haversineKm(clientLat, clientLng, lat, lng)
-
-        const candidateIcon = L.divIcon({
-            className: 'custom-marker-candidate',
-            html: `<div style="background:#94a3b8;width:26px;height:26px;border-radius:50%;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:11px;">${escapeHtml(initialOf(m.name))}</div>`,
-            iconSize: [26, 26],
-            iconAnchor: [13, 13],
-        })
-
-        const popupHtml = `
-            <div style="min-width:180px;">
-                <div style="font-weight:600;font-size:13px;margin-bottom:2px;">${escapeHtml(m.name)}</div>
-                <div style="color:#6b7280;font-size:12px;">${escapeHtml(formatPhone(m.phone))}</div>
-                <div style="display:flex;align-items:center;gap:4px;color:#2563eb;font-size:12px;font-weight:500;margin:4px 0 8px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-7.5-7-12.5A7 7 0 0112 1a7 7 0 017 7.5C19 13.5 12 21 12 21z"/><circle cx="12" cy="8.5" r="2.5"/></svg>
-                    ${formatDistance(distanceKm)}
-                </div>
-                <button
-                    onclick="window.__assignFromMap(${m.id})"
-                    style="background:#2563eb;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;width:100%"
-                >${escapeHtml(t('orders.actions.assign_master'))}</button>
-            </div>
-        `
-
-        L.marker([lat, lng], { icon: candidateIcon })
-            .addTo(map)
-            .bindPopup(popupHtml)
-
-        allLatLngs.push([lat, lng])
-    })
-
     if (allLatLngs.length > 1) {
         map.fitBounds(L.latLngBounds(allLatLngs), { padding: [80, 80] })
-    }
-
-    window.__assignFromMap = (masterId) => {
-        router.post(route('orders.assign', props.order.id), { master_id: masterId })
     }
 
     if (isTracking.value && window.Echo && props.order.city?.id) {
@@ -198,7 +151,6 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-    delete window.__assignFromMap
     if (props.order.city?.id) {
         window.Echo?.leave(`masters-map.${props.order.city.id}`)
     }
@@ -279,10 +231,6 @@ function setupMapControls(L) {
     ])
 }
 
-function initialOf(name) {
-    return (name?.trim()?.charAt(0) ?? '?').toUpperCase()
-}
-
 function escapeHtml(value) {
     const div = document.createElement('div')
     div.textContent = String(value ?? '')
@@ -339,24 +287,6 @@ async function fetchAndDrawTrajectory(L) {
     }
 }
 
-const sortedEligibleMasters = computed(() => {
-    if (!props.eligibleMasters?.length) { return [] }
-    const clientLat = parseFloat(props.order.client_lat)
-    const clientLng = parseFloat(props.order.client_lng)
-
-    return [...props.eligibleMasters]
-        .map((m) => ({
-            ...m,
-            distance_km: m.latest_location
-                ? haversineKm(clientLat, clientLng, parseFloat(m.latest_location.latitude), parseFloat(m.latest_location.longitude))
-                : null,
-        }))
-        .sort((a, b) => {
-            if (a.distance_km === null) { return 1 }
-            if (b.distance_km === null) { return -1 }
-            return a.distance_km - b.distance_km
-        })
-})
 </script>
 
 <template>
@@ -396,22 +326,14 @@ const sortedEligibleMasters = computed(() => {
                     </button>
 
                     <button
-                        v-if="!['completed', 'cancelled'].includes(order.status)"
-                        @click="showAssignModal = true"
-                        class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-                    >
-                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
-                        </svg>
-                        {{ order.master ? t('orders.actions.change_master') : t('orders.actions.assign_master') }}
-                    </button>
-
-                    <button
-                        v-if="order.master && !['completed', 'cancelled'].includes(order.status)"
-                        @click="showPriceModal = true"
+                        v-if="order.status === 'pending'"
+                        @click="router.post(route('orders.restart-search', order.id))"
                         class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     >
-                        {{ t('orders.actions.set_price') }}
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        {{ t('orders.actions.restart_search') }}
                     </button>
 
                     <button
@@ -463,13 +385,6 @@ const sortedEligibleMasters = computed(() => {
                                 <div class="flex items-center justify-between gap-2">
                                     <span class="text-gray-500 dark:text-slate-400">{{ t('orders.fields.created_at') }}</span>
                                     <span class="text-xs font-medium text-gray-700 dark:text-slate-300">{{ order.created_at }}</span>
-                                </div>
-                                <div class="flex items-center justify-between gap-2">
-                                    <span class="text-gray-500 dark:text-slate-400">{{ t('orders.fields.final_price') }}</span>
-                                    <span v-if="order.final_price" class="font-mono font-semibold text-green-600 dark:text-green-400">
-                                        {{ order.final_price }}
-                                    </span>
-                                    <span v-else class="text-gray-300 dark:text-slate-600">{{ t('orders.no_price') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -665,10 +580,6 @@ const sortedEligibleMasters = computed(() => {
                             <span class="h-3 w-3 rounded-full bg-blue-600 ring-2 ring-white dark:ring-slate-700" />
                             <span class="text-gray-600 dark:text-slate-300">{{ t('orders.fields.master') }}</span>
                         </div>
-                        <div v-if="sortedEligibleMasters.length > 0" class="flex items-center gap-1.5">
-                            <span class="h-3 w-3 rounded-full bg-slate-400 ring-2 ring-white dark:ring-slate-700" />
-                            <span class="text-gray-600 dark:text-slate-300">Кандидаты</span>
-                        </div>
                     </div>
                 </section>
 
@@ -682,19 +593,6 @@ const sortedEligibleMasters = computed(() => {
             :oblasts="oblasts"
             :categories="categories"
             @close="showEditModal = false"
-        />
-        <AssignMasterModal
-            :show="showAssignModal"
-            :order-id="order.id"
-            :masters="sortedEligibleMasters"
-            :is-reassign="!!order.master"
-            @close="showAssignModal = false"
-        />
-        <SetPriceModal
-            :show="showPriceModal"
-            :order-id="order.id"
-            :current-price="order.final_price"
-            @close="showPriceModal = false"
         />
         <ChangeStatusModal
             :show="showStatusModal"
