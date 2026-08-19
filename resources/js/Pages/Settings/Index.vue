@@ -11,6 +11,7 @@ const props = defineProps({
     clientAppRules: { type: String, default: '' },
     masterSearchInitialRadiusKm: { type: Number, default: 20 },
     masterSearchMaxRadiusKm: { type: Number, default: 80 },
+    orderAutoCancelHours: { type: Number, default: 48 },
 })
 
 const form = useForm({
@@ -18,6 +19,7 @@ const form = useForm({
     client_app_rules: props.clientAppRules ?? '',
     master_search_initial_radius_km: props.masterSearchInitialRadiusKm,
     master_search_max_radius_km: props.masterSearchMaxRadiusKm,
+    order_auto_cancel_hours: props.orderAutoCancelHours,
 })
 
 // ── App cards ──────────────────────────────────────────────────────────────
@@ -132,6 +134,30 @@ function saveRadii() {
         onSuccess() {
             radiusSaved.value = true
             setTimeout(() => { radiusSaved.value = false }, 2500)
+        },
+    })
+}
+
+// ── Order auto-cancel deadline ──────────────────────────────────────────────
+const autoCancelSaved = ref(false)
+
+const autoCancelHours = computed(() => Number(form.order_auto_cancel_hours))
+
+const autoCancelError = computed(() => {
+    if (!Number.isInteger(autoCancelHours.value) || autoCancelHours.value < 1) {
+        return t('validation.custom.master_search_initial_radius_km.min', { min: 1 })
+    }
+    return null
+})
+
+function saveAutoCancel() {
+    if (autoCancelError.value) { return }
+
+    form.put(route('settings.update'), {
+        preserveScroll: true,
+        onSuccess() {
+            autoCancelSaved.value = true
+            setTimeout(() => { autoCancelSaved.value = false }, 2500)
         },
     })
 }
@@ -574,6 +600,80 @@ onBeforeUnmount(() => {
                             @click="saveRadii"
                             :disabled="form.processing || !radiusValid"
                             class="rounded-lg bg-amber-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-amber-600 disabled:opacity-60"
+                        >
+                            {{ t('settings.save') }}
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ─── Auto-cancel Section ──────────────────────────────────────── -->
+            <section>
+                <div class="mb-4 flex items-center gap-2.5">
+                    <div class="h-[18px] w-[3px] shrink-0 rounded-sm" style="background:linear-gradient(to bottom,#ef4444,#f97316)" />
+                    <h2 class="text-[13px] font-semibold uppercase tracking-[0.5px] text-slate-400">
+                        {{ t('settings.section_auto_cancel') }}
+                    </h2>
+                </div>
+
+                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+
+                    <!-- Header -->
+                    <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[11px] border border-red-500/20 bg-red-500/[0.12]">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.8">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" d="M12 7v5l3 3"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.auto_cancel.title') }}</div>
+                            <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.auto_cancel.hint') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Input -->
+                    <div class="grid grid-cols-1 gap-4 px-5 pb-4 sm:grid-cols-2">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="auto-cancel-hours" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                                {{ t('settings.auto_cancel.hours') }}
+                            </label>
+                            <div class="relative">
+                                <input
+                                    id="auto-cancel-hours"
+                                    v-model.number="form.order_auto_cancel_hours"
+                                    type="number"
+                                    min="1"
+                                    max="720"
+                                    step="1"
+                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-11 text-[13px] text-gray-900 outline-none transition-colors focus:border-red-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    :class="autoCancelError || form.errors.order_auto_cancel_hours
+                                        ? 'border-red-500/60'
+                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                >
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                    {{ t('settings.auto_cancel.hours') }}
+                                </span>
+                            </div>
+                            <p v-if="autoCancelError || form.errors.order_auto_cancel_hours" class="text-[11.5px] text-red-500">
+                                {{ autoCancelError ?? form.errors.order_auto_cancel_hours }}
+                            </p>
+                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                                {{ t('settings.auto_cancel.hours_hint') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="flex items-center justify-between border-t border-gray-100 bg-red-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
+                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            {{ autoCancelSaved ? t('settings.saved_ok') : '' }}
+                        </span>
+                        <button
+                            type="button"
+                            @click="saveAutoCancel"
+                            :disabled="form.processing || !!autoCancelError"
+                            class="rounded-lg bg-red-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-red-600 disabled:opacity-60"
                         >
                             {{ t('settings.save') }}
                         </button>

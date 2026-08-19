@@ -26,6 +26,7 @@ class SettingController extends Controller
             'clientAppRules' => $settings->get('client_app_rules', ''),
             'masterSearchInitialRadiusKm' => $radii['initial'],
             'masterSearchMaxRadiusKm' => $radii['max'],
+            'orderAutoCancelHours' => $this->repository->orderAutoCancelHours(),
         ]);
     }
 

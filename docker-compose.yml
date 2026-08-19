@@ -51,6 +51,16 @@ services:
       - db
       - redis
 
+  scheduler:
+    <<: *php-build
+    container_name: handyman_scheduler
+    user: www-data
+    command: php artisan schedule:work
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis    
+
   artisan:
     <<: *php-build
     entrypoint: ["php", "/var/www/laravel/artisan"]

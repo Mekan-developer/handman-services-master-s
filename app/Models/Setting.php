@@ -16,5 +16,10 @@ class Setting extends Model
 
     public const DEFAULT_SEARCH_MAX_RADIUS_KM = 80;
 
+    /** Pending orders no master got approved for are auto-cancelled after this many hours. */
+    public const ORDER_AUTO_CANCEL_HOURS = 'order_auto_cancel_hours';
+
+    public const DEFAULT_ORDER_AUTO_CANCEL_HOURS = 48;
+
     protected $fillable = ['key', 'value'];
 }

@@ -45,4 +45,10 @@ class SettingRepository
                 ?: Setting::DEFAULT_SEARCH_MAX_RADIUS_KM),
         ];
     }
+
+    /** Hours a pending order can wait for a client-approved response before it auto-cancels. */
+    public function orderAutoCancelHours(): int
+    {
+        return (int) ($this->get(Setting::ORDER_AUTO_CANCEL_HOURS) ?: Setting::DEFAULT_ORDER_AUTO_CANCEL_HOURS);
+    }
 }
