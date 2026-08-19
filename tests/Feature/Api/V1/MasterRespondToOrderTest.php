@@ -3,14 +3,15 @@
 namespace Tests\Feature\Api\V1;
 
 use App\Actions\RespondToOrderAction;
+use App\Enums\OrderResponseStatus;
 use App\Enums\OrderStatus;
-use App\Events\MasterAssigned;
+use App\Events\MasterRespondedToOrder;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\Master;
 use App\Models\MasterLocation;
 use App\Models\Order;
-use App\Repositories\OrderRepository;
+use App\Models\OrderMasterResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Testing\TestResponse;
@@ -71,49 +72,54 @@ class MasterRespondToOrderTest extends TestCase
             ->postJson(route('api.v1.master.orders.respond', $order));
     }
 
-    public function test_master_claims_an_offered_order(): void
+    public function test_master_can_respond_to_an_offered_order(): void
     {
-        Event::fake([MasterAssigned::class]);
+        Event::fake([MasterRespondedToOrder::class]);
 
         $master = $this->master();
         $order = $this->order();
 
-        $this->respond($master, $order)->assertOk();
+        $this->respond($master, $order)->assertCreated();
 
+        $this->assertDatabaseHas('order_master_responses', [
+            'order_id' => $order->id,
+            'master_id' => $master->id,
+            'status' => OrderResponseStatus::Pending->value,
+        ]);
+
+        // The order stays in the pool — responding does not assign it.
         $fresh = $order->fresh();
-        $this->assertSame($master->id, $fresh->master_id);
-        $this->assertSame(OrderStatus::Assigned, $fresh->status);
-        $this->assertNotNull($fresh->assigned_at);
+        $this->assertSame(OrderStatus::Pending, $fresh->status);
+        $this->assertNull($fresh->master_id);
 
-        Event::assertDispatched(MasterAssigned::class);
+        Event::assertDispatched(MasterRespondedToOrder::class);
     }
 
-    public function test_only_the_first_of_two_responders_wins(): void
+    public function test_multiple_masters_can_respond_to_the_same_order(): void
     {
         $first = $this->master();
         $second = $this->master();
         $order = $this->order();
 
-        $this->respond($first, $order)->assertOk();
+        $this->respond($first, $order)->assertCreated();
+        $this->respond($second, $order->fresh())->assertCreated();
 
-        $this->respond($second, $order->fresh())
+        $this->assertSame(2, OrderMasterResponse::where('order_id', $order->id)->count());
+        $this->assertSame(OrderStatus::Pending, $order->fresh()->status);
+    }
+
+    public function test_a_master_cannot_respond_twice_to_the_same_order(): void
+    {
+        $master = $this->master();
+        $order = $this->order();
+
+        $this->respond($master, $order)->assertCreated();
+
+        $this->respond($master, $order->fresh())
             ->assertStatus(422)
-            ->assertJsonPath('message', __('orders.errors.already_claimed'));
+            ->assertJsonPath('message', __('orders.errors.already_responded'));
 
-        $this->assertSame($first->id, $order->fresh()->master_id);
-    }
-
-    public function test_the_atomic_claim_rejects_a_second_writer(): void
-    {
-        $repository = app(OrderRepository::class);
-        $order = $this->order();
-        $first = $this->master();
-        $second = $this->master();
-
-        $this->assertTrue($repository->claimForMaster($order, $first->id));
-        $this->assertFalse($repository->claimForMaster($order, $second->id));
-
-        $this->assertSame($first->id, $order->fresh()->master_id);
+        $this->assertSame(1, OrderMasterResponse::where('order_id', $order->id)->count());
     }
 
     public function test_master_outside_the_current_radius_is_rejected(): void
@@ -183,7 +189,7 @@ class MasterRespondToOrderTest extends TestCase
         app(RespondToOrderAction::class)->handle($master, $this->order());
     }
 
-    public function test_order_whose_search_expired_can_no_longer_be_claimed(): void
+    public function test_order_whose_search_expired_can_no_longer_be_responded_to(): void
     {
         $master = $this->master();
         $order = $this->order();
@@ -196,15 +202,18 @@ class MasterRespondToOrderTest extends TestCase
         $this->assertNull($order->fresh()->master_id);
     }
 
-    public function test_master_can_claim_across_a_city_border(): void
+    public function test_master_can_respond_across_a_city_border(): void
     {
         $master = $this->master();
         $order = $this->order();
         $order->update(['city_id' => City::factory()->create()->id]);
 
-        $this->respond($master, $order->fresh())->assertOk();
+        $this->respond($master, $order->fresh())->assertCreated();
 
-        $this->assertSame($master->id, $order->fresh()->master_id);
+        $this->assertDatabaseHas('order_master_responses', [
+            'order_id' => $order->id,
+            'master_id' => $master->id,
+        ]);
     }
 
     public function test_guest_cannot_respond(): void

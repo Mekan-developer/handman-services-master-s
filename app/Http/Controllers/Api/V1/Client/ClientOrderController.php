@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Api\V1\Client;
 
+use App\Actions\ApproveOrderResponseAction;
 use App\Actions\CancelClientOrderAction;
 use App\Actions\CreateClientOrderAction;
 use App\Actions\CreateOrderReviewAction;
+use App\Actions\RejectOrderResponseAction;
 use App\Actions\UpdateClientOrderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Client\CancelClientOrderRequest;
 use App\Http\Requests\Api\V1\Client\CreateClientOrderRequest;
 use App\Http\Requests\Api\V1\Client\CreateOrderReviewRequest;
+use App\Http\Requests\Api\V1\Client\RejectOrderResponseRequest;
 use App\Http\Requests\Api\V1\Client\UpdateClientOrderRequest;
 use App\Http\Resources\Api\V1\Client\ClientOrderResource;
 use App\Http\Resources\Api\V1\Client\OrderReviewResource;
+use App\Http\Resources\Api\V1\OrderMasterResponseResource;
 use App\Models\Client;
 use App\Repositories\OrderRepository;
 use Illuminate\Http\JsonResponse;
@@ -100,5 +104,42 @@ class ClientOrderController extends Controller
         return (new OrderReviewResource($review))
             ->response()
             ->setStatusCode(201);
+    }
+
+    /** Masters who responded to this order, nearest first, waiting on the client's decision. */
+    public function responses(Request $request, int $id): AnonymousResourceCollection
+    {
+        /** @var Client $client */
+        $client = $request->user();
+
+        $order = $this->repository->findForClientOrFail($id, $client);
+
+        return OrderMasterResponseResource::collection($this->repository->pendingResponsesFor($order));
+    }
+
+    public function approveResponse(Request $request, int $id, int $responseId, ApproveOrderResponseAction $action): JsonResponse
+    {
+        /** @var Client $client */
+        $client = $request->user();
+
+        $order = $this->repository->findForClientOrFail($id, $client);
+        $response = $this->repository->findResponseOrFail($order, $responseId);
+
+        $assigned = $action->handle($order, $response);
+
+        return (new ClientOrderResource($assigned->load(['city', 'category', 'master', 'photos'])))->response();
+    }
+
+    public function rejectResponse(RejectOrderResponseRequest $request, int $id, int $responseId, RejectOrderResponseAction $action): JsonResponse
+    {
+        /** @var Client $client */
+        $client = $request->user();
+
+        $order = $this->repository->findForClientOrFail($id, $client);
+        $response = $this->repository->findResponseOrFail($order, $responseId);
+
+        $rejected = $action->handle($response, $request->validated('reason'));
+
+        return (new OrderMasterResponseResource($rejected))->response();
     }
 }

@@ -4,17 +4,19 @@ namespace App\Actions;
 
 use App\Actions\Concerns\EnsuresMasterEligibility;
 use App\Enums\OrderStatus;
-use App\Events\MasterAssigned;
+use App\Events\MasterRespondedToOrder;
 use App\Exceptions\OrderException;
 use App\Models\Master;
 use App\Models\Order;
+use App\Models\OrderMasterResponse;
 use App\Repositories\MasterRepository;
 use App\Repositories\OrderRepository;
 
 /**
- * A master claims an auto-search offer. Unlike administrator assignment this is
- * a race between everyone the order was offered to, so the last step is an
- * atomic conditional update rather than a plain write.
+ * A master responds to an auto-search offer. Unlike administrator assignment
+ * this does not hand the order over on its own — several masters may respond
+ * to the same order, and the client decides who gets it (see
+ * ApproveOrderResponseAction).
  */
 class RespondToOrderAction
 {
@@ -26,7 +28,7 @@ class RespondToOrderAction
     ) {}
 
     /** @throws OrderException */
-    public function handle(Master $master, Order $order): Order
+    public function handle(Master $master, Order $order): OrderMasterResponse
     {
         if ($order->status !== OrderStatus::Pending || $order->master_id !== null) {
             throw OrderException::alreadyClaimed();
@@ -56,14 +58,14 @@ class RespondToOrderAction
             throw OrderException::outOfSearchRadius();
         }
 
-        if (! $this->orderRepository->claimForMaster($order, $master->id)) {
-            throw OrderException::alreadyClaimed();
+        if ($this->orderRepository->hasResponded($order, $master->id)) {
+            throw OrderException::alreadyResponded();
         }
 
-        $assigned = $order->fresh();
+        $response = $this->orderRepository->respondToOrder($order, $master);
 
-        MasterAssigned::dispatch($assigned->load('master'));
+        MasterRespondedToOrder::dispatch($response->load('master'));
 
-        return $assigned;
+        return $response;
     }
 }

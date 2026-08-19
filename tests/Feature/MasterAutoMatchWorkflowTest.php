@@ -129,9 +129,23 @@ class MasterAutoMatchWorkflowTest extends TestCase
         $this->assertSame($orderId, $available->json('data.0.id'));
         $this->assertEqualsWithDelta(10.0, $available->json('data.0.distance_km'), 0.3);
 
-        // Master A claims the request the auto-search surfaced.
-        $this->withToken($tokenA)
+        // Master A responds to the request the auto-search surfaced.
+        $respondResponse = $this->withToken($tokenA)
             ->postJson(route('api.v1.master.orders.respond', $orderId))
+            ->assertCreated();
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $orderId,
+            'status' => OrderStatus::Pending->value,
+            'master_id' => null,
+        ]);
+
+        // …and only becomes assigned once client B approves that response.
+        $this->app['auth']->forgetGuards();
+        $responseId = $respondResponse->json('data.id');
+
+        $this->withToken($tokenB)
+            ->postJson(route('api.v1.client.orders.responses.approve', ['order' => $orderId, 'responseId' => $responseId]))
             ->assertOk();
 
         $this->assertDatabaseHas('orders', [

@@ -87,4 +87,16 @@ class OrderException extends ApiException
     {
         return new self((string) __('orders.errors.master_location_unknown'));
     }
+
+    /** This master already has a response (pending, approved or rejected) on this order. */
+    public static function alreadyResponded(): self
+    {
+        return new self((string) __('orders.errors.already_responded'));
+    }
+
+    /** The response was already approved or rejected — the client can't decide on it twice. */
+    public static function responseNotPending(): self
+    {
+        return new self((string) __('orders.errors.response_not_pending'));
+    }
 }
