@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\OrderStatus;
+use App\Events\ClientCreated;
 use App\Models\City;
 use App\Models\Client;
 use App\Models\Master;
@@ -12,6 +13,7 @@ use App\Models\Region;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -69,6 +71,20 @@ class ClientTest extends TestCase
             'city_id' => $city->id,
             'is_blocked' => false,
         ]);
+    }
+
+    public function test_creating_a_client_dispatches_client_created_event(): void
+    {
+        Event::fake([ClientCreated::class]);
+        $this->actingAsAdmin();
+        $city = City::factory()->create();
+
+        $this->post(route('clients.store'), $this->validPayload($city))
+            ->assertRedirect(route('clients.index'));
+
+        $client = Client::where('phone', '+99361111222')->firstOrFail();
+
+        Event::assertDispatched(ClientCreated::class, fn (ClientCreated $event) => $event->client->is($client));
     }
 
     public function test_store_requires_unique_phone(): void

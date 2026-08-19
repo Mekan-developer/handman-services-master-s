@@ -242,6 +242,18 @@ function handleOrderStatusChanged(payload) {
     playAlarmSound()
 }
 
+function handleNewClient(payload) {
+    const message = t('clients.notifications.new_client_broadcast', {
+        client: payload.name ?? '—',
+    })
+    notificationStore.info(message)
+
+    router.reload({ only: ['unreadNotificationsCount'] })
+    if (notificationPanelOpen.value) {
+        notificationPanelRef.value?.fetchNotifications()
+    }
+}
+
 function handlePendingOtp(payload) {
     notificationStore.warning(t('pending_otps.notifications.new', { phone: payload.phone }))
     playAlarmSound()
@@ -262,6 +274,11 @@ onMounted(() => {
         .listen('.master.assigned', handleMasterAssigned)
         .listen('.order.status.changed', handleOrderStatusChanged)
 
+    // Clients section is hidden from operators — skip the subscription for them.
+    if (currentUserRole.value !== 'operator') {
+        window.Echo.channel('clients').listen('.client.created', handleNewClient)
+    }
+
     // Operators have no access to parked OTP codes — subscribing would 403.
     if (currentUserRole.value !== 'operator') {
         window.Echo.private('admin.pending-otps').listen('.pending-otp.created', handlePendingOtp)
@@ -272,6 +289,7 @@ onBeforeUnmount(() => {
     clearInterval(statusPollInterval)
     window.Echo?.connector.pusher.connection.unbind('state_change', updateWsStatus)
     window.Echo?.leave('orders')
+    window.Echo?.leave('clients')
     window.Echo?.leave('admin.pending-otps')
 })
 </script>

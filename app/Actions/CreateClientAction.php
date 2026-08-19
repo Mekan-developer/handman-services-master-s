@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Events\ClientCreated;
 use App\Models\Client;
 use App\Repositories\ClientRepository;
 use Illuminate\Http\UploadedFile;
@@ -22,6 +23,10 @@ class CreateClientAction
             unset($data['photo']);
         }
 
-        return $this->repository->create($data);
+        $client = $this->repository->create($data);
+
+        ClientCreated::dispatch($client);
+
+        return $client;
     }
 }

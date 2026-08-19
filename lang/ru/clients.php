@@ -49,5 +49,7 @@ return [
     'notifications' => [
         'blocked' => 'Клиент заблокирован',
         'unblocked' => 'Клиент разблокирован',
+        'new_client' => 'Новый клиент',
+        'new_client_broadcast' => 'Новый клиент: :client',
     ],
 ];
