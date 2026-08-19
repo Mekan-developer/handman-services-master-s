@@ -138,6 +138,50 @@ class ClientTest extends TestCase
         ])->assertRedirect(route('clients.index'));
     }
 
+    public function test_renaming_a_client_syncs_their_master_profiles_name(): void
+    {
+        $this->actingAsAdmin();
+        $client = Client::factory()->create(['name' => 'Andrey']);
+        $master = Master::factory()->create(['client_id' => $client->id, 'name' => 'Andrey']);
+
+        $this->post(route('clients.update', $client->id), [
+            'city_id' => $client->city_id,
+            'name' => 'Jhon',
+            'phone' => $client->phone,
+        ])->assertRedirect(route('clients.index'));
+
+        $this->assertSame('Jhon', $master->refresh()->name);
+    }
+
+    public function test_changing_a_clients_phone_syncs_their_master_profiles_phone(): void
+    {
+        $this->actingAsAdmin();
+        $client = Client::factory()->create(['phone' => '+99361111222']);
+        $master = Master::factory()->create(['client_id' => $client->id, 'phone' => '+99361111222']);
+
+        $this->post(route('clients.update', $client->id), [
+            'city_id' => $client->city_id,
+            'name' => $client->name,
+            'phone' => '+99362223333',
+        ])->assertRedirect(route('clients.index'));
+
+        $this->assertSame('+99362223333', $master->refresh()->phone);
+    }
+
+    public function test_renaming_a_client_without_a_master_profile_does_not_error(): void
+    {
+        $this->actingAsAdmin();
+        $client = Client::factory()->create(['name' => 'Andrey']);
+
+        $this->post(route('clients.update', $client->id), [
+            'city_id' => $client->city_id,
+            'name' => 'Jhon',
+            'phone' => $client->phone,
+        ])->assertRedirect(route('clients.index'));
+
+        $this->assertSame('Jhon', $client->refresh()->name);
+    }
+
     // ── Destroy ───────────────────────────────────────────────────────────────
 
     public function test_admin_can_delete_client(): void
