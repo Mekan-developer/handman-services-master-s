@@ -27,6 +27,7 @@ class UpdateSettingsRequest extends FormRequest
             // only submits the app rules must not wipe the radius configuration.
             'master_search_initial_radius_km' => ['sometimes', 'required', 'integer', 'min:1', 'max:1000'],
             'master_search_max_radius_km' => ['sometimes', 'required', 'integer', 'min:1', 'max:1000'],
+            'order_auto_cancel_hours' => ['sometimes', 'required', 'integer', 'min:1', 'max:720'],
         ];
     }
 
@@ -68,6 +69,7 @@ class UpdateSettingsRequest extends FormRequest
         return [
             Setting::MASTER_SEARCH_INITIAL_RADIUS_KM => (string) __('settings.auto_search.initial_radius'),
             Setting::MASTER_SEARCH_MAX_RADIUS_KM => (string) __('settings.auto_search.max_radius'),
+            Setting::ORDER_AUTO_CANCEL_HOURS => (string) __('settings.auto_cancel.title'),
         ];
     }
 }

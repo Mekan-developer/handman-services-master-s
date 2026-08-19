@@ -48,6 +48,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('subscriptions:expire')
             ->hourly()
             ->withoutOverlapping();
+
+        // The deadline is measured in hours, so an hourly sweep is precise enough
+        // and a skipped run only delays the cancellation by one tick.
+        $schedule->command('orders:cancel-stale-orders')
+            ->hourly()
+            ->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [

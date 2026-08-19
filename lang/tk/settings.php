@@ -34,6 +34,13 @@ return [
         'minute' => ':n min',
         'manual_after' => 'soňra — el bilen bellemek',
     ],
+    'section_auto_cancel' => 'Sargydy awtomatik ýatyrmak',
+    'auto_cancel' => [
+        'title' => 'Müşderiniň tassyklamagyna garaşylýan wagt',
+        'hint' => 'Şu wagtyň dowamynda müşderi hiç bir usta teklibini tassyklamasa, sargyt awtomatik ýatyrylýar',
+        'hours' => 'Sagat',
+        'hours_hint' => 'Hasap sargydyň döredilen pursatyndan başlanýar',
+    ],
     'monitoring' => [
         'title' => 'Ulgam gözegçiligi',
         'all_ok' => 'Ähli ulgamlar işleýär',
