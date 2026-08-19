@@ -128,6 +128,10 @@ Route::prefix('client')->group(function () {
             Route::patch('{order}', [ClientOrderController::class, 'update'])->name('update');
             Route::post('{order}/cancel', [ClientOrderController::class, 'cancel'])->name('cancel');
             Route::post('{order}/review', [ClientOrderController::class, 'storeReview'])->name('review');
+
+            Route::get('{order}/responses', [ClientOrderController::class, 'responses'])->name('responses');
+            Route::post('{order}/responses/{responseId}/approve', [ClientOrderController::class, 'approveResponse'])->name('responses.approve');
+            Route::post('{order}/responses/{responseId}/reject', [ClientOrderController::class, 'rejectResponse'])->name('responses.reject');
         });
     });
 });

@@ -9,6 +9,7 @@ use App\Actions\StartMasterOrderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\AvailableOrderResource;
 use App\Http\Resources\Api\V1\MasterOrderResource;
+use App\Http\Resources\Api\V1\OrderMasterResponseResource;
 use App\Models\Master;
 use App\Repositories\MasterRepository;
 use App\Repositories\OrderRepository;
@@ -59,7 +60,7 @@ class MasterOrderController extends Controller
         return AvailableOrderResource::collection($orders);
     }
 
-    /** Claim an offered order. Races with every other master it was offered to. */
+    /** Respond to an offered order. The order stays open — the client decides who gets it. */
     public function respond(Request $request, int $id, RespondToOrderAction $action): JsonResponse
     {
         /** @var Master $master */
@@ -67,11 +68,11 @@ class MasterOrderController extends Controller
 
         $order = $this->repository->findOrFail($id);
 
-        $updated = $action->handle($master, $order);
+        $response = $action->handle($master, $order);
 
-        return (new MasterOrderResource(
-            $updated->load(['category', 'photos', 'tasks.beforePhotos', 'tasks.afterPhotos'])
-        ))->response();
+        return (new OrderMasterResponseResource($response))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /** Hide an offered order from this master's feed without affecting other masters. */

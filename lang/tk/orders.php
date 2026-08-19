@@ -121,6 +121,7 @@ return [
         'new_order' => ':client müşderisinden täze sargyt — :category',
         'master_assigned_broadcast' => ':order sargydyna usta bellenildi: :master',
         'status_changed_broadcast' => ':order sargydy: ýagdaý — :status',
+        'auto_cancelled_reason' => 'Awtomatik ýatyryldy — bellenen wagtyň dowamynda hiç bir teklip tassyklanmady',
     ],
 
     'errors' => [
@@ -140,6 +141,8 @@ return [
         'out_of_search_radius' => 'Sargyt siziň gözleg radiusyňyzdan daşarda',
         'search_expired' => 'Bu sargyt boýunça awtomatik gözleg tamamlandy — ony administrator belleýär',
         'master_location_unknown' => 'Siziň ýerleşişiňiz kesgitlenmedi — geolokasiýany açyň',
+        'already_responded' => 'Siz eýýäm bu sargyda teklip beripsiňiz',
+        'response_not_pending' => 'Bu teklip boýunça eýýäm çözgüt kabul edildi',
     ],
 
     'search' => [

@@ -2,14 +2,17 @@
 
 namespace App\Repositories;
 
+use App\Enums\OrderResponseStatus;
 use App\Enums\OrderStatus;
 use App\Models\Client;
 use App\Models\Master;
 use App\Models\Order;
 use App\Models\OrderMasterDecline;
+use App\Models\OrderMasterResponse;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class OrderRepository
 {
@@ -50,6 +53,18 @@ class OrderRepository
 
     public function forMaster(Master $master, ?string $filter = null): LengthAwarePaginator
     {
+        // Orders this master responded to are not theirs yet (master_id is still
+        // null until the client approves), so they live behind a different query
+        // than the master_id-scoped filters below.
+        if ($filter === 'awaiting_response') {
+            return Order::with(['category'])
+                ->whereHas('masterResponses', fn ($q) => $q->where('master_id', $master->id)
+                    ->where('status', OrderResponseStatus::Pending))
+                ->latest()
+                ->paginate(15)
+                ->withQueryString();
+        }
+
         return Order::with(['category'])
             ->where('master_id', $master->id)
             ->when($filter === 'active', fn ($q) => $q->whereIn('status', [OrderStatus::Assigned->value, OrderStatus::InProgress->value]))
@@ -126,6 +141,21 @@ class OrderRepository
     }
 
     /**
+     * Orders still unassigned well past the response deadline, streamed in
+     * chunks for the hourly auto-cancel sweep.
+     *
+     * @param  callable(EloquentCollection<int, Order>): mixed  $callback
+     */
+    public function eachStaleUnassigned(callable $callback, int $hours, int $chunkSize = 200): void
+    {
+        Order::query()
+            ->where('status', OrderStatus::Pending)
+            ->whereNull('master_id')
+            ->where('created_at', '<=', now()->subHours($hours))
+            ->chunkById($chunkSize, $callback);
+    }
+
+    /**
      * Pending, unclaimed orders in the master's categories that currently sit
      * inside their own search radius, nearest first.
      *
@@ -150,6 +180,7 @@ class OrderRepository
             ->whereRaw('abs(client_lat - ?) <= (search_radius_km / ?)', [$latitude, Order::KM_PER_LAT_DEGREE])
             ->whereRaw('abs(client_lng - ?) <= (search_radius_km * ?)', [$longitude, $lngDegreesPerKm])
             ->whereDoesntHave('declines', fn ($q) => $q->where('master_id', $master->id))
+            ->whereDoesntHave('masterResponses', fn ($q) => $q->where('master_id', $master->id))
             ->get();
 
         return $candidates
@@ -159,25 +190,112 @@ class OrderRepository
             ->values();
     }
 
-    /**
-     * Hand the order to the master only if nobody else holds it yet.
-     *
-     * The guard lives in the WHERE clause, so two concurrent responders resolve
-     * to one UPDATE affecting a row and one affecting none — no locking needed.
-     */
-    public function claimForMaster(Order $order, int $masterId): bool
+    public function hasResponded(Order $order, int $masterId): bool
     {
-        $claimed = Order::where('id', $order->id)
-            ->whereNull('master_id')
-            ->where('status', OrderStatus::Pending)
-            ->whereNull('search_expired_at')
-            ->update([
-                'master_id' => $masterId,
-                'status' => OrderStatus::Assigned,
-                'assigned_at' => now(),
-            ]);
+        return OrderMasterResponse::where('order_id', $order->id)
+            ->where('master_id', $masterId)
+            ->exists();
+    }
 
-        return $claimed === 1;
+    public function respondToOrder(Order $order, Master $master): OrderMasterResponse
+    {
+        return OrderMasterResponse::create([
+            'order_id' => $order->id,
+            'master_id' => $master->id,
+            'status' => OrderResponseStatus::Pending,
+        ]);
+    }
+
+    /**
+     * Pending responses for the client to decide on, nearest master first.
+     *
+     * @return Collection<int, OrderMasterResponse>
+     */
+    public function pendingResponsesFor(Order $order): Collection
+    {
+        $responses = OrderMasterResponse::with(['master.latestLocation'])
+            ->where('order_id', $order->id)
+            ->where('status', OrderResponseStatus::Pending)
+            ->get();
+
+        return $responses
+            ->each(function (OrderMasterResponse $response) use ($order): void {
+                $location = $response->master->latestLocation;
+
+                $response->distance_km = $location
+                    ? round($order->distanceKmTo((float) $location->latitude, (float) $location->longitude), 2)
+                    : null;
+            })
+            ->sortBy('distance_km')
+            ->values();
+    }
+
+    public function findResponseOrFail(Order $order, int $responseId): OrderMasterResponse
+    {
+        return OrderMasterResponse::with('master')
+            ->where('order_id', $order->id)
+            ->findOrFail($responseId);
+    }
+
+    /**
+     * The client picks a winner: the order is assigned to them, and every other
+     * still-pending response on the order is auto-rejected — those masters lost
+     * the order to someone else, not to the client explicitly declining them.
+     *
+     * @return array{0: Order, 1: Collection<int, OrderMasterResponse>}
+     */
+    public function approveResponse(Order $order, OrderMasterResponse $response): array
+    {
+        return DB::transaction(function () use ($order, $response) {
+            $assigned = $this->assignMaster($order, $response->master_id);
+
+            $response->update(['status' => OrderResponseStatus::Approved, 'decided_at' => now()]);
+
+            $superseded = OrderMasterResponse::where('order_id', $order->id)
+                ->where('id', '!=', $response->id)
+                ->where('status', OrderResponseStatus::Pending)
+                ->get();
+
+            OrderMasterResponse::where('order_id', $order->id)
+                ->where('id', '!=', $response->id)
+                ->where('status', OrderResponseStatus::Pending)
+                ->update(['status' => OrderResponseStatus::Rejected, 'decided_at' => now()]);
+
+            return [$assigned, $superseded];
+        });
+    }
+
+    public function rejectResponse(OrderMasterResponse $response, ?string $reason): OrderMasterResponse
+    {
+        $response->update([
+            'status' => OrderResponseStatus::Rejected,
+            'rejection_reason' => $reason,
+            'decided_at' => now(),
+        ]);
+
+        return $response->fresh();
+    }
+
+    /**
+     * The order left the pool while responses were still pending (cancelled,
+     * either by the client or by the stale-order sweep) — release them so the
+     * masters who responded find out it's no longer up for grabs.
+     *
+     * @return Collection<int, OrderMasterResponse>
+     */
+    public function withdrawPendingResponses(Order $order): Collection
+    {
+        $pending = OrderMasterResponse::where('order_id', $order->id)
+            ->where('status', OrderResponseStatus::Pending)
+            ->get();
+
+        if ($pending->isNotEmpty()) {
+            OrderMasterResponse::where('order_id', $order->id)
+                ->where('status', OrderResponseStatus::Pending)
+                ->update(['status' => OrderResponseStatus::Rejected, 'decided_at' => now()]);
+        }
+
+        return $pending;
     }
 
     public function expandRadius(Order $order, int $radiusKm): Order

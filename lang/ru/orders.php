@@ -121,6 +121,7 @@ return [
         'new_order' => 'Новая заявка от :client — :category',
         'master_assigned_broadcast' => 'Заявка :order: назначен мастер :master',
         'status_changed_broadcast' => 'Заявка :order: статус — :status',
+        'auto_cancelled_reason' => 'Автоматически отменена — за отведённое время ни один отклик не был одобрен',
     ],
 
     'errors' => [
@@ -140,6 +141,8 @@ return [
         'out_of_search_radius' => 'Заявка находится вне вашего радиуса поиска',
         'search_expired' => 'Авто-поиск по этой заявке завершён — её назначит администратор',
         'master_location_unknown' => 'Не удалось определить ваше местоположение — включите геолокацию',
+        'already_responded' => 'Вы уже откликнулись на эту заявку',
+        'response_not_pending' => 'Решение по этому отклику уже принято',
     ],
 
     'search' => [

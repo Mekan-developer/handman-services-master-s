@@ -128,8 +128,8 @@ class MasterDeclineOrderTest extends TestCase
             ->assertJsonPath('message', __('orders.errors.already_claimed'));
     }
 
-    /** Declining only hides the offer; a master who changes their mind may still claim it. */
-    public function test_a_declined_order_can_still_be_claimed_directly(): void
+    /** Declining only hides the offer; a master who changes their mind may still respond to it. */
+    public function test_a_declined_order_can_still_be_responded_to_directly(): void
     {
         $master = $this->master();
         $order = $this->order();
@@ -140,9 +140,12 @@ class MasterDeclineOrderTest extends TestCase
 
         $this->actingAsMaster($master)
             ->postJson(route('api.v1.master.orders.respond', $order->fresh()))
-            ->assertOk();
+            ->assertCreated();
 
-        $this->assertSame($master->id, $order->fresh()->master_id);
+        $this->assertDatabaseHas('order_master_responses', [
+            'order_id' => $order->id,
+            'master_id' => $master->id,
+        ]);
     }
 
     public function test_guest_cannot_decline(): void

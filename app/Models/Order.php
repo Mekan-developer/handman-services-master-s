@@ -107,6 +107,11 @@ class Order extends Model
         return $this->hasMany(OrderMasterDecline::class);
     }
 
+    public function masterResponses(): HasMany
+    {
+        return $this->hasMany(OrderMasterResponse::class);
+    }
+
     /** The auto-search gave up — an administrator has to assign a master by hand. */
     public function needsManualAssignment(): bool
     {

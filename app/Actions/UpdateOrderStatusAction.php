@@ -3,9 +3,11 @@
 namespace App\Actions;
 
 use App\Enums\OrderStatus;
+use App\Events\OrderResponseWithdrawn;
 use App\Events\OrderStatusChanged;
 use App\Exceptions\OrderException;
 use App\Models\Order;
+use App\Models\OrderMasterResponse;
 use App\Repositories\OrderRepository;
 
 class UpdateOrderStatusAction
@@ -30,6 +32,13 @@ class UpdateOrderStatusAction
         }
 
         OrderStatusChanged::dispatch($updated, $previousStatus, $newStatus);
+
+        // Cancelling the order leaves any still-pending master responses orphaned —
+        // release them so those masters find out it's no longer up for grabs.
+        if ($newStatus === OrderStatus::Cancelled) {
+            $this->repository->withdrawPendingResponses($updated)
+                ->each(fn (OrderMasterResponse $response) => OrderResponseWithdrawn::dispatch($response));
+        }
 
         return $updated->fresh();
     }
