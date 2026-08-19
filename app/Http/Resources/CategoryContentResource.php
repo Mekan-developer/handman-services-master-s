@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryContentResource extends JsonResource
 {
@@ -22,7 +21,7 @@ class CategoryContentResource extends JsonResource
             'price' => $this->price,
             'images' => $this->images->map(fn ($img) => [
                 'id' => $img->id,
-                'url' => Storage::disk('public')->url($img->path),
+                'url' => asset("storage/{$img->path}"),
             ])->values(),
         ];
     }
