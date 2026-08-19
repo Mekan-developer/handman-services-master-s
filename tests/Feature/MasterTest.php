@@ -12,8 +12,6 @@ use App\Models\Order;
 use App\Models\OrderReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class MasterTest extends TestCase
@@ -32,8 +30,6 @@ class MasterTest extends TestCase
     {
         return [
             'city_id' => $city->id,
-            'name' => 'Иван Иванов',
-            'phone' => '+99362123456',
             'is_active' => true,
             'category_ids' => [],
         ];
@@ -141,105 +137,45 @@ class MasterTest extends TestCase
         $this->getJson(route('masters.trajectory', 999))->assertNotFound();
     }
 
-    // ── Store ─────────────────────────────────────────────────────────────────
-
-    public function test_user_can_create_a_master(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-
-        $this->post(route('masters.store'), $this->validPayload($city))
-            ->assertRedirect(route('masters.index'));
-
-        $this->assertDatabaseHas('masters', ['name' => 'Иван Иванов', 'phone' => '+99362123456']);
-    }
-
-    public function test_creating_master_syncs_categories(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $categories = Category::factory()->count(2)->create();
-
-        $payload = array_merge($this->validPayload($city), [
-            'category_ids' => $categories->pluck('id')->toArray(),
-        ]);
-
-        $this->post(route('masters.store'), $payload)->assertRedirect();
-
-        $master = Master::where('phone', '+99362123456')->first();
-        $this->assertCount(2, $master->categories);
-    }
-
-    public function test_store_fails_when_name_is_missing(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $payload = $this->validPayload($city);
-        $payload['name'] = '';
-
-        $this->post(route('masters.store'), $payload)
-            ->assertSessionHasErrors('name');
-    }
-
-    public function test_store_fails_when_phone_is_duplicate(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        Master::factory()->create(['phone' => '+99362123456']);
-
-        $this->post(route('masters.store'), $this->validPayload($city))
-            ->assertSessionHasErrors('phone');
-    }
-
-    public function test_store_fails_when_city_does_not_exist(): void
-    {
-        $this->actingAsAdmin();
-        $payload = $this->validPayload(City::factory()->make(['id' => 9999]));
-        $payload['city_id'] = 9999;
-
-        $this->post(route('masters.store'), $payload)
-            ->assertSessionHasErrors('city_id');
-    }
-
     // ── Update ────────────────────────────────────────────────────────────────
 
     public function test_user_can_update_a_master(): void
     {
         $this->actingAsAdmin();
-        $master = Master::factory()->create();
+        $master = Master::factory()->create(['is_active' => true]);
         $newCity = City::factory()->create();
 
-        $payload = array_merge($this->validPayload($newCity), ['name' => 'Новое имя']);
+        $payload = array_merge($this->validPayload($newCity), ['is_active' => false]);
 
         $this->post(route('masters.update', $master), $payload)
             ->assertRedirect(route('masters.index'));
 
-        $this->assertDatabaseHas('masters', ['id' => $master->id, 'name' => 'Новое имя']);
+        $this->assertDatabaseHas('masters', [
+            'id' => $master->id,
+            'city_id' => $newCity->id,
+            'is_active' => false,
+        ]);
     }
 
-    public function test_update_allows_same_phone_for_same_master(): void
+    /** Name and phone belong to the client account and are never writable here. */
+    public function test_updating_master_does_not_change_name_or_phone(): void
     {
         $this->actingAsAdmin();
-        $master = Master::factory()->create(['phone' => '+99362999999']);
+        $master = Master::factory()->create(['name' => 'Старое имя', 'phone' => '+99362000000']);
         $city = City::factory()->create();
 
-        $payload = array_merge($this->validPayload($city), ['phone' => '+99362999999']);
+        $payload = array_merge($this->validPayload($city), [
+            'name' => 'Новое имя',
+            'phone' => '+99362999999',
+        ]);
 
-        $this->post(route('masters.update', $master), $payload)
-            ->assertRedirect(route('masters.index'));
-    }
+        $this->post(route('masters.update', $master), $payload)->assertRedirect();
 
-    public function test_update_fails_when_phone_belongs_to_another_master(): void
-    {
-        $this->actingAsAdmin();
-        Master::factory()->create(['phone' => '+99362111111']);
-        $master = Master::factory()->create(['phone' => '+99362222222']);
-        $city = City::factory()->create();
-
-        $payload = array_merge($this->validPayload($city), ['phone' => '+99362111111']);
-
-        $this->post(route('masters.update', $master), $payload)
-            ->assertSessionHasErrors('phone');
+        $this->assertDatabaseHas('masters', [
+            'id' => $master->id,
+            'name' => 'Старое имя',
+            'phone' => '+99362000000',
+        ]);
     }
 
     public function test_updating_master_syncs_categories(): void
@@ -252,7 +188,6 @@ class MasterTest extends TestCase
 
         $newCategories = Category::factory()->count(1)->create();
         $payload = array_merge($this->validPayload($city), [
-            'phone' => $master->phone,
             'category_ids' => $newCategories->pluck('id')->toArray(),
         ]);
 
@@ -297,22 +232,6 @@ class MasterTest extends TestCase
                 ->where('masters.data.0.photo', null)
                 ->where('masters.data.0.photo_url', null)
             );
-    }
-
-    public function test_master_form_no_longer_accepts_a_photo(): void
-    {
-        Storage::fake('public');
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-
-        $payload = array_merge($this->validPayload($city), [
-            'photo' => UploadedFile::fake()->image('master.jpg', 600, 800),
-        ]);
-
-        $this->post(route('masters.store'), $payload)->assertRedirect();
-
-        // Silently ignored rather than stored: the file belongs on the client.
-        $this->assertCount(0, Storage::disk('public')->allFiles());
     }
 
     // ── Destroy ───────────────────────────────────────────────────────────────

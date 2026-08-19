@@ -2,20 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreateMasterAction;
 use App\Actions\DeleteMasterAction;
 use App\Actions\UpdateMasterAction;
 use App\Exceptions\MasterException;
-use App\Exceptions\SubscriptionException;
-use App\Http\Requests\StoreMasterRequest;
 use App\Http\Requests\UpdateMasterRequest;
 use App\Http\Resources\MasterResource;
-use App\Http\Resources\SubscriptionPlanResource;
 use App\Http\Traits\WithNotification;
 use App\Repositories\CategoryRepository;
 use App\Repositories\MasterRepository;
 use App\Repositories\OblastRepository;
-use App\Repositories\SubscriptionPlanRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,7 +31,6 @@ class MasterController extends Controller
             'masters' => MasterResource::collection($this->repository->paginate(15, $filters)),
             'oblasts' => app(OblastRepository::class)->allWithCities(),
             'categories' => app(CategoryRepository::class)->treeForSelect(),
-            'subscriptionPlans' => SubscriptionPlanResource::collection(app(SubscriptionPlanRepository::class)->active())->resolve(),
             'filters' => $filters,
         ]);
     }
@@ -59,18 +53,6 @@ class MasterController extends Controller
             'master' => ['id' => $master->id, 'name' => $master->name],
             'points' => $this->repository->trajectory($master),
         ]);
-    }
-
-    public function store(StoreMasterRequest $request, CreateMasterAction $action): RedirectResponse
-    {
-        try {
-            $action->handle($request->validated(), $request->user());
-            $this->notifySuccess('notifications.created', ['resource' => __('resources.master')]);
-        } catch (SubscriptionException $e) {
-            $this->notifyError($e->getMessage());
-        }
-
-        return redirect()->route('masters.index');
     }
 
     public function update(UpdateMasterRequest $request, int $id, UpdateMasterAction $action): RedirectResponse

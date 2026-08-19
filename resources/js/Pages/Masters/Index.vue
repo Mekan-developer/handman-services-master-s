@@ -15,7 +15,6 @@ const props = defineProps({
     masters: Object,
     oblasts: Array,
     categories: Array,
-    subscriptionPlans: { type: Array, default: () => [] },
     filters: { type: Object, default: () => ({}) },
 })
 
@@ -25,28 +24,13 @@ const editingMaster = ref(null)
 
 const form = useForm({
     city_id: null,
-    name: '',
-    phone: '',
     is_active: true,
     category_ids: [],
-    // Only submitted when creating — access is derived from subscriptions.
-    subscription_plan_id: null,
-    subscription_price: null,
-    subscription_note: '',
 })
-
-function openCreate() {
-    editingMaster.value = null
-    form.reset()
-    form.clearErrors()
-    showModal.value = true
-}
 
 function openEdit(master) {
     editingMaster.value = master
     form.city_id = master.city_id
-    form.name = master.name
-    form.phone = master.phone
     form.is_active = master.is_active
     form.category_ids = master.category_ids ? [...master.category_ids] : []
     form.clearErrors()
@@ -62,15 +46,9 @@ function closeModal() {
 
 function submit() {
     // File uploads require multipart/POST — the update route is registered as POST.
-    if (editingMaster.value) {
-        form.post(route('masters.update', editingMaster.value.id), {
-            onSuccess: closeModal,
-        })
-    } else {
-        form.post(route('masters.store'), {
-            onSuccess: closeModal,
-        })
-    }
+    form.post(route('masters.update', editingMaster.value.id), {
+        onSuccess: closeModal,
+    })
 }
 
 const deleteTarget = ref(null)
@@ -141,15 +119,6 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                         </svg>
                         {{ t('masters.view_map') }}
                     </Link>
-                    <button
-                        @click="openCreate"
-                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
-                    >
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        {{ t('masters.add') }}
-                    </button>
                 </div>
             </div>
 
@@ -354,7 +323,6 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
             :editing="editingMaster"
             :oblasts="oblasts"
             :categories="categories"
-            :subscription-plans="subscriptionPlans"
             @close="closeModal"
             @submit="submit"
         />
