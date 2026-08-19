@@ -265,15 +265,6 @@ Vue components must have a single root element.
 - Use `php artisan make:test --phpunit {name}` to create tests.
 - Most tests should be Feature tests; Unit tests only for isolated logic.
 
-## Implementation Workflow
-When asked to build a feature, provide the full stack in this order:
-1. Migration & Model
-2. Repository
-3. Service/Action
-4. Controller
-5. Form Request & Resource
-6. Vue Component (with i18n & Dark Mode)
-
 ## API (когда потребуется)
 - Versioned API only: routes in `routes/api/v1.php`
 - Route prefix: `/api/v1/`
@@ -310,9 +301,3 @@ When asked to build a feature, provide the full stack in this order:
 - Updated: `notifications.updated` with `:resource`  
 - Deleted: `notifications.deleted` with `:resource`
 - Resource names in `lang/ru/resources.php` and `lang/tk/resources.php`
-
-## README Maintenance
-- Always update `README.md` when adding new packages, services, or major architectural changes to the project.
-- When adding a package: update the Tech Stack table and document its usage.
-- When adding a new pattern or convention: add it to the Architecture & Patterns section.
-- When adding new environment variables: update the Environment Variables section and `.env.example`.
