@@ -1,36 +1,21 @@
 <script setup>
-import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Modal from '@/Components/Modal.vue'
-import PhoneInput from '@/Components/PhoneInput.vue'
 import OblastCitySelect from '@/Components/OblastCitySelect.vue'
 import CategoryPicker from '@/Components/CategoryPicker.vue'
+import { formatPhone } from '@/utils/formatPhone'
 
 const { t } = useI18n()
 
-const props = defineProps({
+defineProps({
     show: { type: Boolean, required: true },
     form: { type: Object, required: true },
     editing: { type: Object, default: null },
     oblasts: { type: Array, default: () => [] },
     categories: { type: Array, default: () => [] },
-    subscriptionPlans: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['close', 'submit'])
-
-/** Access is granted through a subscription, so the picker only shows when creating. */
-const selectedPlan = computed(() =>
-    props.subscriptionPlans.find(plan => plan.id === Number(props.form.subscription_plan_id)) ?? null,
-)
-
-watch(selectedPlan, (plan) => {
-    props.form.subscription_price = plan ? plan.price : null
-})
-
-const inputBase = 'w-full rounded-xl border bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all'
-const inputNormal = 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'
-const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
 </script>
 
 <template>
@@ -39,7 +24,7 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
         <!-- Header -->
         <div class="flex shrink-0 items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-slate-700">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">
-                {{ editing ? t('masters.edit') : t('masters.add') }}
+                {{ t('masters.edit') }}
             </h2>
             <button
                 type="button"
@@ -56,44 +41,16 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
         <form @submit.prevent="emit('submit')" class="flex flex-1 flex-col overflow-hidden">
             <div class="flex-1 space-y-4 overflow-y-auto px-6 py-5">
 
-                <!-- Photo lives on the client account this profile hangs off —
-                     edit it in Clients, the master reads the same file. -->
-
-                <!-- Name + Phone row -->
-                <div class="grid grid-cols-2 gap-4">
+                <!-- Photo, name and phone live on the client account this profile
+                     hangs off — edit them in Clients, the master reads the same data. -->
+                <div v-if="editing" class="grid grid-cols-2 gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-600 dark:bg-slate-700/40">
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                            {{ t('masters.name') }} <span class="text-red-400">*</span>
-                        </label>
-                        <input
-                            v-model="form.name"
-                            type="text"
-                            :placeholder="t('masters.name_placeholder')"
-                            autofocus
-                            :class="[inputBase, form.errors.name ? inputError : inputNormal]"
-                        />
-                        <p v-if="form.errors.name" class="mt-1.5 flex items-center gap-1 text-xs text-red-500">
-                            <svg class="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                            </svg>
-                            {{ form.errors.name }}
-                        </p>
+                        <span class="block text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('masters.name') }}</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-slate-300">{{ editing.name }}</span>
                     </div>
-
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                            {{ t('masters.phone') }} <span class="text-red-400">*</span>
-                        </label>
-                        <PhoneInput
-                            v-model="form.phone"
-                            :has-error="!!form.errors.phone"
-                        />
-                        <p v-if="form.errors.phone" class="mt-1.5 flex items-center gap-1 text-xs text-red-500">
-                            <svg class="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                            </svg>
-                            {{ form.errors.phone }}
-                        </p>
+                        <span class="block text-xs font-medium text-gray-400 dark:text-slate-500">{{ t('masters.phone') }}</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-slate-300">{{ formatPhone(editing.phone) }}</span>
                     </div>
                 </div>
 
@@ -129,65 +86,6 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
                         </span>
                     </div>
                     <p class="mt-1 text-xs text-gray-400 dark:text-slate-500">{{ t('masters.access_hint') }}</p>
-                </div>
-
-                <!-- First subscription — creation only -->
-                <div v-else class="space-y-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-slate-600 dark:bg-slate-700/40">
-                    <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                            {{ t('masters.subscription_plan') }}
-                        </label>
-                        <select
-                            v-model="form.subscription_plan_id"
-                            :class="[inputBase, form.errors.subscription_plan_id ? inputError : inputNormal]"
-                        >
-                            <option :value="null">{{ t('masters.subscription_plan_placeholder') }}</option>
-                            <option v-for="plan in subscriptionPlans" :key="plan.id" :value="plan.id">
-                                {{ plan.name }} — {{ plan.duration_days }} {{ t('subscriptions.days_short') }}
-                            </option>
-                        </select>
-                        <p v-if="form.errors.subscription_plan_id" class="mt-1.5 text-xs text-red-500">
-                            {{ form.errors.subscription_plan_id }}
-                        </p>
-                    </div>
-
-                    <div v-if="selectedPlan" class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                                {{ t('masters.subscription_price') }}
-                            </label>
-                            <div class="relative">
-                                <input
-                                    v-model="form.subscription_price"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    :class="[inputBase, 'pr-16', form.errors.subscription_price ? inputError : inputNormal]"
-                                />
-                                <span class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm text-gray-400 dark:text-slate-500">
-                                    {{ t('masters.unit_manat') }}
-                                </span>
-                            </div>
-                            <p v-if="form.errors.subscription_price" class="mt-1.5 text-xs text-red-500">
-                                {{ form.errors.subscription_price }}
-                            </p>
-                        </div>
-                        <div>
-                            <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
-                                {{ t('masters.subscription_note') }}
-                            </label>
-                            <input
-                                v-model="form.subscription_note"
-                                type="text"
-                                :class="[inputBase, form.errors.subscription_note ? inputError : inputNormal]"
-                            />
-                            <p v-if="form.errors.subscription_note" class="mt-1.5 text-xs text-red-500">
-                                {{ form.errors.subscription_note }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-gray-400 dark:text-slate-500">{{ t('masters.subscription_hint') }}</p>
                 </div>
 
                 <!-- Categories (multi-picker) -->
@@ -269,7 +167,7 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
                     :disabled="form.processing"
                     class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
                 >
-                    {{ form.processing ? '...' : (editing ? t('layout.actions.update') : t('layout.actions.save')) }}
+                    {{ form.processing ? '...' : t('layout.actions.update') }}
                 </button>
             </div>
         </form>

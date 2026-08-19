@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Category;
-use App\Models\City;
 use App\Models\Master;
 use App\Models\MasterSubscription;
 use App\Models\SubscriptionPlan;
@@ -264,51 +263,6 @@ class MasterSubscriptionTest extends TestCase
 
         $this->assertDatabaseCount('master_subscriptions', 0);
         $this->assertFalse($master->fresh()->hasActiveAccess());
-    }
-
-    // ── Master creation with a plan ───────────────────────────────────────────
-
-    public function test_creating_a_master_with_a_plan_issues_the_first_subscription(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-        $plan = SubscriptionPlan::factory()->days(90)->create(['price' => 400]);
-
-        $this->post(route('masters.store'), [
-            'city_id' => $city->id,
-            'name' => 'Иван Иванов',
-            'phone' => '+99362123456',
-            'is_active' => true,
-            'category_ids' => [],
-            'subscription_plan_id' => $plan->id,
-            'subscription_price' => 350,
-        ])->assertRedirect(route('masters.index'));
-
-        $master = Master::where('phone', '+99362123456')->firstOrFail();
-        $subscription = MasterSubscription::where('master_id', $master->id)->firstOrFail();
-
-        $this->assertSame(SubscriptionStatus::Active, $subscription->status);
-        $this->assertEqualsWithDelta(350.0, (float) $subscription->price_paid, 0.01);
-        $this->assertTrue($master->hasActiveAccess());
-    }
-
-    public function test_creating_a_master_without_a_plan_leaves_access_closed(): void
-    {
-        $this->actingAsAdmin();
-        $city = City::factory()->create();
-
-        $this->post(route('masters.store'), [
-            'city_id' => $city->id,
-            'name' => 'Без подписки',
-            'phone' => '+99362123457',
-            'is_active' => true,
-            'category_ids' => [],
-        ])->assertRedirect(route('masters.index'));
-
-        $master = Master::where('phone', '+99362123457')->firstOrFail();
-
-        $this->assertDatabaseCount('master_subscriptions', 0);
-        $this->assertFalse($master->hasActiveAccess());
     }
 
     public function test_master_categories_survive_an_access_resync(): void

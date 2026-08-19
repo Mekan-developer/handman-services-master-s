@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateMasterRequest extends FormRequest
 {
@@ -14,7 +13,9 @@ class UpdateMasterRequest extends FormRequest
 
     /**
      * `access_expires_at` is intentionally absent: it is derived from the master's
-     * subscriptions and must never be written by hand.
+     * subscriptions and must never be written by hand. `name` and `phone` are also
+     * absent — they are edited on the client account and kept in sync from there
+     * by ClientObserver.
      *
      * @return array<string, mixed>
      */
@@ -22,8 +23,6 @@ class UpdateMasterRequest extends FormRequest
     {
         return [
             'city_id' => ['required', 'integer', 'exists:cities,id'],
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:20', Rule::unique('masters', 'phone')->ignore($this->route('master'))],
             'is_active' => ['required', 'boolean'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer', 'exists:categories,id'],

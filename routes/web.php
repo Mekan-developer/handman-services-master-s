@@ -66,7 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::post('categories/{category}/content', [CategoryContentController::class, 'upsert'])->name('categories.content.upsert');
         Route::get('masters/map', [MasterController::class, 'map'])->name('masters.map');
         Route::get('masters/{master}/trajectory', [MasterController::class, 'trajectory'])->name('masters.trajectory');
-        Route::resource('masters', MasterController::class)->only(['index', 'store', 'destroy']);
+        Route::resource('masters', MasterController::class)->only(['index', 'destroy']);
         Route::post('masters/{master}', [MasterController::class, 'update'])->name('masters.update');
 
         // "Become a master" applications submitted from the mobile app.
