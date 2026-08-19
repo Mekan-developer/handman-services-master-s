@@ -2,23 +2,37 @@
 
 return [
     'title' => 'Baş sahypa',
-    'stats' => [
-        'total_orders' => 'Jemi sargytlar',
-        'active_masters' => 'Işjeň ussatlar',
-        'pending_orders' => 'Garaşýan sargytlar',
-        'total_cities' => 'Şäherler',
-        'completed_orders' => 'Tamamlanan sargytlar',
-        'in_progress_orders' => 'Işde',
+    'subtitle' => 'Hyzmata abunalyklaryň analitikasy',
+
+    'kpi' => [
+        'new' => 'Täze abunalar',
+        'active' => 'Işjeň abunalar',
+        'revenue' => 'Abunalardan gelen girdeji',
     ],
-    'orders_by_status' => 'Sargytlar ýagdaýy boýunça',
-    'recent_orders' => 'Soňky sargytlar',
-    'view_all' => 'Ähli sargytlar →',
-    'table' => [
-        'id' => '#',
-        'client' => 'Müşderi',
-        'category' => 'Kategoriýa',
-        'city' => 'Şäher',
-        'status' => 'Ýagdaý',
-        'date' => 'Sene',
+
+    'compare' => [
+        'daily' => 'vs düýn',
+        'weekly' => 'vs geçen hepde',
+        'monthly' => 'vs geçen aý',
+        'yearly' => 'vs geçen ýyl',
+    ],
+
+    'chart' => [
+        'periods' => [
+            'daily' => 'Gündelik',
+            'weekly' => 'Hepdelik',
+            'monthly' => 'Aýlyk',
+            'yearly' => 'Ýyllyk',
+        ],
+        'year_all' => 'Soňky 12 aý',
+        'subtitle' => [
+            'daily' => 'soňky 7 gün',
+            'weekly' => 'soňky 8 hepde',
+            'monthly_all' => 'soňky 12 aý',
+            'monthly_year' => ':from – :to :year',
+            'yearly' => 'soňky 5 ýyl',
+        ],
+        'months_short' => ['Ýan', 'Few', 'Mart', 'Apr', 'Maý', 'Iýun', 'Iýul', 'Awg', 'Sen', 'Okt', 'Noý', 'Dek'],
+        'months_full' => ['ýanwar', 'fewral', 'mart', 'aprel', 'maý', 'iýun', 'iýul', 'awgust', 'sentýabr', 'oktýabr', 'noýabr', 'dekabr'],
     ],
 ];
