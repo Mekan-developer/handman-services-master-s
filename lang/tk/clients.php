@@ -49,5 +49,7 @@ return [
     'notifications' => [
         'blocked' => 'Müşderi petiklendi',
         'unblocked' => 'Müşderi açyldy',
+        'new_client' => 'Täze müşderi',
+        'new_client_broadcast' => 'Täze müşderi: :client',
     ],
 ];

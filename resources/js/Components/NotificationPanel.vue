@@ -87,6 +87,21 @@ function goToOrder(orderId) {
     router.visit(route('orders.show', orderId))
 }
 
+function goToClients() {
+    emit('close')
+    router.visit(route('clients.index'))
+}
+
+function openNotification(notification) {
+    markRead(notification)
+
+    if (notification.data.type === 'new_client') {
+        goToClients()
+    } else {
+        goToOrder(notification.data.order_id)
+    }
+}
+
 function prepend(notification) {
     notifications.value.unshift(notification)
 }
@@ -189,7 +204,7 @@ defineExpose({ prepend, fetchNotifications })
                         <!-- Content — кликабельный -->
                         <button
                             class="min-w-0 flex-1 text-left"
-                            @click="markRead(n); goToOrder(n.data.order_id)"
+                            @click="openNotification(n)"
                         >
                             <div class="flex items-center justify-between gap-2">
                                 <p
@@ -201,6 +216,9 @@ defineExpose({ prepend, fetchNotifications })
                                     <template v-if="n.data.type === 'order_search_exhausted'">
                                         {{ t('orders.search.needs_manual_assignment') }} #{{ n.data.order_id }}
                                     </template>
+                                    <template v-else-if="n.data.type === 'new_client'">
+                                        {{ t('clients.notifications.new_client') }}
+                                    </template>
                                     <template v-else>
                                         Новый заказ #{{ n.data.order_id }}
                                     </template>
@@ -209,7 +227,10 @@ defineExpose({ prepend, fetchNotifications })
                                     {{ formatTime(n.created_at) }}
                                 </time>
                             </div>
-                            <p class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
+                            <p v-if="n.data.type === 'new_client'" class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
+                                {{ n.data.client_name ?? n.data.phone }}
+                            </p>
+                            <p v-else class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
                                 {{ n.data.client_name }} · {{ n.data.category }}
                             </p>
                             <p
