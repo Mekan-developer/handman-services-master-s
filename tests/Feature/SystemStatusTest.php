@@ -8,6 +8,7 @@ use App\Services\SystemStatusService;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Contracts\Queue\Job;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Queue\Events\JobPopping;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\Looping;
 use Illuminate\Support\Facades\Cache;
@@ -63,13 +64,27 @@ class SystemStatusTest extends TestCase
             ->assertJsonPath('queue.status', 'error');
     }
 
-    public function test_worker_loop_event_writes_heartbeat(): void
+    public function test_worker_job_poll_writes_heartbeat(): void
     {
         Cache::forget(SystemStatusService::HEARTBEAT_KEY);
 
-        event(new Looping('database', 'default'));
+        event(new JobPopping('redis'));
 
         $this->assertNotNull(Cache::get(SystemStatusService::HEARTBEAT_KEY));
+    }
+
+    /**
+     * `queue:listen` крутит `queue:work --once`, где демон-цикл (а значит и
+     * событие `Looping`) не выполняется. Heartbeat обязан жить на `JobPopping`,
+     * иначе локальный воркер вечно показывается отключённым.
+     */
+    public function test_heartbeat_does_not_depend_on_the_daemon_loop_event(): void
+    {
+        Cache::forget(SystemStatusService::HEARTBEAT_KEY);
+
+        event(new Looping('redis', 'default'));
+
+        $this->assertNull(Cache::get(SystemStatusService::HEARTBEAT_KEY));
     }
 
     public function test_processed_counter_grows_with_each_finished_job(): void

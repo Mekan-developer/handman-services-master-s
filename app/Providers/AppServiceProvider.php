@@ -9,7 +9,9 @@ use App\Observers\ClientObserver;
 use App\Observers\MasterObserver;
 use App\Observers\OrderObserver;
 use App\Services\SystemStatusService;
+use Illuminate\Queue\Events\JobPopping;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -34,15 +36,17 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Пишет heartbeat живого queue-воркера на каждой итерации его цикла.
+     * Пишет heartbeat живого queue-воркера перед каждой попыткой снять задачу.
      *
-     * Событие `Queue::looping` срабатывает только пока запущен `queue:work`,
-     * поэтому индикатор очереди в админке отражает именно состояние воркера и
-     * больше не зависит от планировщика (`schedule:work`).
+     * Слушаем именно `JobPopping`, а не `Queue::looping`: событие `Looping`
+     * диспатчится только из демон-цикла `queue:work`, тогда как локальный
+     * контейнер поднят через `queue:listen` (каждая итерация — отдельный
+     * `queue:work --once`, минующий этот цикл). `JobPopping` срабатывает в
+     * `Worker::getNextJob()` и потому одинаково работает в обоих режимах.
      */
     private function registerQueueHeartbeat(): void
     {
-        Queue::looping(function (): void {
+        Event::listen(JobPopping::class, function (): void {
             Cache::put(SystemStatusService::HEARTBEAT_KEY, now()->timestamp, 180);
         });
     }
