@@ -292,10 +292,9 @@ docker compose run --rm artisan <любая artisan-команда>
 ## 7. Сидеры
 
 `DatabaseSeeder` создаёт админа (`admin@gmail.com` / `password`) и вызывает по цепочке:
-`OblastSeeder` → `CitySeeder` → `CategorySeeder` → `MasterLocationSeeder`.
+`OblastSeeder` → `CitySeeder` → `CategorySeeder`.
 
-Порядок важен: города ссылаются на области. `MasterLocationSeeder` дорисовывает историю
-перемещений уже существующим активным мастерам — на пустой базе он ничего не делает.
+Порядок важен: города ссылаются на области.
 Отдельно доступен `SettingSeeder` (в общую цепочку не входит).
 
 Демо-данные (мастера, клиенты, заказы) больше не сидируются: мастера заводятся заявкой
