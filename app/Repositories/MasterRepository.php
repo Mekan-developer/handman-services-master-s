@@ -17,9 +17,9 @@ class MasterRepository
     /** @param array{search?: string, city_id?: int|string, status?: string} $filters */
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        // `client` carries the avatar shown in the list — eager loaded to keep
-        // the resource from firing a query per row.
-        return Master::with(['city', 'categories', 'client'])
+        // `client` carries the avatar shown in the list, `latestLocation` the GPS
+        // badge — eager loaded to keep the resource from firing a query per row.
+        return Master::with(['city', 'categories', 'client', 'latestLocation'])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->when($filters['search'] ?? null, function ($q, $search) {
