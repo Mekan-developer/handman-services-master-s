@@ -1,73 +1,75 @@
-x-php-build: &php-build
-  build:
-    context: .
-    dockerfile: ./docker/php/Dockerfile
-  volumes:
-    - app_code:/var/www/laravel 
+x-php-build: &php-base
+  image: handyman-php:local
   env_file:
     - .env
+  depends_on:                        # CHANGED: было списком, стало с условиями
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
 
 services:
   php:
-    <<: *php-build
+    <<: *php-base
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
     container_name: handyman_php  
     user: www-data   
     restart: unless-stopped
-    depends_on:
-      - db
-      - redis
 
   nginx:
-    image: nginx:1.30-alpine
+    image: nginx:1.27-alpine
     container_name: handyman_nginx 
     restart: unless-stopped
     ports:
       - 80:80
     volumes:
       - ./docker/nginx/conf.d/nginx.conf:/etc/nginx/conf.d/default.conf:ro  
-      - app_code:/var/www/laravel:ro
     depends_on:
       - php  
       
   queue:
-    <<: *php-build
+    <<: *php-base
     container_name: handyman_queue
     user: www-data
     command: php artisan queue:work --tries=3 --backoff=5 --max-time=3600
     restart: unless-stopped
-    depends_on:
-      - db
-      - redis
 
   reverb:
-    <<: *php-build
+    <<: *php-base
     container_name: handyman_reverb
     user: www-data
     command: php artisan reverb:start --host=0.0.0.0 --port=8080
     restart: unless-stopped  
     expose:
       - 8080
-    depends_on:
-      - db
-      - redis
 
   scheduler:
-    <<: *php-build
+    <<: *php-base
     container_name: handyman_scheduler
     user: www-data
     command: php artisan schedule:work
-    restart: unless-stopped
-    depends_on:
-      - db
-      - redis    
+    restart: unless-stopped   
 
   artisan:
-    <<: *php-build
+    <<: *php-base
     entrypoint: ["php", "/var/www/laravel/artisan"]
     user: www-data
     profiles: ["tools"]
-    depends_on:
-      - db
+    restart: "no"
+
+  sms-gateway:
+    image: node:22-alpine
+    container_name: handyman_sms
+    working_dir: /app
+    command: sh -c "npm ci --omit=dev && node index.js"
+    volumes:
+      - ./socket-server:/app
+      - sms_node_modules:/app/node_modules
+    env_file:
+      - ./socket-server/.env
+    restart: unless-stopped
 
   db:
     image: mysql:8.0 
@@ -77,6 +79,12 @@ services:
       - docker/db.env  
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:                     # NEW
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s  
 
   redis:
     image: redis:7-alpine
@@ -84,8 +92,13 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data  
+    healthcheck:                     # NEW
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5  
 
 volumes:
   db_data:  
   redis_data:
-  app_code:
+  sms_node_modules:          
