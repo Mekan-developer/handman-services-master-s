@@ -54,6 +54,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->command('orders:cancel-stale-orders')
             ->hourly()
             ->withoutOverlapping();
+
+        // GPS pings accrue at roughly 150k rows a day. Retention is measured in
+        // days, so nightly is frequent enough, and a skipped run only leaves one
+        // extra day of rows for the next one to take out.
+        $schedule->command('locations:prune')
+            ->dailyAt('03:30')
+            ->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
