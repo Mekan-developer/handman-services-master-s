@@ -18,12 +18,10 @@ class SettingController extends Controller
 
     public function index(): Response
     {
-        $settings = $this->repository->all()->pluck('value', 'key');
         $radii = $this->repository->searchRadii();
 
         return Inertia::render('Settings/Index', [
-            'masterAppRules' => $settings->get('master_app_rules', ''),
-            'clientAppRules' => $settings->get('client_app_rules', ''),
+            'clientAppRules' => $this->repository->clientAppRules(),
             'masterSearchInitialRadiusKm' => $radii['initial'],
             'masterSearchMaxRadiusKm' => $radii['max'],
             'orderAutoCancelHours' => $this->repository->orderAutoCancelHours(),

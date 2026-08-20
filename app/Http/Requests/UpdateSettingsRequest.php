@@ -21,8 +21,7 @@ class UpdateSettingsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'master_app_rules' => ['nullable', 'string'],
-            'client_app_rules' => ['nullable', 'string'],
+            Setting::CLIENT_APP_RULES => ['nullable', 'string'],
             // `sometimes` keeps the settings endpoint partial-updatable: a card that
             // only submits the app rules must not wipe the radius configuration.
             'master_search_initial_radius_km' => ['sometimes', 'required', 'integer', 'min:1', 'max:1000'],

@@ -3,16 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Setting;
-use Illuminate\Database\Eloquent\Collection;
 
 class SettingRepository
 {
-    /** @return Collection<int, Setting> */
-    public function all(): Collection
-    {
-        return Setting::orderBy('key')->get();
-    }
-
     public function get(string $key, ?string $default = null): ?string
     {
         $value = Setting::where('key', $key)->value('value');
@@ -23,6 +16,12 @@ class SettingRepository
     public function set(string $key, ?string $value): void
     {
         Setting::updateOrCreate(['key' => $key], ['value' => $value]);
+    }
+
+    /** Rules/terms of the mobile app — raw HTML, empty string when never filled in. */
+    public function clientAppRules(): string
+    {
+        return $this->get(Setting::CLIENT_APP_RULES) ?? '';
     }
 
     /**

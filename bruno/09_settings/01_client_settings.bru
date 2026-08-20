@@ -18,8 +18,12 @@ headers {
 docs {
   # Client App Settings
 
-  Public endpoint. Returns the client-side rules/terms of use configured in the
-  admin panel. Show this before or during registration — no auth required.
+  Public endpoint. Returns the app rules/terms of use configured in the admin
+  panel (Настройки → Настройки приложения). Show this before or during
+  registration — no auth required.
+
+  This is the only rules endpoint: the master-side copy
+  (`GET /api/v1/master/settings`) was removed, both roles read this one.
 
   **Response 200:**
   ```json

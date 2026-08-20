@@ -156,7 +156,7 @@ alone is not enough (an approved master can still be waiting on a subscription).
 
 | Endpoint | Response |
 |---|---|
-| `GET /client/settings` | `{ "data": { "content": "string" } }` — app rules/terms shown pre-registration |
+| `GET /client/settings` | `{ "data": { "content": "string" } }` — app rules/terms shown pre-registration; the only rules endpoint, the master screens read it too |
 | `GET /client/oblasts` | `{ "data": [{ "id", "name" }] }` |
 | `GET /client/regions` | `{ "data": [{ "id", "name", "oblast_id", "oblast": { "id", "name" } }] }` |
 | `GET /client/cities` | `{ "data": [{ "id", "name", "oblast_id" }] }` — use for the city picker in profile/order forms |

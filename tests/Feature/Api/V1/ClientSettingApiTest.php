@@ -21,7 +21,7 @@ class ClientSettingApiTest extends TestCase
 
     public function test_returns_saved_client_rules(): void
     {
-        Setting::create(['key' => 'client_app_rules', 'value' => '<p>Условия</p>']);
+        Setting::create(['key' => Setting::CLIENT_APP_RULES, 'value' => '<p>Условия</p>']);
 
         $response = $this->getJson('/api/v1/client/settings');
 
@@ -29,21 +29,15 @@ class ClientSettingApiTest extends TestCase
             ->assertJsonPath('data.content', '<p>Условия</p>');
     }
 
-    public function test_does_not_return_master_rules(): void
-    {
-        Setting::create(['key' => 'master_app_rules', 'value' => 'master content']);
-        Setting::create(['key' => 'client_app_rules', 'value' => 'client content']);
-
-        $response = $this->getJson('/api/v1/client/settings');
-
-        $response->assertOk()
-            ->assertJsonPath('data.content', 'client content');
-    }
-
     public function test_endpoint_is_public_no_auth_required(): void
     {
         $response = $this->getJson('/api/v1/client/settings');
 
         $response->assertOk();
+    }
+
+    public function test_master_settings_endpoint_is_gone(): void
+    {
+        $this->getJson('/api/v1/master/settings')->assertNotFound();
     }
 }

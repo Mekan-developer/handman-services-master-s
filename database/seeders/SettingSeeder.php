@@ -10,8 +10,7 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $defaults = [
-            'master_app_rules' => '',
-            'client_app_rules' => '',
+            Setting::CLIENT_APP_RULES => '',
         ];
 
         foreach ($defaults as $key => $value) {

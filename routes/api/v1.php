@@ -10,7 +10,6 @@ use App\Http\Controllers\Api\V1\MasterAvailabilityController;
 use App\Http\Controllers\Api\V1\MasterLocationController;
 use App\Http\Controllers\Api\V1\MasterOrderController;
 use App\Http\Controllers\Api\V1\MasterProfileController;
-use App\Http\Controllers\Api\V1\MasterSettingController;
 use App\Http\Controllers\Api\V1\MasterSubscriptionController;
 use App\Http\Controllers\Api\V1\MasterTaskController;
 use Illuminate\Http\Request;
@@ -38,9 +37,6 @@ Route::post('broadcasting/auth', function (Request $request) {
 })->middleware('auth:sanctum')->name('api.v1.broadcasting.auth');
 
 Route::prefix('master')->group(function () {
-
-    // Public — app settings (rules/terms shown before registration)
-    Route::get('settings', [MasterSettingController::class, 'show'])->name('api.v1.master.settings');
 
     // Public — subscription price list. A master with a lapsed subscription cannot
     // authenticate at all, so this has to stay reachable without a token.
