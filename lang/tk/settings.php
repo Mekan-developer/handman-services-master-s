@@ -5,13 +5,6 @@ return [
     'section_app' => 'Programma sazlamalary',
     'done' => 'Taýyn',
     'saved_ok' => '✓ Saklandy!',
-    'last_saved' => 'Soňky saklanan',
-    'master_app' => [
-        'title' => 'Usta programmasy',
-        'label' => 'Düzgünler we şertler',
-        'placeholder' => 'Usta programmasy üçin düzgünleri giriziň...',
-        'hint' => 'Usta mobil programmasyndaky düzgünler we şertler',
-    ],
     'client_app' => [
         'title' => 'Müşderi programmasy',
         'label' => 'Düzgünler we şertler',

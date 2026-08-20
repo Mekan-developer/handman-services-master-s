@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
+    /** Rules/terms of the mobile app, rendered as HTML before registration. */
+    public const CLIENT_APP_RULES = 'client_app_rules';
+
     /** Radius the master auto-search starts at, and the step it grows by each minute. */
     public const MASTER_SEARCH_INITIAL_RADIUS_KM = 'master_search_initial_radius_km';
 

@@ -14,7 +14,7 @@ class ClientSettingController extends Controller
     {
         return response()->json([
             'data' => [
-                'content' => $this->repository->get('client_app_rules') ?? '',
+                'content' => $this->repository->clientAppRules(),
             ],
         ]);
     }

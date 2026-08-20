@@ -78,7 +78,7 @@ class SettingsRadiusValidationTest extends TestCase
         $this->storeRadii(20, 80);
 
         $this->actingAs($this->administrator())
-            ->put(route('settings.update'), ['master_app_rules' => 'Новые правила'])
+            ->put(route('settings.update'), [Setting::CLIENT_APP_RULES => 'Новые правила'])
             ->assertRedirect(route('settings.index'))
             ->assertSessionHasNoErrors();
 

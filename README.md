@@ -881,7 +881,6 @@ Web (Inertia) and API controllers are **strictly separate**. Never reuse or shar
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/api/v1/master/settings` | public | App rules/terms shown before registration |
 | `GET` | `/api/v1/master/subscription-plans` | public | Subscription price list — reachable without a token on purpose (see below) |
 | `GET` | `/api/v1/master/subscription` | Sanctum, `ensure.master:allow-expired` | Own subscription: current one, access deadline, history |
 | `GET` | `/api/v1/master/me` | Sanctum | Profile, access expiry, categories |
@@ -902,7 +901,7 @@ Web (Inertia) and API controllers are **strictly separate**. Never reuse or shar
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/api/v1/client/settings` | public | App rules/terms |
+| `GET` | `/api/v1/client/settings` | public | App rules/terms — the only rules endpoint, both roles read it |
 | `GET` | `/api/v1/client/{oblasts,regions,cities}` | public | Geography catalog |
 | `GET` | `/api/v1/client/categories` | public | Service categories |
 | `GET` | `/api/v1/client/categories/search` | public | Category search |

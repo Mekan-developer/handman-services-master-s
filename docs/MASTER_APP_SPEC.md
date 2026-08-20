@@ -134,7 +134,7 @@ All of these are implemented and require the Bearer token.
 
 | Endpoint | Purpose |
 |----------|---------|
-| `GET /api/v1/master/settings` | App rules/terms — **public**, shown before registration |
+| `GET /api/v1/client/settings` | App rules/terms — **public**, one shared text for both roles, shown before registration |
 | `GET /api/v1/master/me` | Current master profile + access expiry + categories |
 | `GET /api/v1/master/subscription-plans` | Subscription price list — **public**, readable without a token |
 | `GET /api/v1/master/subscription` | Own subscription: current, access deadline, history — works with a lapsed subscription |

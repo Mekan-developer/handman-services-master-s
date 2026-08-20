@@ -7,7 +7,6 @@ import AdminLayout from '@/Layouts/AdminLayout.vue'
 const { t } = useI18n()
 
 const props = defineProps({
-    masterAppRules: { type: String, default: '' },
     clientAppRules: { type: String, default: '' },
     masterSearchInitialRadiusKm: { type: Number, default: 20 },
     masterSearchMaxRadiusKm: { type: Number, default: 80 },
@@ -15,26 +14,17 @@ const props = defineProps({
 })
 
 const form = useForm({
-    master_app_rules: props.masterAppRules ?? '',
     client_app_rules: props.clientAppRules ?? '',
     master_search_initial_radius_km: props.masterSearchInitialRadiusKm,
     master_search_max_radius_km: props.masterSearchMaxRadiusKm,
     order_auto_cancel_hours: props.orderAutoCancelHours,
 })
 
-// ── App cards ──────────────────────────────────────────────────────────────
-const MASTER_ID = 'rte-master'
+// ── App rules card ─────────────────────────────────────────────────────────
 const CLIENT_ID = 'rte-client'
 
-const masterOn      = ref(true)
-const clientOn      = ref(true)
-const masterEditing = ref(false)
 const clientEditing = ref(false)
-const masterSaved   = ref(false)
 const clientSaved   = ref(false)
-const masterLastSaved = ref('14:32')
-const clientLastSaved = ref('09:18')
-const masterEmpty   = ref(!props.masterAppRules)
 const clientEmpty   = ref(!props.clientAppRules)
 
 function execCmd(id, cmd, val) {
@@ -48,46 +38,28 @@ function clearEditor(id) {
     const el = document.getElementById(id)
     if (!el) { return }
     el.innerHTML = ''
-    if (id === MASTER_ID) { masterEmpty.value = true } else { clientEmpty.value = true }
+    clientEmpty.value = true
 }
 
-function onInput(which) {
-    const el = document.getElementById(which === 'master' ? MASTER_ID : CLIENT_ID)
-    const isEmpty = !el || el.innerText.trim() === ''
-    if (which === 'master') { masterEmpty.value = isEmpty } else { clientEmpty.value = isEmpty }
+function onInput() {
+    const el = document.getElementById(CLIENT_ID)
+    clientEmpty.value = !el || el.innerText.trim() === ''
 }
 
-function toggleEdit(which) {
-    if (which === 'master') {
-        masterEditing.value = !masterEditing.value
-        if (masterEditing.value) { nextTick(() => document.getElementById(MASTER_ID)?.focus()) }
-    } else {
-        clientEditing.value = !clientEditing.value
-        if (clientEditing.value) { nextTick(() => document.getElementById(CLIENT_ID)?.focus()) }
-    }
+function toggleEdit() {
+    clientEditing.value = !clientEditing.value
+    if (clientEditing.value) { nextTick(() => document.getElementById(CLIENT_ID)?.focus()) }
 }
 
-function save(which) {
-    const el = document.getElementById(which === 'master' ? MASTER_ID : CLIENT_ID)
-    if (which === 'master') { form.master_app_rules = el?.innerHTML ?? '' }
-    else { form.client_app_rules = el?.innerHTML ?? '' }
+function save() {
+    form.client_app_rules = document.getElementById(CLIENT_ID)?.innerHTML ?? ''
 
     form.put(route('settings.update'), {
         preserveScroll: true,
         onSuccess() {
-            const now  = new Date()
-            const time = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`
-            if (which === 'master') {
-                masterEditing.value = false
-                masterSaved.value   = true
-                masterLastSaved.value = time
-                setTimeout(() => { masterSaved.value = false }, 2500)
-            } else {
-                clientEditing.value = false
-                clientSaved.value   = true
-                clientLastSaved.value = time
-                setTimeout(() => { clientSaved.value = false }, 2500)
-            }
+            clientEditing.value = false
+            clientSaved.value   = true
+            setTimeout(() => { clientSaved.value = false }, 2500)
         },
     })
 }
@@ -276,8 +248,6 @@ onMounted(() => {
     window.Echo?.connector.pusher.connection.bind('state_change', updateWsStatus)
 
     nextTick(() => {
-        const m = document.getElementById(MASTER_ID)
-        if (m) { m.innerHTML = props.masterAppRules ?? '' }
         const c = document.getElementById(CLIENT_ID)
         if (c) { c.innerHTML = props.clientAppRules ?? '' }
     })
@@ -692,127 +662,7 @@ onBeforeUnmount(() => {
 
                 <div class="flex flex-col gap-4">
 
-                    <!-- ── MASTER CARD ───────────────────────────────────────────── -->
-                    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
-
-                        <!-- Header -->
-                        <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
-                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[11px] border border-indigo-500/20 bg-indigo-500/[0.15]">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="1.8">
-                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                                </svg>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.master_app.title') }}</div>
-                                <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.master_app.hint') }}</div>
-                            </div>
-                            <div class="flex shrink-0 items-center gap-2">
-                                <button
-                                    type="button"
-                                    @click="toggleEdit('master')"
-                                    class="flex items-center gap-1.5 rounded-lg border px-3.5 py-[7px] text-[12.5px] font-medium transition-all"
-                                    :class="masterEditing
-                                        ? 'border-indigo-500/35 bg-indigo-500/15 text-indigo-400'
-                                        : 'border-gray-200 bg-gray-50 text-gray-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400'"
-                                >
-                                    <svg v-if="masterEditing" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                        <polyline points="20 6 9 17 4 12"/>
-                                    </svg>
-                                    <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                    </svg>
-                                    {{ masterEditing ? t('settings.done') : t('settings.edit') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    @click="masterOn = !masterOn"
-                                    class="relative h-[23px] w-10 shrink-0 rounded-full border border-white/[0.06] transition-colors"
-                                    :class="masterOn ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-white/[0.12]'"
-                                >
-                                    <span
-                                        class="absolute top-[3px] h-[15px] w-[15px] rounded-full bg-white shadow-sm transition-all"
-                                        :class="masterOn ? 'left-[21px]' : 'left-[3px]'"
-                                    />
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Toolbar -->
-                        <Transition name="toolbar">
-                            <div v-if="masterEditing" class="px-5 pb-2.5">
-                                <div class="flex flex-wrap items-center gap-0.5 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-[5px] dark:border-white/[0.07] dark:bg-white/[0.04]">
-                                    <button @click="execCmd(MASTER_ID,'bold')"                    type="button" class="tb-btn font-bold">B</button>
-                                    <button @click="execCmd(MASTER_ID,'italic')"                  type="button" class="tb-btn italic">I</button>
-                                    <button @click="execCmd(MASTER_ID,'underline')"               type="button" class="tb-btn underline">U</button>
-                                    <button @click="execCmd(MASTER_ID,'strikethrough')"           type="button" class="tb-btn line-through">S</button>
-                                    <div class="mx-1 h-[18px] w-px bg-gray-200 dark:bg-white/10" />
-                                    <button @click="execCmd(MASTER_ID,'formatBlock','H1')"        type="button" class="tb-btn !w-8 text-[11px] font-bold">H1</button>
-                                    <button @click="execCmd(MASTER_ID,'formatBlock','H2')"        type="button" class="tb-btn !w-8 text-[11px] font-semibold">H2</button>
-                                    <div class="mx-1 h-[18px] w-px bg-gray-200 dark:bg-white/10" />
-                                    <button @click="execCmd(MASTER_ID,'insertUnorderedList')"     type="button" class="tb-btn">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-                                            <circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/>
-                                        </svg>
-                                    </button>
-                                    <button @click="execCmd(MASTER_ID,'insertOrderedList')"       type="button" class="tb-btn">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
-                                            <path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>
-                                        </svg>
-                                    </button>
-                                    <div class="mx-1 h-[18px] w-px bg-gray-200 dark:bg-white/10" />
-                                    <button @click="execCmd(MASTER_ID,'formatBlock','BLOCKQUOTE')" type="button" class="tb-btn text-base font-bold leading-none">"</button>
-                                    <div class="flex-1" />
-                                    <button @click="clearEditor(MASTER_ID)" type="button" class="tb-btn !text-gray-400 hover:!text-red-500 dark:!text-slate-500 dark:hover:!text-red-400">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                            <path d="M10 11v6"/><path d="M14 11v6"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </Transition>
-
-                        <!-- Editor -->
-                        <div class="px-5 pb-4">
-                            <div
-                                :id="MASTER_ID"
-                                :contenteditable="masterEditing ? 'true' : 'false'"
-                                @input="onInput('master')"
-                                :data-empty="masterEmpty ? 'true' : 'false'"
-                                :data-placeholder="t('settings.master_app.placeholder')"
-                                class="rte-content rounded-[9px] px-[15px] py-[13px] text-[13px] leading-[1.65] outline-none transition-all"
-                                :class="[
-                                    masterEditing
-                                        ? 'min-h-[140px] cursor-text border border-indigo-500/40'
-                                        : 'min-h-[60px] cursor-default border border-gray-200 dark:border-white/[0.07]',
-                                    'bg-gray-50 text-gray-700 dark:bg-white/[0.03] dark:text-slate-300',
-                                ]"
-                            />
-                        </div>
-
-                        <!-- Footer -->
-                        <div class="flex items-center justify-between border-t border-gray-100 bg-indigo-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
-                            <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
-                                {{ masterSaved
-                                    ? t('settings.saved_ok')
-                                    : `${t('settings.last_saved')}: сегодня, ${masterLastSaved}` }}
-                            </span>
-                            <button
-                                v-if="masterEditing"
-                                type="button"
-                                @click="save('master')"
-                                :disabled="form.processing"
-                                class="rounded-lg bg-indigo-600 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-indigo-700 disabled:opacity-60"
-                            >
-                                {{ t('settings.save') }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- ── CLIENT CARD ────────────────────────────────────────────── -->
+                    <!-- ── APP RULES CARD ─────────────────────────────────────────── -->
                     <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
 
                         <!-- Header -->
@@ -832,7 +682,7 @@ onBeforeUnmount(() => {
                             <div class="flex shrink-0 items-center gap-2">
                                 <button
                                     type="button"
-                                    @click="toggleEdit('client')"
+                                    @click="toggleEdit"
                                     class="flex items-center gap-1.5 rounded-lg border px-3.5 py-[7px] text-[12.5px] font-medium transition-all"
                                     :class="clientEditing
                                         ? 'border-emerald-500/35 bg-emerald-500/15 text-emerald-400'
@@ -846,17 +696,6 @@ onBeforeUnmount(() => {
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                     </svg>
                                     {{ clientEditing ? t('settings.done') : t('settings.edit') }}
-                                </button>
-                                <button
-                                    type="button"
-                                    @click="clientOn = !clientOn"
-                                    class="relative h-[23px] w-10 shrink-0 rounded-full border border-white/[0.06] transition-colors"
-                                    :class="clientOn ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-white/[0.12]'"
-                                >
-                                    <span
-                                        class="absolute top-[3px] h-[15px] w-[15px] rounded-full bg-white shadow-sm transition-all"
-                                        :class="clientOn ? 'left-[21px]' : 'left-[3px]'"
-                                    />
                                 </button>
                             </div>
                         </div>
@@ -903,7 +742,7 @@ onBeforeUnmount(() => {
                             <div
                                 :id="CLIENT_ID"
                                 :contenteditable="clientEditing ? 'true' : 'false'"
-                                @input="onInput('client')"
+                                @input="onInput"
                                 :data-empty="clientEmpty ? 'true' : 'false'"
                                 :data-placeholder="t('settings.client_app.placeholder')"
                                 class="rte-content rounded-[9px] px-[15px] py-[13px] text-[13px] leading-[1.65] outline-none transition-all"
@@ -919,14 +758,12 @@ onBeforeUnmount(() => {
                         <!-- Footer -->
                         <div class="flex items-center justify-between border-t border-gray-100 bg-emerald-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
                             <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
-                                {{ clientSaved
-                                    ? t('settings.saved_ok')
-                                    : `${t('settings.last_saved')}: сегодня, ${clientLastSaved}` }}
+                                {{ clientSaved ? t('settings.saved_ok') : '' }}
                             </span>
                             <button
                                 v-if="clientEditing"
                                 type="button"
-                                @click="save('client')"
+                                @click="save"
                                 :disabled="form.processing"
                                 class="rounded-lg bg-emerald-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-emerald-600 disabled:opacity-60"
                             >
