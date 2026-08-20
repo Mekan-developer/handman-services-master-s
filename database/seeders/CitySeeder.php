@@ -9,10 +9,9 @@ class CitySeeder extends Seeder
 {
     public function run(): void
     {
-        // oblast_id: 1=Aşgabat, 2=Ahal, 3=Mary, 4=Daşoguz, 5=Balkan, 6=Lebap
+        // oblast_id: 1=Ahal, 2=Mary, 3=Daşoguz, 4=Balkan, 5=Lebap
         $cities = [
-            ['name' => 'Ашхабад', 'oblast_id' => 1],
-
+            ['name' => 'Ашхабад', 'oblast_id' => 2],
             ['name' => 'Аннау', 'oblast_id' => 2],
             ['name' => 'Бахарлы', 'oblast_id' => 2],
             ['name' => 'Теджен', 'oblast_id' => 2],
