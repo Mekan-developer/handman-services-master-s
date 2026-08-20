@@ -58,6 +58,7 @@ class MasterResource extends JsonResource
                 'latitude' => $this->latestLocation->latitude,
                 'longitude' => $this->latestLocation->longitude,
                 'recorded_at' => $this->latestLocation->recorded_at,
+                'recorded_at_label' => $this->latestLocation->recorded_at?->format('d.m.Y H:i'),
             ] : null),
             'created_at' => $this->created_at->format('d.m.Y'),
         ];

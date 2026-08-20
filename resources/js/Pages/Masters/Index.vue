@@ -4,12 +4,15 @@ import { Link, useForm, router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import MasterFormModal from '@/Pages/Masters/Partials/MasterFormModal.vue'
+import MasterLocationModal from '@/Pages/Masters/Partials/MasterLocationModal.vue'
 import ConfirmModal from '@/Components/ConfirmModal.vue'
 import Pagination from '@/Components/Pagination.vue'
 import CityFilterSelect from '@/Components/CityFilterSelect.vue'
+import { useNotificationStore } from '@/stores/useNotificationStore'
 import { formatPhone } from '@/utils/formatPhone'
 
 const { t } = useI18n()
+const notifications = useNotificationStore()
 
 const props = defineProps({
     masters: Object,
@@ -64,6 +67,21 @@ function confirmDelete() {
         onSuccess: () => { deleteTarget.value = null },
         onFinish: () => { deleting.value = false },
     })
+}
+
+// ── Location ──────────────────────────────────────────────────────────────────
+const locationTarget = ref(null)
+
+// Карту открываем только когда мастер действительно присылал координаты,
+// иначе показываем предупреждение вместо пустой карты.
+function showLocation(master) {
+    if (!master.latest_location) {
+        notifications.warning(t('masters.no_location'))
+
+        return
+    }
+
+    locationTarget.value = master
 }
 
 // ── Filters ────────────────────────────────────────────────────────────────────
@@ -163,13 +181,14 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.city') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.rating') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.status') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.location') }}</th>
                                 <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.access_expires_at') }}</th>
                                 <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('masters.actions') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
                             <tr v-if="masterList.length === 0">
-                                <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
+                                <td colspan="9" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
                                     {{ t('masters.empty') }}
                                 </td>
                             </tr>
@@ -256,6 +275,25 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                                         </span>
                                     </div>
                                 </td>
+                                <td class="px-6 py-4">
+                                    <button
+                                        @click="showLocation(master)"
+                                        :class="master.latest_location
+                                            ? 'bg-emerald-100 text-emerald-700 ring-emerald-200 hover:bg-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-500/30 dark:hover:bg-emerald-500/20'
+                                            : 'bg-gray-100 text-gray-500 ring-gray-200 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:ring-slate-600 dark:hover:bg-slate-600'"
+                                        class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition-colors"
+                                        :title="master.latest_location ? t('masters.location_show_hint') : t('masters.no_location')"
+                                    >
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                        </svg>
+                                        {{ master.latest_location ? t('masters.location_available') : t('masters.location_missing') }}
+                                    </button>
+                                    <div v-if="master.latest_location" class="mt-1 text-xs text-gray-400 dark:text-slate-500">
+                                        {{ master.latest_location.recorded_at_label }}
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 text-sm">
                                     <div class="flex flex-col gap-1">
                                         <span class="text-gray-500 dark:text-slate-400">
@@ -325,6 +363,13 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
             :categories="categories"
             @close="closeModal"
             @submit="submit"
+        />
+
+        <!-- Master location map -->
+        <MasterLocationModal
+            :show="locationTarget !== null"
+            :master="locationTarget"
+            @close="locationTarget = null"
         />
 
         <ConfirmModal

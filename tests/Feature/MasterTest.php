@@ -82,6 +82,54 @@ class MasterTest extends TestCase
             );
     }
 
+    /**
+     * The list draws a "location" badge per row and opens a map from it, so the
+     * newest ping has to travel with the row — including the timestamp shown
+     * under the badge.
+     */
+    public function test_masters_index_ships_the_newest_ping_for_the_location_badge(): void
+    {
+        $this->actingAsAdmin();
+        $master = Master::factory()->create();
+
+        MasterLocation::factory()->create([
+            'master_id' => $master->id,
+            'latitude' => 37.9500000,
+            'longitude' => 58.3800000,
+            'recorded_at' => now()->subHours(3),
+        ]);
+
+        $newest = MasterLocation::factory()->create([
+            'master_id' => $master->id,
+            'latitude' => 37.9600000,
+            'longitude' => 58.3900000,
+            'recorded_at' => now()->subMinutes(2),
+        ]);
+
+        $this->get(route('masters.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Masters/Index')
+                ->where('masters.data.0.latest_location.latitude', '37.9600000')
+                ->where('masters.data.0.latest_location.longitude', '58.3900000')
+                ->where('masters.data.0.latest_location.recorded_at_label', $newest->recorded_at->format('d.m.Y H:i'))
+            );
+    }
+
+    /** No ping, no map: the row must say so instead of shipping stale coordinates. */
+    public function test_masters_index_reports_a_null_location_for_a_master_that_never_pinged(): void
+    {
+        $this->actingAsAdmin();
+        Master::factory()->create();
+
+        $this->get(route('masters.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Masters/Index')
+                ->where('masters.data.0.latest_location', null)
+            );
+    }
+
     // ── Map ───────────────────────────────────────────────────────────────────
 
     public function test_masters_map_requires_authentication(): void
