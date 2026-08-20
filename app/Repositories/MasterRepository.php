@@ -135,13 +135,22 @@ class MasterRepository
         return $master;
     }
 
+    /**
+     * Categories are re-synced only when `category_ids` is actually part of the
+     * payload — a partial update (the master editing just their experience)
+     * must not wipe the trades they are listed under.
+     */
     public function update(Master $master, array $data): Master
     {
+        $syncCategories = array_key_exists('category_ids', $data);
         $categories = $data['category_ids'] ?? [];
         unset($data['category_ids']);
 
         $master->update($data);
-        $master->categories()->sync($categories);
+
+        if ($syncCategories) {
+            $master->categories()->sync($categories);
+        }
 
         return $master;
     }
