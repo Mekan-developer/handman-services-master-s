@@ -233,7 +233,13 @@ class OrderRepository
      */
     public function pendingResponsesFor(Order $order): Collection
     {
-        $responses = OrderMasterResponse::with(['master.latestLocation'])
+        // The candidate card shows the avatar (stored on the master's client
+        // account) and the average review score, so both are pulled in with the
+        // master instead of firing a query per response.
+        $responses = OrderMasterResponse::with(['master' => fn ($q) => $q
+            ->with(['latestLocation', 'client'])
+            ->withAvg('reviews', 'rating'),
+        ])
             ->where('order_id', $order->id)
             ->where('status', OrderResponseStatus::Pending)
             ->get();

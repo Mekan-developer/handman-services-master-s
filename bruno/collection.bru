@@ -18,6 +18,10 @@ docs {
   4. `05_become_master` → Submit Application — status becomes `pending`.
   5. Admin panel → **Заявки мастеров** → approve + issue a subscription.
   6. `06_master_profile` → Get My Profile — the same token now passes `ensure.master`.
+  7. `07_master_orders` → Available Orders, then Respond — the master offers himself.
+  8. `04_orders` → List Order Responses (saves `{{response_id}}`), then Approve
+     Response — the order becomes `assigned` and starts answering in
+     `10_realtime` → Order Track.
 
   ## Folders
 
@@ -26,13 +30,13 @@ docs {
   | `01_auth`              | partly       | OTP is public, the rest needs a token  |
   | `02_catalog`           | no           | public catalog                         |
   | `03_profile`           | yes          | client profile                         |
-  | `04_orders`            | yes          | client orders                          |
+  | `04_orders`            | yes          | client orders + master responses        |
   | `05_become_master`     | yes          | application + review status            |
   | `06_master_profile`    | yes, approved| profile, availability, GPS             |
   | `07_master_orders`     | yes, approved| auto-search feed, work, tasks          |
   | `08_master_subscription`| partly      | price list public, own subscription not|
-  | `09_settings`          | no           | T&C for both roles                     |
-  | `10_realtime`          | yes          | Reverb private-channel auth            |
+  | `09_settings`          | no           | one T&C text, shared by both roles     |
+  | `10_realtime`          | yes          | Reverb channel auth + master trail     |
 
   ## Why the master endpoints may answer 403
 

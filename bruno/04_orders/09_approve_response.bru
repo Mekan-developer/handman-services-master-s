@@ -1,0 +1,43 @@
+meta {
+  name: Approve Response
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{base_url}}/api/v1/client/orders/{{order_id}}/responses/{{response_id}}/approve
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Approve Response
+
+  The client picks the winner. The order moves to `assigned` with that master
+  set, and **every other still-pending response is superseded** — those masters
+  lost the order to someone else, not to an explicit rejection, and are told so
+  over their private channel (`OrderResponseSuperseded`).
+
+  The assigned master gets `MasterAssigned` on `private-master.{id}`. From this
+  moment the order is trackable: **10_realtime → Order Track** starts answering
+  `is_active: true`.
+
+  No request body. Run **List Order Responses** first — it fills `{{response_id}}`.
+
+  **Response 200:** `ClientOrderResource` with `status: "assigned"` and `master` set.
+
+  **Errors:**
+  - `422` — the order already has a master (`already_claimed`), or the response
+    is no longer pending (`response_not_pending`)
+  - `404` — order or response not found, or the order is not this client's
+  - `401` — missing / invalid token
+}
