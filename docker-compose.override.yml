@@ -1,7 +1,4 @@
 x-php-build: &php-dev
-  build:
-    context: .
-    dockerfile: ./docker/php/Dockerfile
   volumes:
     - ./:/var/www/laravel 
   restart: "no"  
@@ -33,6 +30,23 @@ services:
   artisan:
     <<: *php-dev
 
+  node:                              # NEW: весь сервис
+    image: node:22-alpine
+    container_name: handyman_node
+    working_dir: /var/www/laravel
+    command: sh -c "npm ci && npm run dev"
+    volumes:
+      - ./:/var/www/laravel
+      - node_modules:/var/www/laravel/node_modules
+    ports:
+      - 5173:5173
+    restart: "no" 
+
+  sms-gateway:
+    ports:
+      - 3000:3000
+    restart: "no"     
+
   db:
     restart: "no"
     ports:
@@ -42,3 +56,5 @@ services:
     restart: "no"
     ports:
       - "6379:6379"
+volumes:
+  node_modules:                     # NEW      
