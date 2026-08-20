@@ -21,6 +21,11 @@ class MasterProfileResource extends JsonResource
             'is_active' => $this->is_active,
             'is_available' => $this->is_available,
             'access_expires_at' => $this->access_expires_at?->toDateString(),
+
+            // Editable by the master through PATCH /master/me — returned so the
+            // app can pre-fill the edit form without a second request.
+            'experience_years' => $this->experience_years,
+            'about' => $this->about,
             'city' => $this->whenLoaded('city', fn () => [
                 'id' => $this->city->id,
                 'name' => $this->city->name,

@@ -885,7 +885,8 @@ Web (Inertia) and API controllers are **strictly separate**. Never reuse or shar
 |---|---|---|---|
 | `GET` | `/api/v1/master/subscription-plans` | public | Subscription price list — reachable without a token on purpose (see below) |
 | `GET` | `/api/v1/master/subscription` | Sanctum, `ensure.master:allow-expired` | Own subscription: current one, access deadline, history |
-| `GET` | `/api/v1/master/me` | Sanctum | Profile, access expiry, categories |
+| `GET` | `/api/v1/master/me` | Sanctum | Profile, access expiry, categories, experience |
+| `PATCH` | `/api/v1/master/me` | Sanctum | Edit own trade details: `category_ids`, `experience_years`, `about` (all optional, partial). Name, phone and city are edited on the client account and mirrored by `ClientObserver` |
 | `PATCH` | `/api/v1/master/availability` | Sanctum | Toggle "ready for work" |
 | `POST` | `/api/v1/master/{master}/location` | Sanctum | GPS ping; `{master}` **must** match the token owner |
 | `GET` | `/api/v1/master/orders` | Sanctum | Assigned orders (`filter=active` / `history`) |

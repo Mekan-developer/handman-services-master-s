@@ -53,6 +53,7 @@ Route::prefix('master')->group(function () {
     Route::middleware(['auth:sanctum', 'ensure.master'])->group(function () {
 
         Route::get('me', [MasterProfileController::class, 'show'])->name('api.v1.master.me');
+        Route::patch('me', [MasterProfileController::class, 'update'])->name('api.v1.master.me.update');
         Route::patch('availability', [MasterAvailabilityController::class, 'update'])->name('api.v1.master.availability.update');
 
         // The {master} segment is kept for URL compatibility with the mobile apps,

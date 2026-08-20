@@ -149,7 +149,8 @@ All of these are implemented and require the Bearer token.
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/v1/client/settings` | App rules/terms — **public**, one shared text for both roles, shown before registration |
-| `GET /api/v1/master/me` | Current master profile + access expiry + categories |
+| `GET /api/v1/master/me` | Current master profile + access expiry + categories + experience |
+| `PATCH /api/v1/master/me` | Edit own trade details — `category_ids` (leaf only, 1–10), `experience_years`, `about`; every field optional, send only what changed. Name, phone and city are edited on `PATCH /api/v1/client/me` and mirrored onto the master profile automatically |
 | `GET /api/v1/master/subscription-plans` | Subscription price list — **public**, readable without a token |
 | `GET /api/v1/master/subscription` | Own subscription: current, access deadline, history — works with a lapsed subscription |
 | `PATCH /api/v1/master/availability` | Toggle the "ready for work" flag |
