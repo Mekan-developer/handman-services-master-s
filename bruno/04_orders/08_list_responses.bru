@@ -1,0 +1,77 @@
+meta {
+  name: List Order Responses
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{base_url}}/api/v1/client/orders/{{order_id}}/responses
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.data.length > 0) {
+    bru.setVar("response_id", res.body.data[0].id);
+  }
+}
+
+docs {
+  # List Order Responses
+
+  The masters who answered the auto-search and are waiting for the client to
+  pick one. Only **pending** responses are listed — approved, rejected and
+  superseded ones drop out, so the screen always shows live candidates.
+
+  `master.distance_km` is the straight-line distance from that master's latest
+  GPS ping to the order address, or `null` when he has never pinged. Use it to
+  sort the candidate list; it is not road distance.
+
+  `master.avatar_url` is the avatar of the account the master signed in with,
+  `null` when none was uploaded. `master.rating` is the average score across all
+  reviews he ever received, rounded to one decimal, `null` for a master with no
+  reviews yet — show "новый мастер" rather than a zero.
+
+  The first response id is saved into `{{response_id}}` for the Approve /
+  Reject requests below.
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": 7,
+        "order_id": 226,
+        "status": "pending",
+        "created_at": "2026-07-20T14:31:00+05:00",
+        "decided_at": null,
+        "rejection_reason": null,
+        "master": {
+          "id": 11,
+          "name": "Aydogdy Ussadow",
+          "phone": "+99362111222",
+          "experience_years": 6,
+          "distance_km": 2.4,
+          "avatar_url": "http://localhost/storage/clients/11/avatar.jpg",
+          "rating": 4.8
+        }
+      }
+    ]
+  }
+  ```
+
+  An order nobody has answered yet returns `{ "data": [] }`.
+
+  **Errors:**
+  - `404` — order not found or does not belong to this client
+  - `401` — missing / invalid token
+}

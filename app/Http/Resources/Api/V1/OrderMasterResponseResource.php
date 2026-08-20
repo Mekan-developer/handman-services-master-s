@@ -32,6 +32,13 @@ class OrderMasterResponseResource extends JsonResource
                 'phone' => $this->master->phone,
                 'experience_years' => $this->master->experience_years,
                 'distance_km' => $this->distance_km !== null ? (float) $this->distance_km : null,
+
+                // One person, one photo: the avatar belongs to the client account
+                // the master signed in with.
+                'avatar_url' => $this->master->client?->photo_url,
+                'rating' => $this->master->reviews_avg_rating !== null
+                    ? round((float) $this->master->reviews_avg_rating, 1)
+                    : null,
             ]),
         ];
     }
