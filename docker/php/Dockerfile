@@ -12,11 +12,21 @@ RUN sed -i "s|https\?://deb.debian.org|${DEBIAN_MIRROR}|g" /etc/apt/sources.list
 # silently falls back to storing the original file instead of a WebP.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-        libwebp-dev \
+    git \
+    unzip \
+    libzip-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j"$(nproc)" gd pcntl pdo pdo_mysql \
+    && docker-php-ext-install -j"$(nproc)" gd pcntl pdo pdo_mysql zip exif \
     && rm -rf /var/lib/apt/lists/*
 
+# Bind-mount с хоста принадлежит чужому UID, а процессы идут от www-data —
+# без этого git (и вызывающий его composer) ругается на "dubious ownership".
+RUN git config --system --add safe.directory /var/www/laravel 
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+ENV COMPOSER_HOME=/tmp/composer
