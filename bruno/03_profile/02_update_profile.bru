@@ -33,9 +33,14 @@ docs {
   Both fields are optional (`sometimes`). Send only what needs to change.
   Required before the client can create orders (name + city_id must be set).
 
-  This updates the **client** record only. An approved master profile keeps the
-  name and city it was created with — the administrator edits those in the
-  admin panel.
+  `name`, `phone` and `city_id` are mirrored onto the master profile
+  automatically (ClientObserver) — a master is the same person as the client,
+  not a separate record, and has one name and one city.
+
+  The city is not cosmetic on the master side: it decides which orders an
+  administrator can assign them manually, so moving here also moves the master.
+  There is deliberately no `city_id` on `PATCH /master/me` — this is the only
+  place it changes.
 
   **Response 200:** `ClientProfileResource`
 

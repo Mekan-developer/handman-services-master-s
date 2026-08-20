@@ -44,6 +44,8 @@ docs {
       "is_active": true,
       "is_available": true,
       "access_expires_at": "2026-12-31",
+      "experience_years": 8,
+      "about": "Сантехник с 2017 года.",
       "city": { "id": 1, "name": "Ашхабад" },
       "categories": [{ "id": 1, "name": "Сантехника" }]
     }
@@ -55,6 +57,8 @@ docs {
   | `is_active`        | Not blocked by the administrator                 |
   | `is_available`     | Set by the master — ready for work right now     |
   | `access_expires_at`| When the subscription runs out                   |
+  | `experience_years` | Editable by the master — see Update Master Profile |
+  | `about`            | Editable by the master, may be `null`            |
 
   **403 — read the `reason`:** `not_a_master`, `application_pending`,
   `application_rejected`, `disabled`, `access_expired`. See the collection docs

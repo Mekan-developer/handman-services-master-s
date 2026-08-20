@@ -1,0 +1,104 @@
+meta {
+  name: Update Master Profile
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{base_url}}/api/v1/master/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "category_ids": [{{category_id}}],
+    "experience_years": 8,
+    "about": "Сантехник с 2017 года. Установка смесителей, замена труб, устранение протечек."
+  }
+}
+
+docs {
+  # Update Master Profile
+
+  The master edits their own trade details. Every field is `sometimes` — send
+  only what changed, the rest is left alone. Changing the categories does **not**
+  send the master back to review: they keep working, the administrator simply
+  sees the new data in the panel.
+
+  Name, phone and **city** are not here — they live on the client account and
+  are edited in `03_profile` → Update Profile; the master profile is kept in
+  sync from there automatically, so a person has one name and one city.
+
+  **Fields:**
+
+  | Field              | Rules                                                              |
+  |--------------------|--------------------------------------------------------------------|
+  | `category_ids`     | optional, 1..10 distinct ids, **subcategories only** (`parent_id` not null) |
+  | `experience_years` | optional, integer 0..70                                             |
+  | `about`            | optional, nullable, up to 1000 chars — send `null` to clear it      |
+
+  `category_ids` replaces the whole list (it is a sync, not an append). An empty
+  array is rejected: a master with no category drops out of the auto-search feed.
+  Omit the key entirely to keep the current categories.
+
+  Root categories are rejected on purpose — they are headings in the catalog,
+  not trades. Take the ids from `children[]` in `02_catalog` → List Categories.
+
+  **Partial update — just the experience:**
+  ```json
+  { "experience_years": 12 }
+  ```
+
+  **Clearing the "about" text:**
+  ```json
+  { "about": null }
+  ```
+
+  **Response 200:** `MasterProfileResource` — the same shape as Get My Profile.
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "name": "Aydogdy Ussadow",
+      "phone": "+99362111222",
+      "is_active": true,
+      "is_available": true,
+      "access_expires_at": "2026-12-31",
+      "experience_years": 8,
+      "about": "Сантехник с 2017 года. Установка смесителей, замена труб, устранение протечек.",
+      "city": { "id": 5, "name": "Ашхабад" },
+      "categories": [{ "id": 2, "name": "Сантехника" }]
+    }
+  }
+  ```
+
+  **Errors:**
+  - `401` — missing / invalid token
+  - `403` — token has no usable master profile (see `reason` in the collection
+    docs); an applicant under review or a lapsed subscription cannot edit
+  - `422` — validation error; `message` repeats the first error, `errors` carries
+    them all:
+    ```json
+    {
+      "message": "Выбранное значение для category_ids.0 не найдено.",
+      "errors": {
+        "category_ids.0": ["Выбранное значение для category_ids.0 не найдено."]
+      }
+    }
+    ```
+
+  **Not writable here** — ignored even if sent: `status`, `is_active`,
+  `is_available` (use Set Availability), `access_expires_at`, `name`, `phone`,
+  `city_id` (use `03_profile` → Update Profile).
+}
