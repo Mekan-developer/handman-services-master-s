@@ -106,8 +106,17 @@ The mobile app should call this every **10–15 seconds** while the master is on
 |-------|------|----------|-------|
 | `latitude` | float | yes | between -90 and 90 |
 | `longitude` | float | yes | between -180 and 180 |
-| `order_id` | int | no | Set when location is part of a specific order trip; null otherwise |
+| `order_id` | int | see below | The job being driven to — decides who receives the ping |
 | `recorded_at` | ISO8601 | no | Defaults to server now() |
+
+**`order_id` is what makes the client's tracking map work.** With it, the position also
+reaches that order's client, who is watching the master approach
+(`CLIENT_APP_SPEC.md` §7.1). Without it the ping only feeds the staff map and the
+client sees nothing at all.
+
+Send it for the whole trip — from `master.assigned` until `order.status.changed`
+reports `completed` or `cancelled`. Outside a job, omit it and stop the background
+location stream altogether: nothing consumes idle pings and every one is a stored row.
 
 **Response 201**:
 ```json
@@ -126,7 +135,12 @@ The mobile app should call this every **10–15 seconds** while the master is on
 **Errors**:
 - `401` — missing or invalid token
 - `403` — master is inactive, access expired, or `{masterId}` is not the token owner
-- `422` — validation error
+- `404` — `order_id` is not this master's order
+- `422` — coordinates failed validation, **or** the order is already completed/cancelled
+
+The `order_id` tag is verified rather than trusted, because it decides whose private
+channel the position lands on. `404` and `422` on the order are permanent: they mean
+*stop tagging pings with this id*, not *retry*.
 
 ### 3.2 The rest of the master endpoints
 
@@ -220,30 +234,47 @@ The backend broadcasts events via **Laravel Reverb** (a Pusher-compatible WebSoc
 
 | Variable | Value (dev) |
 |----------|-------------|
-| `host` | `<your-machine-ip>` |
-| `port` | `8080` |
-| `key` | `handymanreverbappkey` |
+| `host` | the same host that serves the REST API |
+| `port` | `80` (dev) / `443` (prod) |
+| `key` | ask backend — it lives in `.env` as `REVERB_APP_KEY` and has been rotated since this doc was first written |
 | `forceTLS` | `false` (dev), `true` (prod) |
 | `enabledTransports` | `["ws", "wss"]` |
 
+The WebSocket is **not** exposed on its own port. nginx proxies the `/app` path to
+Reverb on the same host and port as the API, and the Pusher client appends
+`/app/{key}` itself — so point it at the API host and nothing else. `cluster` is
+meaningless for a self-hosted Reverb; pass a placeholder if the package insists.
+
 Use the **`pusher_channels_flutter`** package (Pusher SDK is fully compatible with Reverb).
+
+Full wiring, including the `onAuthorizer` callback and the live-tracking map, is
+written out as a ready task in [`MOBILE_REALTIME_PROMPT.md`](./MOBILE_REALTIME_PROMPT.md).
 
 ### Channels the master app subscribes to
 
 Verified directly against `routes/channels.php` and the `App\Events\*` classes — both events below are **implemented**, not planned.
 
+**Event names carry no leading dot in Flutter.** The `.master.assigned` form is Laravel
+Echo's JavaScript convention for cancelling the `App\Events\` namespace; a raw Pusher
+client receives the name exactly as listed below.
+
 | Channel | When | Event | Payload |
 |---------|------|-------|---------|
-| `available-orders` (public) | While online and available | `.order.search.started` | `{ order_id, radius_km }` |
-| `available-orders` (public) | While online and available | `.order.search.radius.expanded` | `{ order_id, radius_km }` |
-| `private-master.{masterId}` | After login, once `has_master_access` | `.master.assigned` | `{ order_id, client_name, master_id, master_name, master_phone }` |
-| `private-master.{masterId}` | After login | `.order.status.changed` | `{ order_id, client_name, from, to, to_label }` |
+| `available-orders` (public) | While online and available | `order.search.started` | `{ order_id, radius_km }` |
+| `available-orders` (public) | While online and available | `order.search.radius.expanded` | `{ order_id, radius_km }` |
+| `private-master.{masterId}` | After login, once `has_master_access` | `master.assigned` | `{ order_id, client_name, master_id, master_name, master_phone }` |
+| `private-master.{masterId}` | After login | `order.status.changed` | `{ order_id, client_name, from, to, to_label }` |
+| `private-master.{masterId}` | After login | `order.response.rejected` | `{ order_id, reason }` — the client turned this offer down; `reason` may be `null` |
+| `private-master.{masterId}` | After login | `order.response.superseded` | `{ order_id }` — the client approved a different master |
+| `private-master.{masterId}` | After login | `order.response.withdrawn` | `{ order_id }` — the order was cancelled while the offer was pending |
 
 There is no `private-order.{orderId}` channel — status changes for a master's own orders arrive on `private-master.{masterId}` above, keyed by `order_id` in the payload.
 
 > **`available-orders` is a public channel and carries no usable order data — treat both events purely as a "your feed may have changed" signal and re-fetch `GET /api/v1/master/orders/available`.** The payload is not filtered for you: an event fires for every order in the system, including ones outside your radius or categories. Only the endpoint applies the matching rules. Debounce the refetch (≈1 s) so a burst of scheduler ticks does not turn into a burst of requests.
 
-> The masters-map channel `masters-map.{cityId}` is for the **admin panel only**; the master app should NOT subscribe to it.
+> The masters-map channel `masters-map.{cityId}` is for the **admin panel only** and is
+> now a **private** channel gated on staff roles — a master token is rejected there. Do
+> not subscribe to it. Sending your own position is done over REST, see §3.1.
 
 > The client side of the same app listens on `private-client.{clientId}` for the identical `master.assigned` / `order.status.changed` events — see [`CLIENT_APP_SPEC.md`](./CLIENT_APP_SPEC.md) §7.
 

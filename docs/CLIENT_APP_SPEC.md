@@ -25,7 +25,9 @@ Feed this file to Cursor as project context and ask it to scaffold, in order:
    `master_status` / `has_master_access` from `client.me` so the UI can branch into the
    master flow at the right point.
 5. `RealtimeService` (`pusher_channels_flutter`, Reverb) subscribed to `private-client.{id}`
-   per §7.
+   per §7. For this step hand Cursor [`MOBILE_REALTIME_PROMPT.md`](./MOBILE_REALTIME_PROMPT.md)
+   instead — it is a self-contained task covering both roles, the `onAuthorizer` wiring
+   and the live-tracking map, which this file only summarizes.
 6. Screens per §8, in that order.
 
 Do not re-derive the master-side contract from this file — once `has_master_access` is
@@ -217,6 +219,7 @@ deleted. Leaving `photo` out of the request never blanks the stored avatar.
 | `PATCH /client/orders/{id}` **[auth]** | multipart, all fields `sometimes` | `ClientOrder` |
 | `POST /client/orders/{id}/cancel` **[auth]** | `{ "reason"?: string ≤500 }` | `ClientOrder` |
 | `POST /client/orders/{id}/review` **[auth]** | `{ "rating": 1..5, "comment"?: string ≤1000 }` | `201 { "id", "rating", "comment", "created_at" }` |
+| `GET /client/orders/{id}/track` **[auth]** | query: `since`?: ISO8601 | the assigned master's trail — see §7.1 |
 
 ### Create / update body (multipart — always, even with no photos)
 
@@ -291,13 +294,65 @@ here, useful for an itemized "what was done" view.
   If `has_master_access` is also true, the same connection can additionally subscribe to
   `private-master.{masterId}` — see `MASTER_APP_SPEC.md` §4.
 
+**Event names carry no leading dot here.** The `.master.assigned` form belongs to
+Laravel Echo in JavaScript, where the dot cancels the `App\Events\` namespace. A raw
+Pusher-protocol client such as `pusher_channels_flutter` receives the name exactly as
+`broadcastAs()` returns it — subscribe to `master.assigned`, not `.master.assigned`.
+
 | Event | Payload |
 |---|---|
-| `.master.assigned` | `{ order_id, client_name, master_id, master_name, master_phone }` — a master just claimed the client's order; refresh the order and start listening for location updates |
-| `.order.status.changed` | `{ order_id, client_name, from, to, to_label }` — patch the order's `status` locally instead of re-fetching |
+| `master.assigned` | `{ order_id, client_name, master_id, master_name, master_phone }` — a master just claimed the client's order; refresh the order and start tracking (§7.1) |
+| `order.status.changed` | `{ order_id, client_name, from, to, to_label }` — patch the order's `status` locally instead of re-fetching. `to_label` arrives already translated per `X-Locale` |
+| `order.response.created` | `{ order_id, response_id, master_id, master_name, master_phone }` — a master offered to take an order still in auto-search; refresh the responses list |
+| `master.location.updated` | `{ master_id, order_id, latitude, longitude, distance_km, recorded_at }` — see §7.1 |
 
-Both are verified against `App\Events\MasterAssigned` / `App\Events\OrderStatusChanged`
-and `routes/channels.php` (`client.{clientId}` channel) directly in the backend source.
+Verified against `App\Events\MasterAssigned`, `OrderStatusChanged`,
+`MasterRespondedToOrder`, `MasterLocationUpdated` and `routes/channels.php`
+(`client.{clientId}` channel) directly in the backend source.
+
+### 7.1 Following the master on the map
+
+Live tracking runs from the moment the client approves a response until the job
+closes. Three parts:
+
+**Backfill** — `GET /client/orders/{orderId}/track` **[auth]**, optional `?since=<ISO8601>`:
+
+```json
+{
+  "data": {
+    "order_id": 42,
+    "status": "assigned",
+    "is_active": true,
+    "destination": { "latitude": 38.0, "longitude": 58.3, "address": "..." },
+    "master": { "id": 7, "name": "...", "phone": "..." },
+    "last_location": { "latitude": 37.93, "longitude": 58.3, "recorded_at": "...", "distance_km": 7.8 },
+    "points": [ { "latitude": 37.91, "longitude": 58.3, "recorded_at": "..." } ]
+  }
+}
+```
+
+`points` is the trail in chronological order, capped at the newest 500 pings.
+`since` returns only what was recorded after that moment — use it after a
+reconnection instead of pulling the whole trail again.
+
+**Live** — `master.location.updated` on the already-subscribed `private-client.{id}`
+channel. Append the point to the polyline and move the marker; do not re-call
+`/track` per ping. The channel carries pings for **every** active order of this
+client, so filter on `order_id`.
+
+**Stop** — any of three signals, all equivalent:
+
+- `order.status.changed` with `to: completed` or `cancelled`;
+- `/track` answering `is_active: false` (its `points` are empty then);
+- the pings simply stopping — the backend drops the client channel from the
+  broadcast the moment the order is no longer trackable.
+
+There is no "unsubscribe from tracking" call. `private-client.{id}` stays
+subscribed for the whole session; the stream for a closed order dries up on its own.
+
+`distance_km` is straight-line distance to the client's address, not road
+distance, and the backend computes no ETA. Show it as an approximation and do
+not invent an arrival time on the client.
 
 ---
 
@@ -402,6 +457,8 @@ curl -X POST http://localhost:8000/api/v1/client/orders \
   the whole app.
 - `ClientOrder` response shape (§6), including the `master.location` gating rule.
 - `master.assigned` / `order.status.changed` payloads on `private-client.{clientId}` (§7).
+- The tracking contract (§7.1): `GET /client/orders/{id}/track`, the
+  `master.location.updated` payload, and `is_active` as the single stop signal.
 - Order status enum values: `pending`, `assigned`, `in_progress`, `completed`, `cancelled`.
 - Master application status enum values: `pending`, `approved`, `rejected`.
 

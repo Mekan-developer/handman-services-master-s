@@ -98,6 +98,20 @@ class MasterTest extends TestCase
             ->assertInertia(fn ($page) => $page->component('Masters/Map')->has('masters')->has('cityIds'));
     }
 
+    /**
+     * The map subscribes to a private channel, and Laravel Echo signs that
+     * subscription with this tag. Drop the tag and every private channel in the
+     * panel dies with a 419 that surfaces nowhere in the UI.
+     */
+    public function test_layout_ships_the_csrf_token_private_channels_need(): void
+    {
+        $this->actingAsAdmin();
+
+        $this->get(route('masters.map'))
+            ->assertOk()
+            ->assertSee('name="csrf-token"', escape: false);
+    }
+
     public function test_map_includes_masters_with_null_access_expires_at(): void
     {
         $this->actingAsAdmin();

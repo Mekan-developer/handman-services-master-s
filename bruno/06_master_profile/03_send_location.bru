@@ -39,9 +39,10 @@ docs {
   - `order_id` — optional; set when tied to a specific order trip
   - `recorded_at` — optional ISO8601; defaults to server `now()`
 
-  The client tracking screen reads these pings through `master.location` in
-  **Track Order**, and the auto-search uses the latest one to decide which
-  orders are within reach — a master who has never pinged sees an empty feed.
+  The client tracking screen reads these pings live over `private-client.{id}`
+  and replays them through **10_realtime → Order Track**; the auto-search uses
+  the latest one to decide which orders are within reach — a master who has
+  never pinged sees an empty feed.
 
   **Response 201:**
   ```json
