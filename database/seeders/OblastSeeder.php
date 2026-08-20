@@ -10,7 +10,6 @@ class OblastSeeder extends Seeder
     public function run(): void
     {
         $oblasts = [
-            'Aşgabat',
             'Ahal',
             'Mary',
             'Daşoguz',
