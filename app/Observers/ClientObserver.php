@@ -25,22 +25,35 @@ class ClientObserver
     }
 
     /**
-     * `masters.name` and `masters.phone` are copied from the client at
-     * application time and never read live from the relation elsewhere (see
-     * MasterResource's top-level `name`) — a master profile is the same
-     * person as the client, not a separate record, so both must stay in
-     * lockstep whenever the client edits either field.
+     * `masters.name`, `masters.phone` and `masters.city_id` are copied from the
+     * client at application time and never read live from the relation elsewhere
+     * (see MasterResource's top-level `name`) — a master profile is the same
+     * person as the client, not a separate record, so all three must stay in
+     * lockstep whenever the client edits any of them.
+     *
+     * The city matters operationally: MasterRepository::eligibleForOrder()
+     * matches it against the order's city, so a master who moved and only
+     * updated their client profile would otherwise stay invisible to the
+     * administrator in their new city.
      */
     public function updated(Client $client): void
     {
-        if (! $client->wasChanged(['name', 'phone'])) {
+        if (! $client->wasChanged(['name', 'phone', 'city_id'])) {
             return;
         }
 
-        $client->master()->first()?->update([
+        $payload = [
             'name' => $client->name,
             'phone' => $client->phone,
-        ]);
+        ];
+
+        // `clients.city_id` is nullable while `masters.city_id` is not — an
+        // account left without a city keeps the master's last known one.
+        if ($client->city_id !== null) {
+            $payload['city_id'] = $client->city_id;
+        }
+
+        $client->master()->first()?->update($payload);
     }
 
     /**

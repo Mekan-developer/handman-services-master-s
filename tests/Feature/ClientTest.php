@@ -168,6 +168,22 @@ class ClientTest extends TestCase
         $this->assertSame('+99362223333', $master->refresh()->phone);
     }
 
+    public function test_moving_a_client_to_another_city_moves_their_master_profile(): void
+    {
+        $this->actingAsAdmin();
+        $client = Client::factory()->create();
+        $master = Master::factory()->create(['client_id' => $client->id, 'city_id' => $client->city_id]);
+        $city = City::factory()->create();
+
+        $this->post(route('clients.update', $client->id), [
+            'city_id' => $city->id,
+            'name' => $client->name,
+            'phone' => $client->phone,
+        ])->assertRedirect(route('clients.index'));
+
+        $this->assertSame($city->id, $master->refresh()->city_id);
+    }
+
     public function test_renaming_a_client_without_a_master_profile_does_not_error(): void
     {
         $this->actingAsAdmin();
