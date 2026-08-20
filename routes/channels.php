@@ -9,12 +9,13 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 /*
- * Public channel for the admin map view — broadcasts every master location update
- * scoped by city id. Anyone (including unauthenticated guest in dev) can listen.
- * In production, switch to private channel + admin auth gate.
+ * Live master positions for the admin map, scoped by city id. Private: a GPS
+ * trail is personal data, and the city id is trivially guessable, so a public
+ * channel would hand anyone the real-time whereabouts of every master in town.
+ * Gated on the same roles that can open the map and order pages.
  */
-Broadcast::channel('masters-map.{cityId}', function () {
-    return true;
+Broadcast::channel('masters-map.{cityId}', function ($user) {
+    return $user instanceof User && $user->role->canAccessAdminSections();
 });
 
 /*
@@ -32,7 +33,7 @@ Broadcast::channel('available-orders', function () {
  * secrets — only staff who can open the section may subscribe.
  */
 Broadcast::channel('admin.pending-otps', function ($user) {
-    return $user instanceof User && ! $user->isOperator();
+    return $user instanceof User && $user->role->canAccessAdminSections();
 });
 
 /*

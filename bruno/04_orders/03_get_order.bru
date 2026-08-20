@@ -1,5 +1,5 @@
 meta {
-  name: Track Order
+  name: Get Order
   type: http
   seq: 3
 }
@@ -20,15 +20,19 @@ headers {
 }
 
 docs {
-  # Track Order (show)
+  # Get Order
 
   Returns the full order with city, category, assigned master (when set),
-  photos and tasks (before/after WebP). Use this endpoint for real-time status
-  tracking on the client screen.
+  photos and tasks (before/after WebP). This is the order card screen — one
+  snapshot of everything about the job.
 
   When order status is `assigned` or `in_progress`, `master.location` contains
   the master's latest GPS ping (`lat`, `lng`, `recorded_at`). For all other
   statuses `master.location` is `null`.
+
+  For the map itself — the full trail, the destination and the `is_active`
+  flag — use **10_realtime → Order Track** instead. This endpoint carries only
+  the single latest ping.
 
   **Response 200:**
   ```json

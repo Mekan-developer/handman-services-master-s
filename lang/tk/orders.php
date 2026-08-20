@@ -133,6 +133,7 @@ return [
         'already_responded' => 'Siz eýýäm bu sargyda teklip beripsiňiz',
         'response_not_pending' => 'Bu teklip boýunça eýýäm çözgüt kabul edildi',
         'search_restart_not_allowed' => 'Gözlegi diňe usta bellenilmedik täze sargyt üçin täzeden başlatyp bolýar',
+        'order_not_trackable' => 'Sargyt eýýäm tamamlandy — onuň boýunça geoýerleşişi ibermek indi gerek däl',
     ],
 
     'search' => [

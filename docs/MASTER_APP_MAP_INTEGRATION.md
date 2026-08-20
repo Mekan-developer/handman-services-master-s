@@ -137,23 +137,52 @@ Coordinates are already included in the **list** response — no need to call or
 |---|---|---|
 | `latitude` | yes | `-90..90` |
 | `longitude` | yes | `-180..180` |
-| `order_id` | no | set when tracking a specific trip, otherwise omit |
+| `order_id` | see below | the job currently being driven to |
 | `recorded_at` | no | defaults to server time |
 
 - **A Bearer token is required** (`auth:sanctum` + `ensure.master`). The `{masterId}` segment must be the id of the master the token belongs to — posting for anyone else returns `403`.
 - No documented interval requirement in backend config — send every 10–15s while online, matching `MASTER_APP_SPEC.md` §3.1.
-- `401` = missing/invalid token, `403` = master inactive, access expired, or the id does not match the token owner, `422` = validation error.
+
+### `order_id` decides who sees the ping
+
+This is not an optional annotation. The backend routes the ping by it:
+
+- **with `order_id`** — the position also reaches that order's client, who is
+  watching the master approach on their own map (`CLIENT_APP_SPEC.md` §7.1);
+- **without it** — the ping only feeds the staff map. The client sees nothing.
+
+So send `order_id` for the whole trip: from `master.assigned` until
+`order.status.changed` reports `completed` or `cancelled`. Outside a job, omit it —
+and stop the background location stream entirely rather than pinging idle
+coordinates that nothing consumes.
+
+The tag is verified, not trusted:
+
+| Status | Meaning |
+|---|---|
+| `401` | missing/invalid token |
+| `403` | master inactive, access expired, or `{masterId}` is not the token owner |
+| `404` | `order_id` is not this master's order |
+| `422` | coordinates failed validation, **or** the order is already completed/cancelled |
+
+`404` and `422` on the order both mean *stop tagging pings with this id* — they
+are not transient, and retrying the same body will fail identically.
 
 ---
 
-## 5. Realtime pin updates (optional, nice-to-have)
+## 5. Realtime pin updates
 
-If you want the map to update live instead of polling `GET /orders`, subscribe to the private channel `master.{masterId}` (Reverb/Pusher-protocol) and listen for:
+Subscribe to the private channel `master.{masterId}` (Reverb, Pusher protocol) and listen for:
 
-- `order.status.changed` → refetch/patch the order's status locally
-- `master.assigned` → a new order was assigned to this master; add its pin
+- `master.assigned` → a new order is this master's; add its pin and start tagging pings with its id
+- `order.status.changed` → patch the order's status locally; `completed`/`cancelled` is the signal to drop the pin and stop tagging
+- `order.response.rejected` / `order.response.superseded` / `order.response.withdrawn` → a pending offer died, remove it from the list
 
-Full Reverb connection details (host/key/port) are not filled in for production in this repo — get them from backend separately (`.env.production` on the server, not checked into git). See the realtime section of `MASTER_APP_SPEC.md` for the channel/event contract; it's stale on a couple of field names, ask backend to confirm before wiring it up.
+Event names arrive **without** a leading dot — the `.master.assigned` form is Laravel Echo's JavaScript convention and does not apply to `pusher_channels_flutter`.
+
+The staff map channel `masters-map.{cityId}` is **private and staff-only** — a master token is rejected there. A master never subscribes to other masters' positions.
+
+Full Reverb connection details (host/key/port) are not in git — get them from backend. The wiring, including the `/api/v1/broadcasting/auth` authorizer, is written out step by step in [`MOBILE_REALTIME_PROMPT.md`](./MOBILE_REALTIME_PROMPT.md).
 
 ---
 

@@ -81,6 +81,26 @@ class OrderRepository
             ->findOrFail($orderId);
     }
 
+    /**
+     * The one job this master is currently on, or null when there is no single
+     * obvious answer.
+     *
+     * Used to tag GPS pings that arrive without an order id. Deliberately
+     * returns null when the master holds several open jobs at once: the tag
+     * decides which trail the ping joins and whose private channel it reaches,
+     * and a guess there would draw the master onto the wrong client's map.
+     */
+    public function singleTrackableForMaster(Master $master): ?Order
+    {
+        $candidates = Order::query()
+            ->where('master_id', $master->id)
+            ->whereIn('status', [OrderStatus::Assigned->value, OrderStatus::InProgress->value])
+            ->limit(2)
+            ->get();
+
+        return $candidates->count() === 1 ? $candidates->first() : null;
+    }
+
     public function findOrFail(int $id): Order
     {
         return Order::with([

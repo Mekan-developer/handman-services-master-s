@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Client\ClientAuthController;
 use App\Http\Controllers\Api\V1\Client\ClientCatalogController;
 use App\Http\Controllers\Api\V1\Client\ClientOrderController;
+use App\Http\Controllers\Api\V1\Client\ClientOrderTrackingController;
 use App\Http\Controllers\Api\V1\Client\ClientProfileController;
 use App\Http\Controllers\Api\V1\Client\ClientSettingController;
 use App\Http\Controllers\Api\V1\Client\MasterApplicationController;
@@ -124,6 +125,10 @@ Route::prefix('client')->group(function () {
             Route::patch('{order}', [ClientOrderController::class, 'update'])->name('update');
             Route::post('{order}/cancel', [ClientOrderController::class, 'cancel'])->name('cancel');
             Route::post('{order}/review', [ClientOrderController::class, 'storeReview'])->name('review');
+
+            // Live trail of the assigned master. Answers `is_active: false`
+            // once the order is finished, so the app stops following.
+            Route::get('{order}/track', [ClientOrderTrackingController::class, 'show'])->name('track');
 
             Route::get('{order}/responses', [ClientOrderController::class, 'responses'])->name('responses');
             Route::post('{order}/responses/{responseId}/approve', [ClientOrderController::class, 'approveResponse'])->name('responses.approve');

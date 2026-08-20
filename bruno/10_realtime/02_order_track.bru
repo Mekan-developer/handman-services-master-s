@@ -1,0 +1,109 @@
+meta {
+  name: Order Track
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/client/orders/{{order_id}}/track
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~since: 2026-07-20T14:30:00+05:00
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Order Track (master's trail)
+
+  Everything the client map needs in one response: where the master is going,
+  where he has been, and whether the app should still be following him.
+
+  This does **not** replace the `master.location.updated` broadcast — the socket
+  delivers new points live, this endpoint fills in what came before: on first
+  open, and after a reconnection, where `since` fetches only the missing tail.
+
+  **Query params:**
+  - `since` (optional) — ISO-8601 timestamp of the newest point the app already
+    holds. Only pings recorded *after* it are returned.
+
+  The trail is capped at the **500 newest** pings, returned oldest first, so a
+  long job loses the head of the polyline rather than the part being watched.
+  `distance_km` is straight-line distance to the order address and is attached
+  only to `last_location`, never to historic points.
+
+  ## is_active
+
+  `true` only while the order is `assigned` or `in_progress` **and** a master is
+  set. A finished or cancelled order answers `is_active: false` with an empty
+  trail — not an error: "tracking is over" is a normal screen state, and it is
+  the signal to tear the map down and stop listening.
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "order_id": 226,
+      "status": "in_progress",
+      "is_active": true,
+      "destination": {
+        "latitude": 37.9382,
+        "longitude": 58.3833,
+        "address": "ул. Атамырата Ниязова, д. 42, кв. 17"
+      },
+      "master": {
+        "id": 11,
+        "name": "Aydogdy Ussadow",
+        "phone": "+99362111222"
+      },
+      "last_location": {
+        "latitude": 37.9364,
+        "longitude": 58.3795,
+        "recorded_at": "2026-07-20T14:32:00+05:00",
+        "distance_km": 0.42
+      },
+      "points": [
+        {
+          "latitude": 37.9301,
+          "longitude": 58.3702,
+          "recorded_at": "2026-07-20T14:30:00+05:00"
+        },
+        {
+          "latitude": 37.9364,
+          "longitude": 58.3795,
+          "recorded_at": "2026-07-20T14:32:00+05:00"
+        }
+      ]
+    }
+  }
+  ```
+
+  `master` is `null` and `points` empty while nobody is assigned yet.
+
+  **Live counterpart** — `private-client.{id}`, event `master.location.updated`:
+  ```json
+  {
+    "master_id": 11,
+    "order_id": 226,
+    "latitude": 37.9364,
+    "longitude": 58.3795,
+    "distance_km": 0.42,
+    "recorded_at": "2026-07-20T14:32:00+05:00"
+  }
+  ```
+
+  **Errors:**
+  - `422` — `since` is not a valid date
+  - `404` — order not found or does not belong to this client
+  - `401` — missing / invalid token
+}

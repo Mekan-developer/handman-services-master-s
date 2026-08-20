@@ -12,14 +12,14 @@ use App\Exceptions\OrderException;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
+use App\Http\Resources\MasterTrajectoryResource;
 use App\Http\Resources\OrderResource;
 use App\Http\Traits\WithNotification;
-use App\Models\MasterLocation;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\MasterLocationRepository;
 use App\Repositories\OblastRepository;
 use App\Repositories\OrderRepository;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -140,30 +140,17 @@ class OrderController extends Controller
         return redirect()->route('orders.show', $order->id);
     }
 
-    public function masterTrajectoryForOrder(int $id): JsonResponse
+    /**
+     * The route the master drove for this order — the polyline on the order map.
+     *
+     * Scoped by the ping's own `order_id`, which is the only thing that says a
+     * position belongs to this job. Selecting by master and a time window would
+     * fold in every other trip they made in between and draw them as one line.
+     */
+    public function masterTrajectoryForOrder(int $id, MasterLocationRepository $locations): MasterTrajectoryResource
     {
         $order = $this->repository->findOrFail($id);
 
-        if (! $order->master_id) {
-            return response()->json(['points' => []]);
-        }
-
-        // Bounding box ~33 km around the client location to filter noise from unrelated simulate runs
-        $lat = (float) $order->client_lat;
-        $lng = (float) $order->client_lng;
-        $delta = 0.3; // ~33 km
-
-        $points = MasterLocation::where('master_id', $order->master_id)
-            ->whereBetween('latitude', [$lat - $delta, $lat + $delta])
-            ->whereBetween('longitude', [$lng - $delta, $lng + $delta])
-            ->when($order->assigned_at, fn ($q) => $q->where('recorded_at', '>=', $order->assigned_at))
-            ->when(
-                $order->completed_at ?? $order->cancelled_at,
-                fn ($q) => $q->where('recorded_at', '<=', $order->completed_at ?? $order->cancelled_at)
-            )
-            ->orderBy('recorded_at')
-            ->get(['latitude', 'longitude', 'recorded_at']);
-
-        return response()->json(['points' => $points]);
+        return new MasterTrajectoryResource($locations->trackForOrder($order));
     }
 }

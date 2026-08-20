@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\Api\V1\Client;
 
-use App\Enums\OrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -70,9 +69,7 @@ class ClientOrderResource extends JsonResource
     /** @return array<string, mixed>|null */
     private function masterLocationForClient(): ?array
     {
-        $trackableStatuses = [OrderStatus::Assigned, OrderStatus::InProgress];
-
-        if (! in_array($this->status, $trackableStatuses, true)) {
+        if (! $this->status->isTrackable()) {
             return null;
         }
 

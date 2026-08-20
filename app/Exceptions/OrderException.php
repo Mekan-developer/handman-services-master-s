@@ -105,4 +105,14 @@ class OrderException extends ApiException
     {
         return new self((string) __('orders.errors.search_restart_not_allowed'));
     }
+
+    /**
+     * A GPS ping was tagged with an order that is already finished or cancelled.
+     * Accepting it would keep feeding the client's map after tracking should
+     * have stopped, so the master app is told to drop the tag instead.
+     */
+    public static function orderNotTrackable(): self
+    {
+        return new self((string) __('orders.errors.order_not_trackable'));
+    }
 }

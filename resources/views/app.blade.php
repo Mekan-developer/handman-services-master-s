@@ -4,6 +4,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        {{-- Laravel Echo reads this to sign POST /broadcasting/auth. Without it
+             every private channel subscription is rejected with a 419. --}}
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
         <title inertia>{{ config('app.name', 'HANDYMAN') }}</title>
 
         <!-- Favicon -->

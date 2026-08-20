@@ -57,9 +57,7 @@ let trajectoryLine = null
 const liveDistance = ref(null)
 const liveEta = ref(null)
 
-const isTracking = computed(() =>
-    props.order.master && ['assigned', 'in_progress'].includes(props.order.status)
-)
+const isTracking = computed(() => Boolean(props.order.master) && props.order.is_trackable)
 
 onMounted(async () => {
     const L = (await import('leaflet')).default
@@ -98,8 +96,14 @@ onMounted(async () => {
         .bindPopup(`<b>${escapeHtml(props.order.client_name)}</b><br>${escapeHtml(formatPhone(props.order.client_phone))}`)
 
     if (props.order.master?.latest_location) {
-        const masterLat = parseFloat(props.order.master.latest_location.latitude)
-        const masterLng = parseFloat(props.order.master.latest_location.longitude)
+        // The trail is this order's own pings; its head is where the master was
+        // last seen *on this job*, which is what the marker must show. The
+        // master's global latest ping only stands in when there is no trail yet.
+        const trail = isTracking.value ? await fetchTrajectory() : []
+        const head = trail[trail.length - 1]
+
+        const masterLat = head?.[0] ?? parseFloat(props.order.master.latest_location.latitude)
+        const masterLng = head?.[1] ?? parseFloat(props.order.master.latest_location.longitude)
 
         const masterIcon = L.divIcon({
             className: 'custom-marker-master',
@@ -112,11 +116,18 @@ onMounted(async () => {
             .addTo(map)
             .bindPopup(`<b>${escapeHtml(props.order.master.name)}</b><br>${escapeHtml(formatPhone(props.order.master.phone))}`)
 
-        allLatLngs.push([masterLat, masterLng])
+        allLatLngs.push([masterLat, masterLng], ...trail)
         updateDistanceEta(masterLat, masterLng, clientLat, clientLng)
 
+        // Created even when the trail is still empty, so the first live ping has
+        // a line to extend instead of starting a new one from mid-route.
         if (isTracking.value) {
-            await fetchAndDrawTrajectory(L)
+            trajectoryLine = L.polyline(trail, {
+                color: '#2563eb',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '8 5',
+            }).addTo(map)
         }
     }
 
@@ -125,7 +136,7 @@ onMounted(async () => {
     }
 
     if (isTracking.value && window.Echo && props.order.city?.id) {
-        window.Echo.channel(`masters-map.${props.order.city.id}`)
+        window.Echo.private(`masters-map.${props.order.city.id}`)
             .listen('.master.location.updated', (payload) => {
                 if (payload.master_id !== props.order.master.id) { return }
 
@@ -133,19 +144,13 @@ onMounted(async () => {
                 const lng = parseFloat(payload.longitude)
 
                 masterMarkerL?.setLatLng([lat, lng])
-
-                if (trajectoryLine) {
-                    trajectoryLine.addLatLng([lat, lng])
-                } else {
-                    trajectoryLine = L.polyline([[lat, lng]], {
-                        color: '#2563eb',
-                        weight: 3,
-                        opacity: 0.7,
-                        dashArray: '8 5',
-                    }).addTo(map)
-                }
-
                 updateDistanceEta(lat, lng, clientLat, clientLng)
+
+                // Only pings tagged with this order belong on this line. The same
+                // master driving to their next job must not extend it.
+                if (payload.order_id === props.order.id) {
+                    trajectoryLine?.addLatLng([lat, lng])
+                }
             })
     }
 })
@@ -268,22 +273,15 @@ function formatEta(minutes) {
     return m === 0 ? `~${h} ч` : `~${h} ч ${m} мин`
 }
 
-async function fetchAndDrawTrajectory(L) {
+/** This order's trail as [lat, lng] pairs, oldest first. Empty on failure — the two markers still tell the story. */
+async function fetchTrajectory() {
     try {
         const res = await fetch(route('orders.master-trajectory', props.order.id))
         const json = await res.json()
-        const points = (json.points ?? []).map(p => [parseFloat(p.latitude), parseFloat(p.longitude)])
 
-        if (points.length < 2) { return }
-
-        trajectoryLine = L.polyline(points, {
-            color: '#2563eb',
-            weight: 3,
-            opacity: 0.7,
-            dashArray: '8 5',
-        }).addTo(map)
+        return (json.points ?? []).map(p => [parseFloat(p.latitude), parseFloat(p.longitude)])
     } catch {
-        // silent — trajectory is optional
+        return []
     }
 }
 

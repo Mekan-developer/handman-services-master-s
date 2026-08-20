@@ -233,7 +233,7 @@ function subscribeToCityChannels() {
         const channelName = `masters-map.${cityId}`
         subscribedChannels.push(channelName)
 
-        window.Echo.channel(channelName)
+        window.Echo.private(channelName)
             .listen('.master.location.updated', (payload) => {
                 handleLocationUpdate(payload)
             })

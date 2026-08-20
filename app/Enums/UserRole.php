@@ -39,6 +39,22 @@ enum UserRole: string
         };
     }
 
+    /**
+     * Access to the admin sections behind `role:administrator,manager` — orders,
+     * masters, the live map, parked OTP codes.
+     *
+     * Written as an exhaustive match rather than `! isOperator()` on purpose:
+     * adding a role to this enum then fails loudly here instead of silently
+     * handing the newcomer everything the operator was denied.
+     */
+    public function canAccessAdminSections(): bool
+    {
+        return match ($this) {
+            self::Administrator, self::Manager => true,
+            self::Operator => false,
+        };
+    }
+
     public function canManage(self $role): bool
     {
         return match ($this) {

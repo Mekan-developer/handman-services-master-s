@@ -804,6 +804,8 @@ The admin map (`/masters/map`) shows masters in real time. When a master's mobil
 3. The event broadcasts on the public channel `masters-map.{cityId}`
 4. Any open admin map subscribed to that city animates the marker smoothly
 
+**Every ping carries an `order_id` whenever one can be determined.** `order_id` is what ties a position to a job: both the client's live map and the admin order map draw their polyline from it, and it decides whether the event also reaches `client.{clientId}`. A tag sent by the app is verified (`OrderRepository::findForMasterOrFail` + `OrderStatus::isTrackable()`) — never trusted, since a foreign id would stream the master into a stranger's map. A ping that arrives **without** a tag is bound server-side to the master's single open (`assigned`/`in_progress`) job, so the trail survives an app that does not bother to label its pings. If the master holds several open jobs at once the ping stays untagged: guessing would draw them onto the wrong client's map.
+
 ### Basemap Rendering (`Pages/Masters/Map.vue`)
 
 The base layer is rendered by **MapLibre GL** (GPU vector rendering — sharp at any zoom and on HiDPI), mounted into Leaflet via the `L.maplibreGL` bridge, so all markers, popups, trajectories and Reverb channel code stay pure Leaflet.
@@ -820,11 +822,11 @@ The base layer is rendered by **MapLibre GL** (GPU vector rendering — sharp at
 
 ### Per-Order Live Tracking (`/orders/{order}`)
 
-When a master is assigned and the order is `assigned` or `in_progress`:
+When a master is assigned and the order is trackable (`is_trackable` on `OrderResource` — the page never hardcodes the status list):
 
-- On mount, loads the master's trajectory polyline from `GET /orders/{order}/master-trajectory`
+- On mount, loads the trajectory from `GET /orders/{order}/master-trajectory` → `MasterLocationRepository::trackForOrder()`, i.e. **only pings tagged with this order**, oldest first. The master marker is placed on the head of that trail, falling back to their last global ping when the trail is still empty.
 - Subscribes to `masters-map.{cityId}` and moves the marker in real time
-- Extends the polyline as new location events arrive
+- Extends the polyline only on events whose `order_id` matches this order — the same master driving to their next job must not extend this line
 - Shows a live distance (Haversine) and ETA chip (assuming 60 km/h) with a pulsing dot
 - Unsubscribes and cleans up on `onBeforeUnmount`
 
@@ -835,7 +837,7 @@ php artisan reverb:start                                    # terminal 1
 php artisan master:simulate-movement 1 --interval=3 --steps=60   # terminal 2
 ```
 
-Master 1 broadcasts a new location every 3 seconds for 3 minutes — open `/masters/map` and watch the marker move.
+Master 1 broadcasts a new location every 3 seconds for 3 minutes — open `/masters/map` and watch the marker move. The command sends untagged pings on purpose and lets the action bind each one to whatever job the master is on at that moment, so a job assigned mid-run starts drawing its trail immediately.
 
 ---
 

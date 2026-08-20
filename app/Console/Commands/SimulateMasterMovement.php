@@ -3,9 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Actions\UpdateMasterLocationAction;
-use App\Enums\OrderStatus;
 use App\Models\Master;
-use App\Models\Order;
 use Illuminate\Console\Command;
 
 class SimulateMasterMovement extends Command
@@ -50,11 +48,10 @@ class SimulateMasterMovement extends Command
         $this->info("Simulating movement for {$masters->count()} master(s). Interval: {$interval}s, steps: {$steps}.");
         $this->comment('Press Ctrl+C to stop early.');
 
-        // Cache active order IDs per master to avoid N+1 inside the loop
-        $activeOrderIds = Order::whereIn('master_id', $masters->pluck('id'))
-            ->whereIn('status', [OrderStatus::Assigned->value, OrderStatus::InProgress->value])
-            ->pluck('id', 'master_id');
-
+        // Pings go out untagged: the action binds each one to whatever job the
+        // master is on at that moment. Resolving the order here instead would
+        // freeze it for the whole run, and a job assigned or finished mid-run
+        // would leave the trail with a hole in it.
         for ($i = 1; $i <= $steps; $i++) {
             foreach ($masters as $master) {
                 $positions[$master->id]['lat'] += (mt_rand(-100, 100) / 100) * $stepSize;
@@ -63,7 +60,6 @@ class SimulateMasterMovement extends Command
                 $action->handle($master, [
                     'latitude' => $positions[$master->id]['lat'],
                     'longitude' => $positions[$master->id]['lng'],
-                    'order_id' => $activeOrderIds->get($master->id),
                 ]);
             }
 

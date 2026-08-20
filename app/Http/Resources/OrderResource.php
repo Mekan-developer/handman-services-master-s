@@ -16,6 +16,10 @@ class OrderResource extends JsonResource
             'status_label' => $this->status->label(),
             'status_color' => $this->status->color(),
 
+            // Whether the map should follow the master. Comes from the backend
+            // so the list of "live" statuses lives in one place only.
+            'is_trackable' => $this->status->isTrackable(),
+
             'client_name' => $this->client_name,
             'client_phone' => $this->client_phone,
             'description' => $this->description,
