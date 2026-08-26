@@ -312,7 +312,7 @@ onBeforeUnmount(() => {
 
                 <!-- Wordmark -->
                 <div class="flex shrink-0 items-center gap-2.5">
-                    <img src="/icons/logo/handyman-icon.png" alt="Master Handyman" class="block h-[26px] w-auto dark:brightness-0 dark:invert" />
+                    <img src="/icons/logo/handyman-icon.png" alt="Master Handyman" class="block h-[42px] w-auto dark:brightness-0 dark:invert" />
                     <span class="hidden whitespace-nowrap font-slab text-base font-extrabold uppercase tracking-[0.4px] text-brand-navy dark:text-[#f1f5f9] min-[420px]:inline">
                         Master Handyman
                     </span>
