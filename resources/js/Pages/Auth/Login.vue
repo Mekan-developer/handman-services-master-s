@@ -55,7 +55,7 @@ function inputCls(hasError) {
             <!-- Wordmark -->
             <div class="relative z-[1] flex items-center gap-2.5">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-badge">
-                    <img src="/icons/logo/handyman-icon.png" alt="" class="block h-auto w-6" />
+                    <img src="/icons/logo/handyman-icon.png" alt="" class="block h-auto w-12" />
                 </div>
                 <span class="font-slab text-[15px] font-extrabold uppercase tracking-[0.5px] text-slate-50">
                     Master Handyman
