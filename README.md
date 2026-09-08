@@ -363,7 +363,10 @@ REVERB_SCHEME=http           # https in production
 
 # Injected into Vite for the frontend Echo client
 VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
-VITE_REVERB_HOST="${REVERB_HOST}"
+VITE_REVERB_HOST=            # Leave empty in dev: Echo falls back to window.location.hostname,
+                             # so the socket follows the host the page was opened from (LAN IP, localhost).
+                             # Set the public WS domain in production. Never "${REVERB_HOST}" — that is
+                             # the server-side host (docker service name), unreachable from the browser.
 VITE_REVERB_PORT="${REVERB_PORT}"
 VITE_REVERB_SCHEME="${REVERB_SCHEME}"
 
