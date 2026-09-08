@@ -23,7 +23,7 @@ return [
     'access_hint' => 'Дата рассчитывается по подпискам мастера и вручную не редактируется',
     'subscription' => 'Подписка',
     'subscription_plan' => 'Тарифный план',
-    'subscription_plan_placeholder' => 'Без подписки',
+    'subscription_plan_placeholder' => 'Выберите тарифный план',
     'subscription_price' => 'Цена (можно изменить вручную)',
     'subscription_note' => 'Заметка',
     'subscription_hint' => 'Выберите план, чтобы сразу открыть мастеру доступ. Цена 0 — бесплатный доступ.',

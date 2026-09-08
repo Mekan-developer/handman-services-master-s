@@ -197,7 +197,7 @@ const inputError = 'border-red-400 bg-white text-gray-900 focus:border-red-500 f
                         v-model="approveForm.subscription_plan_id"
                         :class="[inputBase, approveForm.errors.subscription_plan_id ? inputError : inputNormal]"
                     >
-                        <option :value="null">{{ t('masters.subscription_plan_placeholder') }}</option>
+                        <option :value="null" disabled hidden>{{ t('masters.subscription_plan_placeholder') }}</option>
                         <option v-for="plan in subscriptionPlans" :key="plan.id" :value="plan.id">
                             {{ plan.name }} — {{ plan.duration_days }} {{ t('subscriptions.days_short') }}
                         </option>
@@ -246,8 +246,8 @@ const inputError = 'border-red-400 bg-white text-gray-900 focus:border-red-500 f
                     </button>
                     <button
                         type="submit"
-                        :disabled="approveForm.processing"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-50"
+                        :disabled="approveForm.processing || !approveForm.subscription_plan_id"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {{ t('masters.approve') }}
                     </button>
