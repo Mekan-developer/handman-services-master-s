@@ -13,15 +13,16 @@ class ApproveMasterApplicationRequest extends FormRequest
     }
 
     /**
-     * The plan is optional: approving and selling the subscription usually happen
-     * together, but the owner may approve first and take the payment later.
+     * A plan is required: the owner takes the payment in person at approval time,
+     * so approving without dialing in a subscription would leave access closed
+     * with no way back to it from this screen.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            'subscription_plan_id' => ['nullable', 'integer', Rule::exists('subscription_plans', 'id')->whereNull('deleted_at')],
+            'subscription_plan_id' => ['required', 'integer', Rule::exists('subscription_plans', 'id')->whereNull('deleted_at')],
             'subscription_price' => ['nullable', 'numeric', 'min:0', 'max:99999999.99'],
             'subscription_note' => ['nullable', 'string', 'max:500'],
         ];

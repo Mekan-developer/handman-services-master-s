@@ -13,10 +13,9 @@ use Illuminate\Support\Facades\DB;
 /**
  * The administrator's verdict on a master application.
  *
- * Approving only flips the status — access still comes from a subscription, so
- * the same call optionally issues one. That mirrors how it works in practice:
- * the master pays the owner in person and the owner opens the account and dials
- * in the paid-for interval in one go.
+ * Approving flips the status and issues the subscription in one go — that
+ * mirrors how it works in practice: the master pays the owner in person and
+ * the owner opens the account and dials in the paid-for interval right there.
  */
 class ReviewMasterApplicationAction
 {
@@ -27,28 +26,24 @@ class ReviewMasterApplicationAction
     ) {}
 
     /**
-     * @param  array{subscription_plan_id?: int|null, subscription_price?: float|null, subscription_note?: string|null}  $subscription
+     * @param  array{subscription_plan_id: int, subscription_price?: float|null, subscription_note?: string|null}  $subscription
      */
-    public function approve(Master $master, User $reviewer, array $subscription = []): Master
+    public function approve(Master $master, User $reviewer, array $subscription): Master
     {
         $this->ensureReviewable($master);
 
         return DB::transaction(function () use ($master, $reviewer, $subscription): Master {
             $approved = $this->masters->review($master, MasterStatus::Approved, $reviewer);
 
-            $planId = $subscription['subscription_plan_id'] ?? null;
+            $price = $subscription['subscription_price'] ?? null;
 
-            if ($planId !== null) {
-                $price = $subscription['subscription_price'] ?? null;
-
-                $this->issueSubscription->handle(
-                    $approved,
-                    $this->plans->findOrFail((int) $planId),
-                    $reviewer,
-                    $price !== null ? (float) $price : null,
-                    $subscription['subscription_note'] ?? null,
-                );
-            }
+            $this->issueSubscription->handle(
+                $approved,
+                $this->plans->findOrFail((int) $subscription['subscription_plan_id']),
+                $reviewer,
+                $price !== null ? (float) $price : null,
+                $subscription['subscription_note'] ?? null,
+            );
 
             return $approved->refresh();
         });

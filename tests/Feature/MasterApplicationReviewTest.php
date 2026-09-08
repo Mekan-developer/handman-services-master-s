@@ -75,18 +75,18 @@ class MasterApplicationReviewTest extends TestCase
         $this->assertSame($master->id, $subscription->master_id);
     }
 
-    public function test_approving_without_a_plan_leaves_access_closed(): void
+    public function test_approving_without_a_plan_is_rejected(): void
     {
         $this->actingAsAdmin();
         $master = Master::factory()->pending()->create();
 
         $this->post(route('master-applications.approve', $master))
-            ->assertRedirect(route('master-applications.index'));
+            ->assertSessionHasErrors('subscription_plan_id');
 
         $master->refresh();
 
-        $this->assertSame(MasterStatus::Approved, $master->status);
-        $this->assertFalse($master->hasActiveAccess());
+        $this->assertSame(MasterStatus::Pending, $master->status);
+        $this->assertNull($master->reviewed_by);
         $this->assertDatabaseCount('master_subscriptions', 0);
     }
 
@@ -117,9 +117,11 @@ class MasterApplicationReviewTest extends TestCase
     {
         $this->actingAsAdmin();
         $master = Master::factory()->create();
+        $plan = SubscriptionPlan::factory()->days(30)->create();
 
-        $this->post(route('master-applications.approve', $master))
-            ->assertRedirect(route('master-applications.index'));
+        $this->post(route('master-applications.approve', $master), [
+            'subscription_plan_id' => $plan->id,
+        ])->assertRedirect(route('master-applications.index'));
 
         $this->assertDatabaseCount('master_subscriptions', 0);
         $this->assertNull($master->fresh()->reviewed_by);
@@ -129,9 +131,11 @@ class MasterApplicationReviewTest extends TestCase
     {
         $this->actingAsAdmin();
         $master = Master::factory()->rejected()->create();
+        $plan = SubscriptionPlan::factory()->days(30)->create();
 
-        $this->post(route('master-applications.approve', $master))
-            ->assertRedirect(route('master-applications.index'));
+        $this->post(route('master-applications.approve', $master), [
+            'subscription_plan_id' => $plan->id,
+        ])->assertRedirect(route('master-applications.index'));
 
         $this->assertSame(MasterStatus::Rejected, $master->fresh()->status);
     }

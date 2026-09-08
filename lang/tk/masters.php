@@ -23,7 +23,7 @@ return [
     'access_hint' => 'Sene ussadyň abunalary boýunça hasaplanýar we el bilen üýtgedilmeýär',
     'subscription' => 'Abuna',
     'subscription_plan' => 'Nyrh meýilnamasy',
-    'subscription_plan_placeholder' => 'Abunasyz',
+    'subscription_plan_placeholder' => 'Nyrh meýilnamasyny saýlaň',
     'subscription_price' => 'Bahasy (el bilen üýtgedip bolýar)',
     'subscription_note' => 'Bellik',
     'subscription_hint' => 'Ussada dessine giriş açmak üçin meýilnama saýlaň. Baha 0 — mugt giriş.',
