@@ -1118,7 +1118,7 @@ Before going live:
 
 ```bash
 composer install --no-dev --optimize-autoloader
-npm ci && npm run build
+npm install && npm run build
 php artisan migrate --force
 php artisan config:cache
 php artisan route:cache
