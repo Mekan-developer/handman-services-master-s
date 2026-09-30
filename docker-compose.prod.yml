@@ -1,17 +1,21 @@
-# docker-compose.prod.yml
-
-
 services:
-  php:       { volumes: !override [ storage_data:/var/www/laravel/storage ] }
-  queue:     { volumes: !override [ storage_data:/var/www/laravel/storage ] }
-  reverb:    { volumes: !override [ storage_data:/var/www/laravel/storage ] }
-  scheduler: { volumes: !override [ storage_data:/var/www/laravel/storage ] }
-  artisan:   { volumes: !override [ storage_data:/var/www/laravel/storage ] }
-  nginx:     
-    ports:
-      - "127.0.0.1:8000:80"
-    volumes:
-      - storage_data:/var/www/laravel/storage:ro
+  app:       { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
+  horizon:   { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
+  reverb:    { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
+  scheduler: { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
+  artisan:   { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
+
+  nginx:
+    image: handyman-nginx:local
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: nginx
+      args:
+        COMPOSER_MIRROR: ${COMPOSER_MIRROR:-https://nexus.telecom.tm/repository/composer-proxy/}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://nexus.telecom.tm/repository/npm-proxy/}
+    volumes: !override
+      - storage_app:/var/www/handyman/storage/app:ro
 
 volumes:
-  storage_data:
+  storage_app:

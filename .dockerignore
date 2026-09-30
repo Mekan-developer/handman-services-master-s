@@ -1,33 +1,37 @@
 .git
-.github
-.idea
-.vscode
-
+.gitignore
+.gitattributes
 node_modules
 vendor
-socket-server/node_modules
-
-public/build
-public/hot
 public/storage
-public/maps/tiles.mbtiles
 
-storage/app/public/*
-storage/framework/cache/*
-storage/framework/sessions/*
-storage/framework/views/*
-storage/logs/*
-storage/maps
-
+# Секреты и локальная конфигурация — .env монтируется в контейнер,
+# а не копируется в образ.
 .env
 .env.*
 !.env.example
+storage/app/firebase
+# Приватный TLS-ключ не должен попадать в слои образа: Caddy монтирует
+# этот каталог томом в рантайме, копия внутри образа не нужна.
+docker/caddy/certs
 
-tests
-docs
-*.md
-!CLAUDE.md
+# Данные рантайма
+storage/logs/*
+storage/app/public/*
+storage/app/temp/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*.php
 
+# Не нужно в прод-образе. Пути с ведущим слэшем — только в корне:
+# public/docs (сгенерированная API-документация Scribe) остаётся в образе.
+/tests
+/bruno
+/.scribe
+/docs
+.claude
+.editorconfig
 docker-compose*.yml
-Dockerfile
-.dockerignore
+phpunit.xml
+socket-server/node_modules
