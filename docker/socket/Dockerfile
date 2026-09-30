@@ -12,7 +12,7 @@ ARG NPM_REGISTRY=""
 # npm ci на этапе сборки, а не при каждом старте контейнера.
 COPY package.json package-lock.json ./
 RUN if [ -n "${NPM_REGISTRY}" ]; then npm config set registry "${NPM_REGISTRY}"; fi \
- && npm ci --omit=dev --no-audit --no-fund
+ && npm install --omit=dev --no-audit --no-fund
 
 COPY . .
 
