@@ -7,7 +7,7 @@ RUN if [ -n "$NPM_REGISTRY" ]; then npm config set registry "$NPM_REGISTRY"; fi
 
 COPY package*.json ./
 # 3. Устанавливаем только продакшен-зависимости с очисткой npm-кэша
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 COPY . .
 
 # 4. Запускаем от непривилегированного пользователя node для безопасности
