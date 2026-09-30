@@ -22,8 +22,6 @@ services:
     image: nginx:1.27-alpine
     container_name: handyman_nginx 
     restart: unless-stopped
-    ports:
-      - 80:80
     volumes:
       - ./docker/nginx/conf.d/nginx.conf:/etc/nginx/conf.d/default.conf:ro  
     depends_on:
