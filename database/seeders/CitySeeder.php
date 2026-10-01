@@ -3,41 +3,30 @@
 namespace Database\Seeders;
 
 use App\Models\City;
+use App\Models\Oblast;
 use Illuminate\Database\Seeder;
 
 class CitySeeder extends Seeder
 {
     public function run(): void
     {
-        // oblast_id: 1=Ahal, 2=Mary, 3=Daşoguz, 4=Balkan, 5=Lebap
-        $cities = [
-            ['name' => 'Ашхабад', 'oblast_id' => 2],
-            ['name' => 'Аннау', 'oblast_id' => 2],
-            ['name' => 'Бахарлы', 'oblast_id' => 2],
-            ['name' => 'Теджен', 'oblast_id' => 2],
-
-            ['name' => 'Мары', 'oblast_id' => 3],
-            ['name' => 'Байрамали', 'oblast_id' => 3],
-            ['name' => 'Йолётен', 'oblast_id' => 3],
-
-            ['name' => 'Дашогуз', 'oblast_id' => 4],
-            ['name' => 'Куняургенч', 'oblast_id' => 4],
-            ['name' => 'Акдепе', 'oblast_id' => 4],
-
-            ['name' => 'Балканабат', 'oblast_id' => 5],
-            ['name' => 'Туркменбаши', 'oblast_id' => 5],
-            ['name' => 'Гарабогаз', 'oblast_id' => 5],
-
-            ['name' => 'Туркменабат', 'oblast_id' => 6],
-            ['name' => 'Сейди', 'oblast_id' => 6],
-            ['name' => 'Газачак', 'oblast_id' => 6],
+        $citiesByOblast = [
+            'Ahal' => ['Ашхабад', 'Аннау', 'Бахарлы', 'Теджен'],
+            'Mary' => ['Мары', 'Байрамали', 'Йолётен'],
+            'Daşoguz' => ['Дашогуз', 'Куняургенч', 'Акдепе'],
+            'Balkan' => ['Балканабат', 'Туркменбаши', 'Гарабогаз'],
+            'Lebap' => ['Туркменабат', 'Сейди', 'Газачак'],
         ];
 
-        foreach ($cities as $data) {
-            City::updateOrCreate(
-                ['name' => $data['name']],
-                ['is_active' => true, 'oblast_id' => $data['oblast_id']],
-            );
+        foreach ($citiesByOblast as $oblastName => $cityNames) {
+            $oblast = Oblast::where('name', $oblastName)->firstOrFail();
+
+            foreach ($cityNames as $cityName) {
+                City::updateOrCreate(
+                    ['name' => $cityName],
+                    ['is_active' => true, 'oblast_id' => $oblast->id],
+                );
+            }
         }
     }
 }
