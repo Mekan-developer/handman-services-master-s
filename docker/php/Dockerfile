@@ -2,7 +2,7 @@
 FROM composer:2 AS vendor
 WORKDIR /build
 
-ARG COMPOSER_MIRROR=https://nexus.telecom.tm/repository/composer-proxy/
+ARG COMPOSER_MIRROR=
 RUN if [ -n "$COMPOSER_MIRROR" ]; then composer config -g repo.packagist composer "$COMPOSER_MIRROR"; fi
 
 COPY composer.json composer.lock ./
@@ -19,7 +19,7 @@ RUN composer dump-autoload --no-dev --optimize --no-scripts
 FROM node:22 AS assets
 WORKDIR /build
 
-ARG NPM_REGISTRY=https://nexus.telecom.tm/repository/npm-proxy/
+ARG NPM_REGISTRY=
 RUN if [ -n "$NPM_REGISTRY" ]; then npm config set registry "$NPM_REGISTRY"; fi
 
 COPY package*.json ./
@@ -51,7 +51,7 @@ FROM php:8.3-fpm AS php
 
 ARG UID=1000
 ARG GID=1000
-ARG APT_MIRROR=https://nexus.telecom.tm/repository/debian-proxy
+ARG APT_MIRROR=http://deb.debian.org/debian
 
 RUN rm -f /etc/apt/sources.list.d/debian.sources \
  && printf '%s\n' \

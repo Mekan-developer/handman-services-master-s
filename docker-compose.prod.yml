@@ -43,8 +43,8 @@ services:
       dockerfile: docker/php/Dockerfile
       target: nginx
       args:
-        COMPOSER_MIRROR: ${COMPOSER_MIRROR:-https://nexus.telecom.tm/repository/composer-proxy/}
-        NPM_REGISTRY: ${NPM_REGISTRY:-https://nexus.telecom.tm/repository/npm-proxy/}
+        COMPOSER_MIRROR: ${COMPOSER_MIRROR:-}
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
         VITE_APP_NAME: ${VITE_APP_NAME:-HANDYMAN}
         VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-}
         VITE_REVERB_HOST: ${VITE_REVERB_HOST:-}
