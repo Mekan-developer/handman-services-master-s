@@ -9,9 +9,14 @@
         {
             "name": "brick/math",
             "version": "0.14.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/brick/math.git",
+                "reference": "63422359a44b7f06cae63c3b429b59e8efcc0629"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/brick/math/0.14.8/brick-math-0.14.8.zip",
+                "url": "https://api.github.com/repos/brick/math/zipball/63422359a44b7f06cae63c3b429b59e8efcc0629",
                 "reference": "63422359a44b7f06cae63c3b429b59e8efcc0629",
                 "shasum": ""
             },
@@ -29,6 +34,7 @@
                     "Brick\\Math\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -63,9 +69,14 @@
         {
             "name": "carbonphp/carbon-doctrine-types",
             "version": "3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CarbonPHP/carbon-doctrine-types.git",
+                "reference": "18ba5ddfec8976260ead6e866180bd5d2f71aa1d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/carbonphp/carbon-doctrine-types/3.2.0/carbonphp-carbon-doctrine-types-3.2.0.zip",
+                "url": "https://api.github.com/repos/CarbonPHP/carbon-doctrine-types/zipball/18ba5ddfec8976260ead6e866180bd5d2f71aa1d",
                 "reference": "18ba5ddfec8976260ead6e866180bd5d2f71aa1d",
                 "shasum": ""
             },
@@ -86,6 +97,7 @@
                     "Carbon\\Doctrine\\": "src/Carbon/Doctrine/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -126,9 +138,14 @@
         {
             "name": "clue/redis-protocol",
             "version": "v0.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/clue/redis-protocol.git",
+                "reference": "6f565332f5531b7722d1e9c445314b91862f6d6c"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/clue/redis-protocol/v0.3.2/clue-redis-protocol-v0.3.2.zip",
+                "url": "https://api.github.com/repos/clue/redis-protocol/zipball/6f565332f5531b7722d1e9c445314b91862f6d6c",
                 "reference": "6f565332f5531b7722d1e9c445314b91862f6d6c",
                 "shasum": ""
             },
@@ -144,6 +161,7 @@
                     "Clue\\Redis\\Protocol\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -182,9 +200,14 @@
         {
             "name": "clue/redis-react",
             "version": "v2.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/clue/reactphp-redis.git",
+                "reference": "84569198dfd5564977d2ae6a32de4beb5a24bdca"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/clue/redis-react/v2.8.0/clue-redis-react-v2.8.0.zip",
+                "url": "https://api.github.com/repos/clue/reactphp-redis/zipball/84569198dfd5564977d2ae6a32de4beb5a24bdca",
                 "reference": "84569198dfd5564977d2ae6a32de4beb5a24bdca",
                 "shasum": ""
             },
@@ -207,6 +230,7 @@
                     "Clue\\React\\Redis\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -244,9 +268,14 @@
         {
             "name": "dedoc/scramble",
             "version": "v0.13.41",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dedoc/scramble.git",
+                "reference": "a2e424a38de8585669a824af0aa9df5724a9988d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/dedoc/scramble/v0.13.41/dedoc-scramble-v0.13.41.zip",
+                "url": "https://api.github.com/repos/dedoc/scramble/zipball/a2e424a38de8585669a824af0aa9df5724a9988d",
                 "reference": "a2e424a38de8585669a824af0aa9df5724a9988d",
                 "shasum": ""
             },
@@ -287,6 +316,7 @@
                     "Dedoc\\Scramble\\Database\\Factories\\": "database/factories"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -319,9 +349,14 @@
         {
             "name": "dflydev/dot-access-data",
             "version": "v3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dflydev/dflydev-dot-access-data.git",
+                "reference": "a23a2bf4f31d3518f3ecb38660c95715dfead60f"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/dflydev/dot-access-data/v3.0.3/dflydev-dot-access-data-v3.0.3.zip",
+                "url": "https://api.github.com/repos/dflydev/dflydev-dot-access-data/zipball/a23a2bf4f31d3518f3ecb38660c95715dfead60f",
                 "reference": "a23a2bf4f31d3518f3ecb38660c95715dfead60f",
                 "shasum": ""
             },
@@ -346,6 +381,7 @@
                     "Dflydev\\DotAccessData\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -388,9 +424,14 @@
         {
             "name": "doctrine/inflector",
             "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/inflector.git",
+                "reference": "6d6c96277ea252fc1304627204c3d5e6e15faa3b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/doctrine/inflector/2.1.0/doctrine-inflector-2.1.0.zip",
+                "url": "https://api.github.com/repos/doctrine/inflector/zipball/6d6c96277ea252fc1304627204c3d5e6e15faa3b",
                 "reference": "6d6c96277ea252fc1304627204c3d5e6e15faa3b",
                 "shasum": ""
             },
@@ -410,6 +451,7 @@
                     "Doctrine\\Inflector\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -472,9 +514,14 @@
         {
             "name": "doctrine/lexer",
             "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/doctrine/lexer.git",
+                "reference": "31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/doctrine/lexer/3.0.1/doctrine-lexer-3.0.1.zip",
+                "url": "https://api.github.com/repos/doctrine/lexer/zipball/31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd",
                 "reference": "31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd",
                 "shasum": ""
             },
@@ -494,6 +541,7 @@
                     "Doctrine\\Common\\Lexer\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -543,9 +591,14 @@
         {
             "name": "dragonmantank/cron-expression",
             "version": "v3.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dragonmantank/cron-expression.git",
+                "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/dragonmantank/cron-expression/v3.6.0/dragonmantank-cron-expression-v3.6.0.zip",
+                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/d61a8a9604ec1f8c3d150d09db6ce98b32675013",
                 "reference": "d61a8a9604ec1f8c3d150d09db6ce98b32675013",
                 "shasum": ""
             },
@@ -571,6 +624,7 @@
                     "Cron\\": "src/Cron/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -601,9 +655,14 @@
         {
             "name": "egulias/email-validator",
             "version": "4.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/egulias/EmailValidator.git",
+                "reference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/egulias/email-validator/4.0.4/egulias-email-validator-4.0.4.zip",
+                "url": "https://api.github.com/repos/egulias/EmailValidator/zipball/d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
                 "reference": "d42c8731f0624ad6bdc8d3e5e9a4524f68801cfa",
                 "shasum": ""
             },
@@ -630,6 +689,7 @@
                     "Egulias\\EmailValidator\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -662,9 +722,14 @@
         {
             "name": "evenement/evenement",
             "version": "v3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/igorw/evenement.git",
+                "reference": "0a16b0d71ab13284339abb99d9d2bd813640efbc"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/evenement/evenement/v3.0.2/evenement-evenement-v3.0.2.zip",
+                "url": "https://api.github.com/repos/igorw/evenement/zipball/0a16b0d71ab13284339abb99d9d2bd813640efbc",
                 "reference": "0a16b0d71ab13284339abb99d9d2bd813640efbc",
                 "shasum": ""
             },
@@ -680,6 +745,7 @@
                     "Evenement\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -703,9 +769,14 @@
         {
             "name": "fruitcake/php-cors",
             "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fruitcake/php-cors.git",
+                "reference": "38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/fruitcake/php-cors/v1.4.0/fruitcake-php-cors-v1.4.0.zip",
+                "url": "https://api.github.com/repos/fruitcake/php-cors/zipball/38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379",
                 "reference": "38aaa6c3fd4c157ffe2a4d10aa8b9b16ba8de379",
                 "shasum": ""
             },
@@ -729,6 +800,7 @@
                     "Fruitcake\\Cors\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -768,9 +840,14 @@
         {
             "name": "graham-campbell/result-type",
             "version": "v1.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GrahamCampbell/Result-Type.git",
+                "reference": "e01f4a821471308ba86aa202fed6698b6b695e3b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/graham-campbell/result-type/v1.1.4/graham-campbell-result-type-v1.1.4.zip",
+                "url": "https://api.github.com/repos/GrahamCampbell/Result-Type/zipball/e01f4a821471308ba86aa202fed6698b6b695e3b",
                 "reference": "e01f4a821471308ba86aa202fed6698b6b695e3b",
                 "shasum": ""
             },
@@ -787,6 +864,7 @@
                     "GrahamCampbell\\ResultType\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -824,9 +902,14 @@
         {
             "name": "guzzlehttp/guzzle",
             "version": "7.15.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/guzzle.git",
+                "reference": "ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/guzzlehttp/guzzle/7.15.3/guzzlehttp-guzzle-7.15.3.zip",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc",
                 "reference": "ae311b8f045ea93ce7b1c9cdb7cec06c53f944bc",
                 "shasum": ""
             },
@@ -871,6 +954,7 @@
                     "GuzzleHttp\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -946,9 +1030,14 @@
         {
             "name": "guzzlehttp/promises",
             "version": "2.5.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/promises.git",
+                "reference": "2823687acff28b2dbe67b2508a6b300e2c3fa4ce"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/guzzlehttp/promises/2.5.2/guzzlehttp-promises-2.5.2.zip",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/2823687acff28b2dbe67b2508a6b300e2c3fa4ce",
                 "reference": "2823687acff28b2dbe67b2508a6b300e2c3fa4ce",
                 "shasum": ""
             },
@@ -972,6 +1061,7 @@
                     "GuzzleHttp\\Promise\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1024,9 +1114,14 @@
         {
             "name": "guzzlehttp/psr7",
             "version": "2.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/psr7.git",
+                "reference": "dad89620b7a6edb60c15858442eb2e408b45d8f4"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/guzzlehttp/psr7/2.13.0/guzzlehttp-psr7-2.13.0.zip",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/dad89620b7a6edb60c15858442eb2e408b45d8f4",
                 "reference": "dad89620b7a6edb60c15858442eb2e408b45d8f4",
                 "shasum": ""
             },
@@ -1063,6 +1158,7 @@
                     "GuzzleHttp\\Psr7\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1137,9 +1233,14 @@
         {
             "name": "guzzlehttp/uri-template",
             "version": "v1.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/uri-template.git",
+                "reference": "f6c24c21f42b990e9a58912b332d0874df6ba839"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/guzzlehttp/uri-template/v1.0.10/guzzlehttp-uri-template-v1.0.10.zip",
+                "url": "https://api.github.com/repos/guzzle/uri-template/zipball/f6c24c21f42b990e9a58912b332d0874df6ba839",
                 "reference": "f6c24c21f42b990e9a58912b332d0874df6ba839",
                 "shasum": ""
             },
@@ -1164,6 +1265,7 @@
                     "GuzzleHttp\\UriTemplate\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1217,9 +1319,14 @@
         {
             "name": "inertiajs/inertia-laravel",
             "version": "v2.0.25",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/inertiajs/inertia-laravel.git",
+                "reference": "d730017fb11670c46eafaa0e49e1ed387f3729f1"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/inertiajs/inertia-laravel/v2.0.25/inertiajs-inertia-laravel-v2.0.25.zip",
+                "url": "https://api.github.com/repos/inertiajs/inertia-laravel/zipball/d730017fb11670c46eafaa0e49e1ed387f3729f1",
                 "reference": "d730017fb11670c46eafaa0e49e1ed387f3729f1",
                 "shasum": ""
             },
@@ -1259,6 +1366,7 @@
                     "Inertia\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1283,9 +1391,14 @@
         {
             "name": "laravel/framework",
             "version": "v11.55.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/framework.git",
+                "reference": "8d786e25c5fb41eb472e86b465b328b494a0da89"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/framework/v11.55.1/laravel-framework-v11.55.1.zip",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/8d786e25c5fb41eb472e86b465b328b494a0da89",
                 "reference": "8d786e25c5fb41eb472e86b465b328b494a0da89",
                 "shasum": ""
             },
@@ -1468,6 +1581,7 @@
                     ]
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1492,9 +1606,14 @@
         {
             "name": "laravel/prompts",
             "version": "v0.3.22",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/prompts.git",
+                "reference": "02b89b39e8972a998db4d5d4ad4719239dd4aee4"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/prompts/v0.3.22/laravel-prompts-v0.3.22.zip",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/02b89b39e8972a998db4d5d4ad4719239dd4aee4",
                 "reference": "02b89b39e8972a998db4d5d4ad4719239dd4aee4",
                 "shasum": ""
             },
@@ -1532,6 +1651,7 @@
                     "Laravel\\Prompts\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1545,9 +1665,14 @@
         {
             "name": "laravel/reverb",
             "version": "v1.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/reverb.git",
+                "reference": "52ce5fd88cd1d7eacfdcf6b91cea4704cc546f27"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/reverb/v1.11.1/laravel-reverb-v1.11.1.zip",
+                "url": "https://api.github.com/repos/laravel/reverb/zipball/52ce5fd88cd1d7eacfdcf6b91cea4704cc546f27",
                 "reference": "52ce5fd88cd1d7eacfdcf6b91cea4704cc546f27",
                 "shasum": ""
             },
@@ -1589,6 +1714,7 @@
                     "Laravel\\Reverb\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1618,9 +1744,14 @@
         {
             "name": "laravel/sanctum",
             "version": "v4.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/sanctum.git",
+                "reference": "fee27a573d1a013af3721d86153a65e0b11927e6"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/sanctum/v4.3.3/laravel-sanctum-v4.3.3.zip",
+                "url": "https://api.github.com/repos/laravel/sanctum/zipball/fee27a573d1a013af3721d86153a65e0b11927e6",
                 "reference": "fee27a573d1a013af3721d86153a65e0b11927e6",
                 "shasum": ""
             },
@@ -1651,6 +1782,7 @@
                     "Laravel\\Sanctum\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1675,9 +1807,14 @@
         {
             "name": "laravel/serializable-closure",
             "version": "v2.0.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/serializable-closure.git",
+                "reference": "dccd8bcb851bb03fcc005df650b708b57cc52661"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/serializable-closure/v2.0.15/laravel-serializable-closure-v2.0.15.zip",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/dccd8bcb851bb03fcc005df650b708b57cc52661",
                 "reference": "dccd8bcb851bb03fcc005df650b708b57cc52661",
                 "shasum": ""
             },
@@ -1702,6 +1839,7 @@
                     "Laravel\\SerializableClosure\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1730,9 +1868,14 @@
         {
             "name": "laravel/tinker",
             "version": "v2.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/tinker.git",
+                "reference": "c9f80cc835649b5c1842898fb043f8cc098dd741"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/tinker/v2.11.1/laravel-tinker-v2.11.1.zip",
+                "url": "https://api.github.com/repos/laravel/tinker/zipball/c9f80cc835649b5c1842898fb043f8cc098dd741",
                 "reference": "c9f80cc835649b5c1842898fb043f8cc098dd741",
                 "shasum": ""
             },
@@ -1765,6 +1908,7 @@
                     "Laravel\\Tinker\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1790,9 +1934,14 @@
         {
             "name": "league/commonmark",
             "version": "2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/commonmark.git",
+                "reference": "d2d1aa8b35e072966c89bc0c66cf926e56767dc4"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/commonmark/2.10.0/league-commonmark-2.10.0.zip",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d2d1aa8b35e072966c89bc0c66cf926e56767dc4",
                 "reference": "d2d1aa8b35e072966c89bc0c66cf926e56767dc4",
                 "shasum": ""
             },
@@ -1838,6 +1987,7 @@
                     "League\\CommonMark\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -1891,9 +2041,14 @@
         {
             "name": "league/config",
             "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/config.git",
+                "reference": "754b3604fb2984c71f4af4a9cbe7b57f346ec1f3"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/config/v1.2.0/league-config-v1.2.0.zip",
+                "url": "https://api.github.com/repos/thephpleague/config/zipball/754b3604fb2984c71f4af4a9cbe7b57f346ec1f3",
                 "reference": "754b3604fb2984c71f4af4a9cbe7b57f346ec1f3",
                 "shasum": ""
             },
@@ -1920,6 +2075,7 @@
                     "League\\Config\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -1967,9 +2123,14 @@
         {
             "name": "league/flysystem",
             "version": "3.35.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/flysystem.git",
+                "reference": "b277b5dc3d56650b68904117124e79c851e12376"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/flysystem/3.35.2/league-flysystem-3.35.2.zip",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/b277b5dc3d56650b68904117124e79c851e12376",
                 "reference": "b277b5dc3d56650b68904117124e79c851e12376",
                 "shasum": ""
             },
@@ -2012,6 +2173,7 @@
                     "League\\Flysystem\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2044,9 +2206,14 @@
         {
             "name": "league/flysystem-local",
             "version": "3.31.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/flysystem-local.git",
+                "reference": "2f669db18a4c20c755c2bb7d3a7b0b2340488079"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/flysystem-local/3.31.0/league-flysystem-local-3.31.0.zip",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-local/zipball/2f669db18a4c20c755c2bb7d3a7b0b2340488079",
                 "reference": "2f669db18a4c20c755c2bb7d3a7b0b2340488079",
                 "shasum": ""
             },
@@ -2062,6 +2229,7 @@
                     "League\\Flysystem\\Local\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2087,9 +2255,14 @@
         {
             "name": "league/mime-type-detection",
             "version": "1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/mime-type-detection.git",
+                "reference": "f5f47eff7c48ed1003069a2ca67f316fb4021c76"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/mime-type-detection/1.17.0/league-mime-type-detection-1.17.0.zip",
+                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/f5f47eff7c48ed1003069a2ca67f316fb4021c76",
                 "reference": "f5f47eff7c48ed1003069a2ca67f316fb4021c76",
                 "shasum": ""
             },
@@ -2108,6 +2281,7 @@
                     "League\\MimeTypeDetection\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2137,9 +2311,14 @@
         {
             "name": "league/uri",
             "version": "7.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri.git",
+                "reference": "08cf38e3924d4f56238125547b5720496fac8fd4"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/uri/7.8.1/league-uri-7.8.1.zip",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/08cf38e3924d4f56238125547b5720496fac8fd4",
                 "reference": "08cf38e3924d4f56238125547b5720496fac8fd4",
                 "shasum": ""
             },
@@ -2176,6 +2355,7 @@
                     "League\\Uri\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2229,9 +2409,14 @@
         {
             "name": "league/uri-interfaces",
             "version": "7.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/uri-interfaces.git",
+                "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/league/uri-interfaces/7.8.1/league-uri-interfaces-7.8.1.zip",
+                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/85d5c77c5d6d3af6c54db4a78246364908f3c928",
                 "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928",
                 "shasum": ""
             },
@@ -2259,6 +2444,7 @@
                     "League\\Uri\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2307,9 +2493,14 @@
         {
             "name": "monolog/monolog",
             "version": "3.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Seldaek/monolog.git",
+                "reference": "b321dd6749f0bf7189444158a3ce785cc16d69b0"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/monolog/monolog/3.10.0/monolog-monolog-3.10.0.zip",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/b321dd6749f0bf7189444158a3ce785cc16d69b0",
                 "reference": "b321dd6749f0bf7189444158a3ce785cc16d69b0",
                 "shasum": ""
             },
@@ -2368,6 +2559,7 @@
                     "Monolog\\": "src/Monolog"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2404,9 +2596,14 @@
         {
             "name": "myclabs/deep-copy",
             "version": "1.14.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/DeepCopy.git",
+                "reference": "8680aa248f8e07bc8fb43f56f0f5fc77a0c96aae"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/myclabs/deep-copy/1.14.0/myclabs-deep-copy-1.14.0.zip",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/8680aa248f8e07bc8fb43f56f0f5fc77a0c96aae",
                 "reference": "8680aa248f8e07bc8fb43f56f0f5fc77a0c96aae",
                 "shasum": ""
             },
@@ -2432,6 +2629,7 @@
                     "DeepCopy\\": "src/DeepCopy/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2458,9 +2656,14 @@
         {
             "name": "nesbot/carbon",
             "version": "3.13.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/CarbonPHP/carbon.git",
+                "reference": "a1c54919f5fff9800cd03c32bd01defd5a4061cb"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/nesbot/carbon/3.13.2/nesbot-carbon-3.13.2.zip",
+                "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/a1c54919f5fff9800cd03c32bd01defd5a4061cb",
                 "reference": "a1c54919f5fff9800cd03c32bd01defd5a4061cb",
                 "shasum": ""
             },
@@ -2512,6 +2715,7 @@
                     "Carbon\\": "src/Carbon/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2557,9 +2761,14 @@
         {
             "name": "nette/schema",
             "version": "v1.3.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nette/schema.git",
+                "reference": "f0ab1a3cda782dbc5da270d28545236aa80c4002"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/nette/schema/v1.3.5/nette-schema-v1.3.5.zip",
+                "url": "https://api.github.com/repos/nette/schema/zipball/f0ab1a3cda782dbc5da270d28545236aa80c4002",
                 "reference": "f0ab1a3cda782dbc5da270d28545236aa80c4002",
                 "shasum": ""
             },
@@ -2588,6 +2797,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause",
                 "GPL-2.0-only",
@@ -2618,9 +2828,14 @@
         {
             "name": "nette/utils",
             "version": "v4.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nette/utils.git",
+                "reference": "b043439dbdf954e6c28b5ea7e34b0100f83165e0"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/nette/utils/v4.1.5/nette-utils-v4.1.5.zip",
+                "url": "https://api.github.com/repos/nette/utils/zipball/b043439dbdf954e6c28b5ea7e34b0100f83165e0",
                 "reference": "b043439dbdf954e6c28b5ea7e34b0100f83165e0",
                 "shasum": ""
             },
@@ -2661,6 +2876,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause",
                 "GPL-2.0-only",
@@ -2703,9 +2919,14 @@
         {
             "name": "nikic/php-parser",
             "version": "v5.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/PHP-Parser.git",
+                "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/nikic/php-parser/v5.8.0/nikic-php-parser-v5.8.0.zip",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
                 "reference": "044a6a392ff8ad0d61f14370a5fbbd0a0107152f",
                 "shasum": ""
             },
@@ -2732,6 +2953,7 @@
                     "PhpParser\\": "lib/PhpParser"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -2754,9 +2976,14 @@
         {
             "name": "nunomaduro/termwind",
             "version": "v2.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nunomaduro/termwind.git",
+                "reference": "712a31b768f5daea284c2169a7d227031001b9a8"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/nunomaduro/termwind/v2.4.0/nunomaduro-termwind-v2.4.0.zip",
+                "url": "https://api.github.com/repos/nunomaduro/termwind/zipball/712a31b768f5daea284c2169a7d227031001b9a8",
                 "reference": "712a31b768f5daea284c2169a7d227031001b9a8",
                 "shasum": ""
             },
@@ -2794,6 +3021,7 @@
                     "Termwind\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2835,9 +3063,14 @@
         {
             "name": "phpoption/phpoption",
             "version": "1.9.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/schmittjoh/php-option.git",
+                "reference": "75365b91986c2405cf5e1e012c5595cd487a98be"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpoption/phpoption/1.9.5/phpoption-phpoption-1.9.5.zip",
+                "url": "https://api.github.com/repos/schmittjoh/php-option/zipball/75365b91986c2405cf5e1e012c5595cd487a98be",
                 "reference": "75365b91986c2405cf5e1e012c5595cd487a98be",
                 "shasum": ""
             },
@@ -2863,6 +3096,7 @@
                     "PhpOption\\": "src/PhpOption/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
@@ -2904,9 +3138,14 @@
         {
             "name": "phpstan/phpdoc-parser",
             "version": "2.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpdoc-parser.git",
+                "reference": "fb19eedd2bb67ff8cf7a5502ad329e701d6398a3"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpstan/phpdoc-parser/2.3.3/phpstan-phpdoc-parser-2.3.3.zip",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/fb19eedd2bb67ff8cf7a5502ad329e701d6398a3",
                 "reference": "fb19eedd2bb67ff8cf7a5502ad329e701d6398a3",
                 "shasum": ""
             },
@@ -2932,6 +3171,7 @@
                     ]
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2945,9 +3185,14 @@
         {
             "name": "predis/predis",
             "version": "v3.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/predis/predis.git",
+                "reference": "2ff20c08bb63697245ffee3f198d1673086c302d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/predis/predis/v3.6.0/predis-predis-v3.6.0.zip",
+                "url": "https://api.github.com/repos/predis/predis/zipball/2ff20c08bb63697245ffee3f198d1673086c302d",
                 "reference": "2ff20c08bb63697245ffee3f198d1673086c302d",
                 "shasum": ""
             },
@@ -2970,6 +3215,7 @@
                     "Predis\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3002,9 +3248,14 @@
         {
             "name": "psr/clock",
             "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/clock.git",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/clock/1.0.0/psr-clock-1.0.0.zip",
+                "url": "https://api.github.com/repos/php-fig/clock/zipball/e41a24703d4560fd0acb709162f73b8adfc3aa0d",
                 "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d",
                 "shasum": ""
             },
@@ -3017,6 +3268,7 @@
                     "Psr\\Clock\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3044,9 +3296,14 @@
         {
             "name": "psr/container",
             "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/container.git",
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/container/2.0.2/psr-container-2.0.2.zip",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
@@ -3064,6 +3321,7 @@
                     "Psr\\Container\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3091,9 +3349,14 @@
         {
             "name": "psr/event-dispatcher",
             "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/event-dispatcher.git",
+                "reference": "dbefd12671e8a14ec7f180cab83036ed26714bb0"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/event-dispatcher/1.0.0/psr-event-dispatcher-1.0.0.zip",
+                "url": "https://api.github.com/repos/php-fig/event-dispatcher/zipball/dbefd12671e8a14ec7f180cab83036ed26714bb0",
                 "reference": "dbefd12671e8a14ec7f180cab83036ed26714bb0",
                 "shasum": ""
             },
@@ -3111,6 +3374,7 @@
                     "Psr\\EventDispatcher\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3135,9 +3399,14 @@
         {
             "name": "psr/http-client",
             "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-client.git",
+                "reference": "bb5906edc1c324c9a05aa0873d40117941e5fa90"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/http-client/1.0.3/psr-http-client-1.0.3.zip",
+                "url": "https://api.github.com/repos/php-fig/http-client/zipball/bb5906edc1c324c9a05aa0873d40117941e5fa90",
                 "reference": "bb5906edc1c324c9a05aa0873d40117941e5fa90",
                 "shasum": ""
             },
@@ -3156,6 +3425,7 @@
                     "Psr\\Http\\Client\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3181,9 +3451,14 @@
         {
             "name": "psr/http-factory",
             "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-factory.git",
+                "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/http-factory/1.1.0/psr-http-factory-1.1.0.zip",
+                "url": "https://api.github.com/repos/php-fig/http-factory/zipball/2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
                 "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a",
                 "shasum": ""
             },
@@ -3202,6 +3477,7 @@
                     "Psr\\Http\\Message\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3230,9 +3506,14 @@
         {
             "name": "psr/http-message",
             "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/http-message.git",
+                "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/http-message/2.0/psr-http-message-2.0.zip",
+                "url": "https://api.github.com/repos/php-fig/http-message/zipball/402d35bcb92c70c026d1a6a9883f06b2ead23d71",
                 "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71",
                 "shasum": ""
             },
@@ -3250,6 +3531,7 @@
                     "Psr\\Http\\Message\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3277,9 +3559,14 @@
         {
             "name": "psr/log",
             "version": "3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/log/3.0.2/psr-log-3.0.2.zip",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
                 "reference": "f16e1d5863e37f8d8c2a01719f5b34baa2b714d3",
                 "shasum": ""
             },
@@ -3297,6 +3584,7 @@
                     "Psr\\Log\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3321,9 +3609,14 @@
         {
             "name": "psr/simple-cache",
             "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/simple-cache.git",
+                "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psr/simple-cache/3.0.0/psr-simple-cache-3.0.0.zip",
+                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/764e0b3939f5ca87cb904f570ef9be2d78a07865",
                 "reference": "764e0b3939f5ca87cb904f570ef9be2d78a07865",
                 "shasum": ""
             },
@@ -3341,6 +3634,7 @@
                     "Psr\\SimpleCache\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3366,9 +3660,14 @@
         {
             "name": "psy/psysh",
             "version": "v0.12.24",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bobthecow/psysh.git",
+                "reference": "ca0fdcf8a7617afa3adfdf1b5fef573dffb69ca1"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/psy/psysh/v0.12.24/psy-psysh-v0.12.24.zip",
+                "url": "https://api.github.com/repos/bobthecow/psysh/zipball/ca0fdcf8a7617afa3adfdf1b5fef573dffb69ca1",
                 "reference": "ca0fdcf8a7617afa3adfdf1b5fef573dffb69ca1",
                 "shasum": ""
             },
@@ -3413,6 +3712,7 @@
                     "Psy\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3439,9 +3739,14 @@
         {
             "name": "pusher/pusher-php-server",
             "version": "7.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pusher/pusher-http-php.git",
+                "reference": "058d8464246118110a341fc2e6e70c7c8b6a7f2c"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/pusher/pusher-php-server/7.3.0/pusher-pusher-php-server-7.3.0.zip",
+                "url": "https://api.github.com/repos/pusher/pusher-http-php/zipball/058d8464246118110a341fc2e6e70c7c8b6a7f2c",
                 "reference": "058d8464246118110a341fc2e6e70c7c8b6a7f2c",
                 "shasum": ""
             },
@@ -3470,6 +3775,7 @@
                     "Pusher\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3496,9 +3802,14 @@
         {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ralouphie/getallheaders.git",
+                "reference": "120b605dfeb996808c31b6477290a714d356e822"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/ralouphie/getallheaders/3.0.3/ralouphie-getallheaders-3.0.3.zip",
+                "url": "https://api.github.com/repos/ralouphie/getallheaders/zipball/120b605dfeb996808c31b6477290a714d356e822",
                 "reference": "120b605dfeb996808c31b6477290a714d356e822",
                 "shasum": ""
             },
@@ -3515,6 +3826,7 @@
                     "src/getallheaders.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3534,9 +3846,14 @@
         {
             "name": "ramsey/collection",
             "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ramsey/collection.git",
+                "reference": "344572933ad0181accbf4ba763e85a0306a8c5e2"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/ramsey/collection/2.1.1/ramsey-collection-2.1.1.zip",
+                "url": "https://api.github.com/repos/ramsey/collection/zipball/344572933ad0181accbf4ba763e85a0306a8c5e2",
                 "reference": "344572933ad0181accbf4ba763e85a0306a8c5e2",
                 "shasum": ""
             },
@@ -3576,6 +3893,7 @@
                     "Ramsey\\Collection\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3604,9 +3922,14 @@
         {
             "name": "ramsey/uuid",
             "version": "4.9.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ramsey/uuid.git",
+                "reference": "1df15849d00943a67d677dc9cfd80795f038c9f8"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/ramsey/uuid/4.9.3/ramsey-uuid-4.9.3.zip",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/1df15849d00943a67d677dc9cfd80795f038c9f8",
                 "reference": "1df15849d00943a67d677dc9cfd80795f038c9f8",
                 "shasum": ""
             },
@@ -3658,6 +3981,7 @@
                     "Ramsey\\Uuid\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3676,9 +4000,14 @@
         {
             "name": "ratchet/rfc6455",
             "version": "v0.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ratchetphp/RFC6455.git",
+                "reference": "9b05f371219cbaf9748b505f139617dd0715592b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/ratchet/rfc6455/v0.4.1/ratchet-rfc6455-v0.4.1.zip",
+                "url": "https://api.github.com/repos/ratchetphp/RFC6455/zipball/9b05f371219cbaf9748b505f139617dd0715592b",
                 "reference": "9b05f371219cbaf9748b505f139617dd0715592b",
                 "shasum": ""
             },
@@ -3698,6 +4027,7 @@
                     "Ratchet\\RFC6455\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3729,9 +4059,14 @@
         {
             "name": "react/cache",
             "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/cache.git",
+                "reference": "d47c472b64aa5608225f47965a484b75c7817d5b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/cache/v1.2.0/react-cache-v1.2.0.zip",
+                "url": "https://api.github.com/repos/reactphp/cache/zipball/d47c472b64aa5608225f47965a484b75c7817d5b",
                 "reference": "d47c472b64aa5608225f47965a484b75c7817d5b",
                 "shasum": ""
             },
@@ -3748,6 +4083,7 @@
                     "React\\Cache\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3795,9 +4131,14 @@
         {
             "name": "react/dns",
             "version": "v1.14.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/dns.git",
+                "reference": "7562c05391f42701c1fccf189c8225fece1cd7c3"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/dns/v1.14.0/react-dns-v1.14.0.zip",
+                "url": "https://api.github.com/repos/reactphp/dns/zipball/7562c05391f42701c1fccf189c8225fece1cd7c3",
                 "reference": "7562c05391f42701c1fccf189c8225fece1cd7c3",
                 "shasum": ""
             },
@@ -3818,6 +4159,7 @@
                     "React\\Dns\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3865,9 +4207,14 @@
         {
             "name": "react/event-loop",
             "version": "v1.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/event-loop.git",
+                "reference": "ba276bda6083df7e0050fd9b33f66ad7a4ac747a"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/event-loop/v1.6.0/react-event-loop-v1.6.0.zip",
+                "url": "https://api.github.com/repos/reactphp/event-loop/zipball/ba276bda6083df7e0050fd9b33f66ad7a4ac747a",
                 "reference": "ba276bda6083df7e0050fd9b33f66ad7a4ac747a",
                 "shasum": ""
             },
@@ -3886,6 +4233,7 @@
                     "React\\EventLoop\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3931,9 +4279,14 @@
         {
             "name": "react/promise",
             "version": "v3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/promise.git",
+                "reference": "23444f53a813a3296c1368bb104793ce8d88f04a"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/promise/v3.3.0/react-promise-v3.3.0.zip",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/23444f53a813a3296c1368bb104793ce8d88f04a",
                 "reference": "23444f53a813a3296c1368bb104793ce8d88f04a",
                 "shasum": ""
             },
@@ -3953,6 +4306,7 @@
                     "React\\Promise\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -3998,9 +4352,14 @@
         {
             "name": "react/promise-timer",
             "version": "v1.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/promise-timer.git",
+                "reference": "4f70306ed66b8b44768941ca7f142092600fafc1"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/promise-timer/v1.11.0/react-promise-timer-v1.11.0.zip",
+                "url": "https://api.github.com/repos/reactphp/promise-timer/zipball/4f70306ed66b8b44768941ca7f142092600fafc1",
                 "reference": "4f70306ed66b8b44768941ca7f142092600fafc1",
                 "shasum": ""
             },
@@ -4021,6 +4380,7 @@
                     "React\\Promise\\Timer\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4071,9 +4431,14 @@
         {
             "name": "react/socket",
             "version": "v1.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/socket.git",
+                "reference": "ef5b17b81f6f60504c539313f94f2d826c5faa08"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/socket/v1.17.0/react-socket-v1.17.0.zip",
+                "url": "https://api.github.com/repos/reactphp/socket/zipball/ef5b17b81f6f60504c539313f94f2d826c5faa08",
                 "reference": "ef5b17b81f6f60504c539313f94f2d826c5faa08",
                 "shasum": ""
             },
@@ -4097,6 +4462,7 @@
                     "React\\Socket\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4145,9 +4511,14 @@
         {
             "name": "react/stream",
             "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/reactphp/stream.git",
+                "reference": "1e5b0acb8fe55143b5b426817155190eb6f5b18d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/react/stream/v1.4.0/react-stream-v1.4.0.zip",
+                "url": "https://api.github.com/repos/reactphp/stream/zipball/1e5b0acb8fe55143b5b426817155190eb6f5b18d",
                 "reference": "1e5b0acb8fe55143b5b426817155190eb6f5b18d",
                 "shasum": ""
             },
@@ -4166,6 +4537,7 @@
                     "React\\Stream\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4217,9 +4589,14 @@
         {
             "name": "spatie/laravel-package-tools",
             "version": "1.93.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-package-tools.git",
+                "reference": "d5552849801f2642aea710557463234b59ef65eb"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/spatie/laravel-package-tools/1.93.1/spatie-laravel-package-tools-1.93.1.zip",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/d5552849801f2642aea710557463234b59ef65eb",
                 "reference": "d5552849801f2642aea710557463234b59ef65eb",
                 "shasum": ""
             },
@@ -4241,6 +4618,7 @@
                     "Spatie\\LaravelPackageTools\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4272,9 +4650,14 @@
         {
             "name": "symfony/clock",
             "version": "v7.4.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/clock.git",
+                "reference": "674fa3b98e21531dd040e613479f5f6fa8f32111"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/clock/v7.4.8/symfony-clock-v7.4.8.zip",
+                "url": "https://api.github.com/repos/symfony/clock/zipball/674fa3b98e21531dd040e613479f5f6fa8f32111",
                 "reference": "674fa3b98e21531dd040e613479f5f6fa8f32111",
                 "shasum": ""
             },
@@ -4298,6 +4681,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4344,9 +4728,14 @@
         {
             "name": "symfony/console",
             "version": "v7.4.16",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/console.git",
+                "reference": "f4c69c9aed03abf933b294257d618bdd9b30a06d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/console/v7.4.16/symfony-console-v7.4.16.zip",
+                "url": "https://api.github.com/repos/symfony/console/zipball/f4c69c9aed03abf933b294257d618bdd9b30a06d",
                 "reference": "f4c69c9aed03abf933b294257d618bdd9b30a06d",
                 "shasum": ""
             },
@@ -4389,6 +4778,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4436,9 +4826,14 @@
         {
             "name": "symfony/css-selector",
             "version": "v7.4.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/css-selector.git",
+                "reference": "b75663ed96cf4756e28e3105476f220f92886cc4"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/css-selector/v7.4.9/symfony-css-selector-v7.4.9.zip",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/b75663ed96cf4756e28e3105476f220f92886cc4",
                 "reference": "b75663ed96cf4756e28e3105476f220f92886cc4",
                 "shasum": ""
             },
@@ -4454,6 +4849,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4499,9 +4895,14 @@
         {
             "name": "symfony/deprecation-contracts",
             "version": "v3.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/deprecation-contracts.git",
+                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/deprecation-contracts/v3.7.1/symfony-deprecation-contracts-v3.7.1.zip",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/f3202fa1b5097b0af062dc978b32ecf63404e31d",
                 "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
                 "shasum": ""
             },
@@ -4523,6 +4924,7 @@
                     "function.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4564,9 +4966,14 @@
         {
             "name": "symfony/error-handler",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/error-handler.git",
+                "reference": "d49f6a19f326db41ae7103bdc38e3eb35a791261"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/error-handler/v7.4.15/symfony-error-handler-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/error-handler/zipball/d49f6a19f326db41ae7103bdc38e3eb35a791261",
                 "reference": "d49f6a19f326db41ae7103bdc38e3eb35a791261",
                 "shasum": ""
             },
@@ -4599,6 +5006,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4640,9 +5048,14 @@
         {
             "name": "symfony/event-dispatcher",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/event-dispatcher.git",
+                "reference": "336e7f3b9e95aba04f93ea9143920c2186abfbb9"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/event-dispatcher/v7.4.15/symfony-event-dispatcher-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/336e7f3b9e95aba04f93ea9143920c2186abfbb9",
                 "reference": "336e7f3b9e95aba04f93ea9143920c2186abfbb9",
                 "shasum": ""
             },
@@ -4678,6 +5091,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4719,9 +5133,14 @@
         {
             "name": "symfony/event-dispatcher-contracts",
             "version": "v3.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/event-dispatcher-contracts.git",
+                "reference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/event-dispatcher-contracts/v3.7.1/symfony-event-dispatcher-contracts-v3.7.1.zip",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher-contracts/zipball/c7de7a00ffb67842132da02ea92988a39ccd9f4e",
                 "reference": "c7de7a00ffb67842132da02ea92988a39ccd9f4e",
                 "shasum": ""
             },
@@ -4744,6 +5163,7 @@
                     "Symfony\\Contracts\\EventDispatcher\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4793,9 +5213,14 @@
         {
             "name": "symfony/finder",
             "version": "v7.4.14",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/finder.git",
+                "reference": "13b38720174286f55d1761152b575a8d1436fc25"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/finder/v7.4.14/symfony-finder-v7.4.14.zip",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/13b38720174286f55d1761152b575a8d1436fc25",
                 "reference": "13b38720174286f55d1761152b575a8d1436fc25",
                 "shasum": ""
             },
@@ -4814,6 +5239,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4855,9 +5281,14 @@
         {
             "name": "symfony/http-foundation",
             "version": "v7.4.16",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/http-foundation.git",
+                "reference": "b676451bb638e99a7d34d8a2be90406822e301eb"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/http-foundation/v7.4.16/symfony-http-foundation-v7.4.16.zip",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/b676451bb638e99a7d34d8a2be90406822e301eb",
                 "reference": "b676451bb638e99a7d34d8a2be90406822e301eb",
                 "shasum": ""
             },
@@ -4890,6 +5321,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -4931,9 +5363,14 @@
         {
             "name": "symfony/http-kernel",
             "version": "v7.4.16",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/http-kernel.git",
+                "reference": "f5e728670fa2218ae8be8ea91f2b44b7d6e5304c"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/http-kernel/v7.4.16/symfony-http-kernel-v7.4.16.zip",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/f5e728670fa2218ae8be8ea91f2b44b7d6e5304c",
                 "reference": "f5e728670fa2218ae8be8ea91f2b44b7d6e5304c",
                 "shasum": ""
             },
@@ -5003,6 +5440,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5044,9 +5482,14 @@
         {
             "name": "symfony/mailer",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/mailer.git",
+                "reference": "68c1f27c97edd0222eb8d440a6c8c4da5354ab46"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/mailer/v7.4.15/symfony-mailer-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/68c1f27c97edd0222eb8d440a6c8c4da5354ab46",
                 "reference": "68c1f27c97edd0222eb8d440a6c8c4da5354ab46",
                 "shasum": ""
             },
@@ -5081,6 +5524,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5122,9 +5566,14 @@
         {
             "name": "symfony/mime",
             "version": "v7.4.16",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/mime.git",
+                "reference": "20094b76a7106dbe978d31cd3bd7aa1ed248d0e5"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/mime/v7.4.16/symfony-mime-v7.4.16.zip",
+                "url": "https://api.github.com/repos/symfony/mime/zipball/20094b76a7106dbe978d31cd3bd7aa1ed248d0e5",
                 "reference": "20094b76a7106dbe978d31cd3bd7aa1ed248d0e5",
                 "shasum": ""
             },
@@ -5160,6 +5609,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5205,9 +5655,14 @@
         {
             "name": "symfony/polyfill-ctype",
             "version": "v1.37.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-ctype.git",
+                "reference": "141046a8f9477948ff284fa65be2095baafb94f2"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-ctype/v1.37.0/symfony-polyfill-ctype-v1.37.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/141046a8f9477948ff284fa65be2095baafb94f2",
                 "reference": "141046a8f9477948ff284fa65be2095baafb94f2",
                 "shasum": ""
             },
@@ -5235,6 +5690,7 @@
                     "Symfony\\Polyfill\\Ctype\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5282,9 +5738,14 @@
         {
             "name": "symfony/polyfill-intl-grapheme",
             "version": "v1.41.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-grapheme.git",
+                "reference": "bb899c1db0aa8127dc3afe8cda4a67eb24915f8d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-intl-grapheme/v1.41.0/symfony-polyfill-intl-grapheme-v1.41.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/bb899c1db0aa8127dc3afe8cda4a67eb24915f8d",
                 "reference": "bb899c1db0aa8127dc3afe8cda4a67eb24915f8d",
                 "shasum": ""
             },
@@ -5309,6 +5770,7 @@
                     "Symfony\\Polyfill\\Intl\\Grapheme\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5358,9 +5820,14 @@
         {
             "name": "symfony/polyfill-intl-idn",
             "version": "v1.38.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-idn.git",
+                "reference": "dc21118016c039a66235cf93d96b435ffb282412"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-intl-idn/v1.38.1/symfony-polyfill-intl-idn-v1.38.1.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/dc21118016c039a66235cf93d96b435ffb282412",
                 "reference": "dc21118016c039a66235cf93d96b435ffb282412",
                 "shasum": ""
             },
@@ -5386,6 +5853,7 @@
                     "Symfony\\Polyfill\\Intl\\Idn\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5439,9 +5907,14 @@
         {
             "name": "symfony/polyfill-intl-normalizer",
             "version": "v1.38.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
+                "reference": "2d446c214bdbe5b71bde5011b060a05fece3ae6b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-intl-normalizer/v1.38.0/symfony-polyfill-intl-normalizer-v1.38.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/2d446c214bdbe5b71bde5011b060a05fece3ae6b",
                 "reference": "2d446c214bdbe5b71bde5011b060a05fece3ae6b",
                 "shasum": ""
             },
@@ -5469,6 +5942,7 @@
                     "Resources/stubs"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5518,9 +5992,14 @@
         {
             "name": "symfony/polyfill-mbstring",
             "version": "v1.38.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-mbstring.git",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-mbstring/v1.38.2/symfony-polyfill-mbstring-v1.38.2.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
                 "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
                 "shasum": ""
             },
@@ -5549,6 +6028,7 @@
                     "Symfony\\Polyfill\\Mbstring\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5597,9 +6077,14 @@
         {
             "name": "symfony/polyfill-php80",
             "version": "v1.37.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php80.git",
+                "reference": "dfb55726c3a76ea3b6459fcfda1ec2d80a682411"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-php80/v1.37.0/symfony-polyfill-php80-v1.37.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/dfb55726c3a76ea3b6459fcfda1ec2d80a682411",
                 "reference": "dfb55726c3a76ea3b6459fcfda1ec2d80a682411",
                 "shasum": ""
             },
@@ -5624,6 +6109,7 @@
                     "Resources/stubs"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5675,9 +6161,14 @@
         {
             "name": "symfony/polyfill-php83",
             "version": "v1.41.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php83.git",
+                "reference": "5ea99087fb99c273a9b9236ed4c31e78b16103c6"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-php83/v1.41.0/symfony-polyfill-php83-v1.41.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php83/zipball/5ea99087fb99c273a9b9236ed4c31e78b16103c6",
                 "reference": "5ea99087fb99c273a9b9236ed4c31e78b16103c6",
                 "shasum": ""
             },
@@ -5702,6 +6193,7 @@
                     "Resources/stubs"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5749,9 +6241,14 @@
         {
             "name": "symfony/polyfill-php85",
             "version": "v1.41.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php85.git",
+                "reference": "255fab485aaa1006ed411040c42aecd7b5302d7a"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-php85/v1.41.0/symfony-polyfill-php85-v1.41.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php85/zipball/255fab485aaa1006ed411040c42aecd7b5302d7a",
                 "reference": "255fab485aaa1006ed411040c42aecd7b5302d7a",
                 "shasum": ""
             },
@@ -5776,6 +6273,7 @@
                     "Resources/stubs"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5823,9 +6321,14 @@
         {
             "name": "symfony/polyfill-uuid",
             "version": "v1.37.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-uuid.git",
+                "reference": "26dfec253c4cf3e51b541b52ddf7e42cb0908e94"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/polyfill-uuid/v1.37.0/symfony-polyfill-uuid-v1.37.0.zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-uuid/zipball/26dfec253c4cf3e51b541b52ddf7e42cb0908e94",
                 "reference": "26dfec253c4cf3e51b541b52ddf7e42cb0908e94",
                 "shasum": ""
             },
@@ -5853,6 +6356,7 @@
                     "Symfony\\Polyfill\\Uuid\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5900,9 +6404,14 @@
         {
             "name": "symfony/process",
             "version": "v7.4.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/process.git",
+                "reference": "f5804be144caceb570f6747519999636b664f24c"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/process/v7.4.13/symfony-process-v7.4.13.zip",
+                "url": "https://api.github.com/repos/symfony/process/zipball/f5804be144caceb570f6747519999636b664f24c",
                 "reference": "f5804be144caceb570f6747519999636b664f24c",
                 "shasum": ""
             },
@@ -5918,6 +6427,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5959,9 +6469,14 @@
         {
             "name": "symfony/routing",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/routing.git",
+                "reference": "80c0a93d3f8e7499f716204a1fb38ead942a7a2b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/routing/v7.4.15/symfony-routing-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/routing/zipball/80c0a93d3f8e7499f716204a1fb38ead942a7a2b",
                 "reference": "80c0a93d3f8e7499f716204a1fb38ead942a7a2b",
                 "shasum": ""
             },
@@ -5991,6 +6506,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6038,9 +6554,14 @@
         {
             "name": "symfony/service-contracts",
             "version": "v3.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/service-contracts.git",
+                "reference": "c0a284bab1ed8aa0417e3d69250ab437739563a0"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/service-contracts/v3.7.1/symfony-service-contracts-v3.7.1.zip",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/c0a284bab1ed8aa0417e3d69250ab437739563a0",
                 "reference": "c0a284bab1ed8aa0417e3d69250ab437739563a0",
                 "shasum": ""
             },
@@ -6070,6 +6591,7 @@
                     "/Test/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6119,9 +6641,14 @@
         {
             "name": "symfony/string",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/string.git",
+                "reference": "e394af32256bf9e7bf80849d95e589167c10097b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/string/v7.4.15/symfony-string-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/string/zipball/e394af32256bf9e7bf80849d95e589167c10097b",
                 "reference": "e394af32256bf9e7bf80849d95e589167c10097b",
                 "shasum": ""
             },
@@ -6155,6 +6682,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6204,9 +6732,14 @@
         {
             "name": "symfony/translation",
             "version": "v7.4.16",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/translation.git",
+                "reference": "501e0ff4553c744209ca1a68790d8a4541563710"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/translation/v7.4.16/symfony-translation-v7.4.16.zip",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/501e0ff4553c744209ca1a68790d8a4541563710",
                 "reference": "501e0ff4553c744209ca1a68790d8a4541563710",
                 "shasum": ""
             },
@@ -6257,6 +6790,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6298,9 +6832,14 @@
         {
             "name": "symfony/translation-contracts",
             "version": "v3.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/translation-contracts.git",
+                "reference": "ccb206b98faccc511ebae8e5fad50f2dc0b30621"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/translation-contracts/v3.7.1/symfony-translation-contracts-v3.7.1.zip",
+                "url": "https://api.github.com/repos/symfony/translation-contracts/zipball/ccb206b98faccc511ebae8e5fad50f2dc0b30621",
                 "reference": "ccb206b98faccc511ebae8e5fad50f2dc0b30621",
                 "shasum": ""
             },
@@ -6325,6 +6864,7 @@
                     "/Test/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6374,9 +6914,14 @@
         {
             "name": "symfony/uid",
             "version": "v7.4.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/uid.git",
+                "reference": "2676b524340abcfe4d6151ec698463cebafee439"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/uid/v7.4.9/symfony-uid-v7.4.9.zip",
+                "url": "https://api.github.com/repos/symfony/uid/zipball/2676b524340abcfe4d6151ec698463cebafee439",
                 "reference": "2676b524340abcfe4d6151ec698463cebafee439",
                 "shasum": ""
             },
@@ -6396,6 +6941,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6446,9 +6992,14 @@
         {
             "name": "symfony/var-dumper",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/var-dumper.git",
+                "reference": "04ba4add636a95ff437af3a5a9499bb1d6c6d4bd"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/var-dumper/v7.4.15/symfony-var-dumper-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/04ba4add636a95ff437af3a5a9499bb1d6c6d4bd",
                 "reference": "04ba4add636a95ff437af3a5a9499bb1d6c6d4bd",
                 "shasum": ""
             },
@@ -6482,6 +7033,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6527,9 +7079,14 @@
         {
             "name": "tightenco/ziggy",
             "version": "v2.6.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tighten/ziggy.git",
+                "reference": "14c5744f155182188419f7729d96e0ed7225e73b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/tightenco/ziggy/v2.6.3/tightenco-ziggy-v2.6.3.zip",
+                "url": "https://api.github.com/repos/tighten/ziggy/zipball/14c5744f155182188419f7729d96e0ed7225e73b",
                 "reference": "14c5744f155182188419f7729d96e0ed7225e73b",
                 "shasum": ""
             },
@@ -6557,6 +7114,7 @@
                     "Tighten\\Ziggy\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6591,9 +7149,14 @@
         {
             "name": "tijsverkoyen/css-to-inline-styles",
             "version": "v2.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tijsverkoyen/CssToInlineStyles.git",
+                "reference": "f0292ccf0ec75843d65027214426b6b163b48b41"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/tijsverkoyen/css-to-inline-styles/v2.4.0/tijsverkoyen-css-to-inline-styles-v2.4.0.zip",
+                "url": "https://api.github.com/repos/tijsverkoyen/CssToInlineStyles/zipball/f0292ccf0ec75843d65027214426b6b163b48b41",
                 "reference": "f0292ccf0ec75843d65027214426b6b163b48b41",
                 "shasum": ""
             },
@@ -6619,6 +7182,7 @@
                     "TijsVerkoyen\\CssToInlineStyles\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -6640,9 +7204,14 @@
         {
             "name": "vlucas/phpdotenv",
             "version": "v5.6.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vlucas/phpdotenv.git",
+                "reference": "416df702837983f8d5ff48c9c3fee4f5f57b980b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/vlucas/phpdotenv/v5.6.4/vlucas-phpdotenv-v5.6.4.zip",
+                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/416df702837983f8d5ff48c9c3fee4f5f57b980b",
                 "reference": "416df702837983f8d5ff48c9c3fee4f5f57b980b",
                 "shasum": ""
             },
@@ -6678,6 +7247,7 @@
                     "Dotenv\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -6718,9 +7288,14 @@
         {
             "name": "voku/portable-ascii",
             "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/voku/portable-ascii.git",
+                "reference": "8e1051fe39379367aecf014f41744ce7539a856f"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/voku/portable-ascii/2.1.1/voku-portable-ascii-2.1.1.zip",
+                "url": "https://api.github.com/repos/voku/portable-ascii/zipball/8e1051fe39379367aecf014f41744ce7539a856f",
                 "reference": "8e1051fe39379367aecf014f41744ce7539a856f",
                 "shasum": ""
             },
@@ -6739,6 +7314,7 @@
                     "voku\\": "src/voku/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6788,9 +7364,14 @@
         {
             "name": "barryvdh/laravel-ide-helper",
             "version": "v3.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barryvdh/laravel-ide-helper.git",
+                "reference": "ad7e37676f1ff985d55ef1b6b96a0c0a40f2609a"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/barryvdh/laravel-ide-helper/v3.7.0/barryvdh-laravel-ide-helper-v3.7.0.zip",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/ad7e37676f1ff985d55ef1b6b96a0c0a40f2609a",
                 "reference": "ad7e37676f1ff985d55ef1b6b96a0c0a40f2609a",
                 "shasum": ""
             },
@@ -6836,6 +7417,7 @@
                     "Barryvdh\\LaravelIdeHelper\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6877,9 +7459,14 @@
         {
             "name": "barryvdh/reflection-docblock",
             "version": "v2.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barryvdh/ReflectionDocBlock.git",
+                "reference": "4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/barryvdh/reflection-docblock/v2.4.1/barryvdh-reflection-docblock-v2.4.1.zip",
+                "url": "https://api.github.com/repos/barryvdh/ReflectionDocBlock/zipball/4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b",
                 "reference": "4f5ba70c30c81f2ce03a16a9965832cfcc31ed3b",
                 "shasum": ""
             },
@@ -6906,6 +7493,7 @@
                     ]
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6923,9 +7511,14 @@
         {
             "name": "composer/class-map-generator",
             "version": "1.7.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/class-map-generator.git",
+                "reference": "86d8208fc3c649a3a999daf1a63c25201be2990f"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/composer/class-map-generator/1.7.3/composer-class-map-generator-1.7.3.zip",
+                "url": "https://api.github.com/repos/composer/class-map-generator/zipball/86d8208fc3c649a3a999daf1a63c25201be2990f",
                 "reference": "86d8208fc3c649a3a999daf1a63c25201be2990f",
                 "shasum": ""
             },
@@ -6953,6 +7546,7 @@
                     "Composer\\ClassMapGenerator\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6986,9 +7580,14 @@
         {
             "name": "composer/pcre",
             "version": "3.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/pcre.git",
+                "reference": "d5a341b3fb61f3001970940afb1d332968a183ed"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/composer/pcre/3.4.0/composer-pcre-3.4.0.zip",
+                "url": "https://api.github.com/repos/composer/pcre/zipball/d5a341b3fb61f3001970940afb1d332968a183ed",
                 "reference": "d5a341b3fb61f3001970940afb1d332968a183ed",
                 "shasum": ""
             },
@@ -7020,6 +7619,7 @@
                     "Composer\\Pcre\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7056,9 +7656,14 @@
         {
             "name": "composer/semver",
             "version": "3.4.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/semver.git",
+                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/composer/semver/3.4.4/composer-semver-3.4.4.zip",
+                "url": "https://api.github.com/repos/composer/semver/zipball/198166618906cb2de69b95d7d47e5fa8aa1b2b95",
                 "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95",
                 "shasum": ""
             },
@@ -7080,6 +7685,7 @@
                     "Composer\\Semver\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7127,9 +7733,14 @@
         {
             "name": "fakerphp/faker",
             "version": "v1.24.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FakerPHP/Faker.git",
+                "reference": "e0ee18eb1e6dc3cda3ce9fd97e5a0689a88a64b5"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/fakerphp/faker/v1.24.1/fakerphp-faker-v1.24.1.zip",
+                "url": "https://api.github.com/repos/FakerPHP/Faker/zipball/e0ee18eb1e6dc3cda3ce9fd97e5a0689a88a64b5",
                 "reference": "e0ee18eb1e6dc3cda3ce9fd97e5a0689a88a64b5",
                 "shasum": ""
             },
@@ -7161,6 +7772,7 @@
                     "Faker\\": "src/Faker/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7184,9 +7796,14 @@
         {
             "name": "filp/whoops",
             "version": "2.18.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/filp/whoops.git",
+                "reference": "d2102955e48b9fd9ab24280a7ad12ed552752c4d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/filp/whoops/2.18.4/filp-whoops-2.18.4.zip",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/d2102955e48b9fd9ab24280a7ad12ed552752c4d",
                 "reference": "d2102955e48b9fd9ab24280a7ad12ed552752c4d",
                 "shasum": ""
             },
@@ -7214,6 +7831,7 @@
                     "Whoops\\": "src/Whoops/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7249,9 +7867,14 @@
         {
             "name": "hamcrest/hamcrest-php",
             "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hamcrest/hamcrest-php.git",
+                "reference": "b61cd040da1a4925bc90a51c074f5297e7c0fa52"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/hamcrest/hamcrest-php/v3.0.0/hamcrest-hamcrest-php-v3.0.0.zip",
+                "url": "https://api.github.com/repos/hamcrest/hamcrest-php/zipball/b61cd040da1a4925bc90a51c074f5297e7c0fa52",
                 "reference": "b61cd040da1a4925bc90a51c074f5297e7c0fa52",
                 "shasum": ""
             },
@@ -7282,6 +7905,7 @@
                     "hamcrest"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -7298,9 +7922,14 @@
         {
             "name": "iamcal/sql-parser",
             "version": "v0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/iamcal/SQLParser.git",
+                "reference": "610392f38de49a44dab08dc1659960a29874c4b8"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/iamcal/sql-parser/v0.7/iamcal-sql-parser-v0.7.zip",
+                "url": "https://api.github.com/repos/iamcal/SQLParser/zipball/610392f38de49a44dab08dc1659960a29874c4b8",
                 "reference": "610392f38de49a44dab08dc1659960a29874c4b8",
                 "shasum": ""
             },
@@ -7314,6 +7943,7 @@
                     "iamcal\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7333,9 +7963,14 @@
         {
             "name": "illuminate/json-schema",
             "version": "v12.66.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/illuminate/json-schema.git",
+                "reference": "543aab5a872b6b08f3b8c907064b009b84a56e07"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/illuminate/json-schema/v12.66.0/illuminate-json-schema-v12.66.0.zip",
+                "url": "https://api.github.com/repos/illuminate/json-schema/zipball/543aab5a872b6b08f3b8c907064b009b84a56e07",
                 "reference": "543aab5a872b6b08f3b8c907064b009b84a56e07",
                 "shasum": ""
             },
@@ -7354,6 +7989,7 @@
                     "Illuminate\\JsonSchema\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7374,9 +8010,14 @@
         {
             "name": "larastan/larastan",
             "version": "v3.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/larastan/larastan.git",
+                "reference": "2970f83398154178a739609c244577267c7ee8eb"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/larastan/larastan/v3.10.0/larastan-larastan-v3.10.0.zip",
+                "url": "https://api.github.com/repos/larastan/larastan/zipball/2970f83398154178a739609c244577267c7ee8eb",
                 "reference": "2970f83398154178a739609c244577267c7ee8eb",
                 "shasum": ""
             },
@@ -7423,6 +8064,7 @@
                     "Larastan\\Larastan\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7458,9 +8100,14 @@
         {
             "name": "laravel/boost",
             "version": "v2.5.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/boost.git",
+                "reference": "f5f9297225aba9857d014b3140f55a7c50cb1a92"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/boost/v2.5.3/laravel-boost-v2.5.3.zip",
+                "url": "https://api.github.com/repos/laravel/boost/zipball/f5f9297225aba9857d014b3140f55a7c50cb1a92",
                 "reference": "f5f9297225aba9857d014b3140f55a7c50cb1a92",
                 "shasum": ""
             },
@@ -7499,6 +8146,7 @@
                     "Laravel\\Boost\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7518,9 +8166,14 @@
         {
             "name": "laravel/breeze",
             "version": "v2.4.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/breeze.git",
+                "reference": "4f20e7b2cc8d25daa85d8647241a89c8e0930305"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/breeze/v2.4.2/laravel-breeze-v2.4.2.zip",
+                "url": "https://api.github.com/repos/laravel/breeze/zipball/4f20e7b2cc8d25daa85d8647241a89c8e0930305",
                 "reference": "4f20e7b2cc8d25daa85d8647241a89c8e0930305",
                 "shasum": ""
             },
@@ -7550,6 +8203,7 @@
                     "Laravel\\Breeze\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7573,9 +8227,14 @@
         {
             "name": "laravel/mcp",
             "version": "v0.9.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/mcp.git",
+                "reference": "7ca5b923630118696602d14348cd0466a5e853ec"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/mcp/v0.9.4/laravel-mcp-v0.9.4.zip",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/7ca5b923630118696602d14348cd0466a5e853ec",
                 "reference": "7ca5b923630118696602d14348cd0466a5e853ec",
                 "shasum": ""
             },
@@ -7617,6 +8276,7 @@
                     "Laravel\\Mcp\\Server\\": "src/Server/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7641,9 +8301,14 @@
         {
             "name": "laravel/pint",
             "version": "v1.30.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/pint.git",
+                "reference": "fe4148c503a0e266353d61396b79bbf7f35122df"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/pint/v1.30.5/laravel-pint-v1.30.5.zip",
+                "url": "https://api.github.com/repos/laravel/pint/zipball/fe4148c503a0e266353d61396b79bbf7f35122df",
                 "reference": "fe4148c503a0e266353d61396b79bbf7f35122df",
                 "shasum": ""
             },
@@ -7677,6 +8342,7 @@
                     "Database\\Factories\\": "database/factories/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7705,9 +8371,14 @@
         {
             "name": "laravel/roster",
             "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/roster.git",
+                "reference": "89e518bd88ae98ff50f6082f6b517c8d8e8245fa"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/roster/v1.0.0/laravel-roster-v1.0.0.zip",
+                "url": "https://api.github.com/repos/laravel/roster/zipball/89e518bd88ae98ff50f6082f6b517c8d8e8245fa",
                 "reference": "89e518bd88ae98ff50f6082f6b517c8d8e8245fa",
                 "shasum": ""
             },
@@ -7743,6 +8414,7 @@
                     "Laravel\\Roster\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7761,9 +8433,14 @@
         {
             "name": "laravel/sail",
             "version": "v1.66.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/sail.git",
+                "reference": "ebf286104306c50c8fd060cbc57de35b9dffa779"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/laravel/sail/v1.66.0/laravel-sail-v1.66.0.zip",
+                "url": "https://api.github.com/repos/laravel/sail/zipball/ebf286104306c50c8fd060cbc57de35b9dffa779",
                 "reference": "ebf286104306c50c8fd060cbc57de35b9dffa779",
                 "shasum": ""
             },
@@ -7795,6 +8472,7 @@
                     "Laravel\\Sail\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7818,9 +8496,14 @@
         {
             "name": "mockery/mockery",
             "version": "1.6.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mockery/mockery.git",
+                "reference": "9cb54414cdcd2ec5ca292e7ba19dba3a3444885d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/mockery/mockery/1.6.13/mockery-mockery-1.6.13.zip",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/9cb54414cdcd2ec5ca292e7ba19dba3a3444885d",
                 "reference": "9cb54414cdcd2ec5ca292e7ba19dba3a3444885d",
                 "shasum": ""
             },
@@ -7845,6 +8528,7 @@
                     "Mockery\\": "library/Mockery"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -7894,9 +8578,14 @@
         {
             "name": "nunomaduro/collision",
             "version": "v8.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nunomaduro/collision.git",
+                "reference": "f5c101b929c958e849a633283adff296ed5f38f5"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/nunomaduro/collision/v8.5.0/nunomaduro-collision-v8.5.0.zip",
+                "url": "https://api.github.com/repos/nunomaduro/collision/zipball/f5c101b929c958e849a633283adff296ed5f38f5",
                 "reference": "f5c101b929c958e849a633283adff296ed5f38f5",
                 "shasum": ""
             },
@@ -7940,6 +8629,7 @@
                     "NunoMaduro\\Collision\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -7985,9 +8675,14 @@
         {
             "name": "phar-io/manifest",
             "version": "2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phar-io/manifest.git",
+                "reference": "54750ef60c58e43759730615a392c31c80e23176"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phar-io/manifest/2.0.4/phar-io-manifest-2.0.4.zip",
+                "url": "https://api.github.com/repos/phar-io/manifest/zipball/54750ef60c58e43759730615a392c31c80e23176",
                 "reference": "54750ef60c58e43759730615a392c31c80e23176",
                 "shasum": ""
             },
@@ -8010,6 +8705,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8046,9 +8742,14 @@
         {
             "name": "phar-io/version",
             "version": "3.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phar-io/version.git",
+                "reference": "4f7fd7836c6f332bb2933569e566a0d6c4cbed74"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phar-io/version/3.2.1/phar-io-version-3.2.1.zip",
+                "url": "https://api.github.com/repos/phar-io/version/zipball/4f7fd7836c6f332bb2933569e566a0d6c4cbed74",
                 "reference": "4f7fd7836c6f332bb2933569e566a0d6c4cbed74",
                 "shasum": ""
             },
@@ -8061,6 +8762,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8093,7 +8795,7 @@
             "version": "2.2.8",
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpstan/phpstan/2.2.8/phpstan-phpstan-2.2.8.zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e285254e60f33c21902efef4a926ca0987c06804",
                 "reference": "e285254e60f33c21902efef4a926ca0987c06804",
                 "shasum": ""
             },
@@ -8113,6 +8815,7 @@
                     "bootstrap.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -8154,9 +8857,14 @@
         {
             "name": "phpunit/php-code-coverage",
             "version": "10.1.16",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
+                "reference": "7e308268858ed6baedc8704a304727d20bc07c77"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpunit/php-code-coverage/10.1.16/phpunit-php-code-coverage-10.1.16.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/7e308268858ed6baedc8704a304727d20bc07c77",
                 "reference": "7e308268858ed6baedc8704a304727d20bc07c77",
                 "shasum": ""
             },
@@ -8193,6 +8901,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8226,9 +8935,14 @@
         {
             "name": "phpunit/php-file-iterator",
             "version": "4.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
+                "reference": "a95037b6d9e608ba092da1b23931e537cadc3c3c"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpunit/php-file-iterator/4.1.0/phpunit-php-file-iterator-4.1.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/a95037b6d9e608ba092da1b23931e537cadc3c3c",
                 "reference": "a95037b6d9e608ba092da1b23931e537cadc3c3c",
                 "shasum": ""
             },
@@ -8249,6 +8963,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8281,9 +8996,14 @@
         {
             "name": "phpunit/php-invoker",
             "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-invoker.git",
+                "reference": "f5e568ba02fa5ba0ddd0f618391d5a9ea50b06d7"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpunit/php-invoker/4.0.0/phpunit-php-invoker-4.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-invoker/zipball/f5e568ba02fa5ba0ddd0f618391d5a9ea50b06d7",
                 "reference": "f5e568ba02fa5ba0ddd0f618391d5a9ea50b06d7",
                 "shasum": ""
             },
@@ -8308,6 +9028,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8338,9 +9059,14 @@
         {
             "name": "phpunit/php-text-template",
             "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-text-template.git",
+                "reference": "0c7b06ff49e3d5072f057eb1fa59258bf287a748"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpunit/php-text-template/3.0.1/phpunit-php-text-template-3.0.1.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/0c7b06ff49e3d5072f057eb1fa59258bf287a748",
                 "reference": "0c7b06ff49e3d5072f057eb1fa59258bf287a748",
                 "shasum": ""
             },
@@ -8361,6 +9087,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8392,9 +9119,14 @@
         {
             "name": "phpunit/php-timer",
             "version": "6.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/php-timer.git",
+                "reference": "e2a2d67966e740530f4a3343fe2e030ffdc1161d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpunit/php-timer/6.0.0/phpunit-php-timer-6.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/e2a2d67966e740530f4a3343fe2e030ffdc1161d",
                 "reference": "e2a2d67966e740530f4a3343fe2e030ffdc1161d",
                 "shasum": ""
             },
@@ -8415,6 +9147,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8445,9 +9178,14 @@
         {
             "name": "phpunit/phpunit",
             "version": "10.5.64",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/phpunit.git",
+                "reference": "0e8c1d19cea35ad97d4887f363d07c78e30fbf06"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/phpunit/phpunit/10.5.64/phpunit-phpunit-10.5.64.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0e8c1d19cea35ad97d4887f363d07c78e30fbf06",
                 "reference": "0e8c1d19cea35ad97d4887f363d07c78e30fbf06",
                 "shasum": ""
             },
@@ -8499,6 +9237,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8532,9 +9271,14 @@
         {
             "name": "sebastian/cli-parser",
             "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/cli-parser.git",
+                "reference": "c34583b87e7b7a8055bf6c450c2c77ce32a24084"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/cli-parser/2.0.1/sebastian-cli-parser-2.0.1.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/cli-parser/zipball/c34583b87e7b7a8055bf6c450c2c77ce32a24084",
                 "reference": "c34583b87e7b7a8055bf6c450c2c77ce32a24084",
                 "shasum": ""
             },
@@ -8555,6 +9299,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8583,9 +9328,14 @@
         {
             "name": "sebastian/code-unit",
             "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/code-unit.git",
+                "reference": "a81fee9eef0b7a76af11d121767abc44c104e503"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/code-unit/2.0.0/sebastian-code-unit-2.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/code-unit/zipball/a81fee9eef0b7a76af11d121767abc44c104e503",
                 "reference": "a81fee9eef0b7a76af11d121767abc44c104e503",
                 "shasum": ""
             },
@@ -8606,6 +9356,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8633,9 +9384,14 @@
         {
             "name": "sebastian/code-unit-reverse-lookup",
             "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/code-unit-reverse-lookup.git",
+                "reference": "5e3a687f7d8ae33fb362c5c0743794bbb2420a1d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/code-unit-reverse-lookup/3.0.0/sebastian-code-unit-reverse-lookup-3.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/code-unit-reverse-lookup/zipball/5e3a687f7d8ae33fb362c5c0743794bbb2420a1d",
                 "reference": "5e3a687f7d8ae33fb362c5c0743794bbb2420a1d",
                 "shasum": ""
             },
@@ -8656,6 +9412,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8682,9 +9439,14 @@
         {
             "name": "sebastian/comparator",
             "version": "5.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/comparator.git",
+                "reference": "55dfef806eb7dfeb6e7a6935601fef866f8ca48d"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/comparator/5.0.5/sebastian-comparator-5.0.5.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/55dfef806eb7dfeb6e7a6935601fef866f8ca48d",
                 "reference": "55dfef806eb7dfeb6e7a6935601fef866f8ca48d",
                 "shasum": ""
             },
@@ -8709,6 +9471,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8765,9 +9528,14 @@
         {
             "name": "sebastian/complexity",
             "version": "3.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/complexity.git",
+                "reference": "68ff824baeae169ec9f2137158ee529584553799"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/complexity/3.2.0/sebastian-complexity-3.2.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/complexity/zipball/68ff824baeae169ec9f2137158ee529584553799",
                 "reference": "68ff824baeae169ec9f2137158ee529584553799",
                 "shasum": ""
             },
@@ -8789,6 +9557,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8817,9 +9586,14 @@
         {
             "name": "sebastian/diff",
             "version": "5.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/diff.git",
+                "reference": "c41e007b4b62af48218231d6c2275e4c9b975b2e"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/diff/5.1.1/sebastian-diff-5.1.1.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/c41e007b4b62af48218231d6c2275e4c9b975b2e",
                 "reference": "c41e007b4b62af48218231d6c2275e4c9b975b2e",
                 "shasum": ""
             },
@@ -8841,6 +9615,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8878,9 +9653,14 @@
         {
             "name": "sebastian/environment",
             "version": "6.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/environment.git",
+                "reference": "8074dbcd93529b357029f5cc5058fd3e43666984"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/environment/6.1.0/sebastian-environment-6.1.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/8074dbcd93529b357029f5cc5058fd3e43666984",
                 "reference": "8074dbcd93529b357029f5cc5058fd3e43666984",
                 "shasum": ""
             },
@@ -8904,6 +9684,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -8936,9 +9717,14 @@
         {
             "name": "sebastian/exporter",
             "version": "5.1.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/exporter.git",
+                "reference": "0735b90f4da94969541dac1da743446e276defa6"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/exporter/5.1.4/sebastian-exporter-5.1.4.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/0735b90f4da94969541dac1da743446e276defa6",
                 "reference": "0735b90f4da94969541dac1da743446e276defa6",
                 "shasum": ""
             },
@@ -8961,6 +9747,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9020,9 +9807,14 @@
         {
             "name": "sebastian/global-state",
             "version": "6.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/global-state.git",
+                "reference": "987bafff24ecc4c9ac418cab1145b96dd6e9cbd9"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/global-state/6.0.2/sebastian-global-state-6.0.2.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/global-state/zipball/987bafff24ecc4c9ac418cab1145b96dd6e9cbd9",
                 "reference": "987bafff24ecc4c9ac418cab1145b96dd6e9cbd9",
                 "shasum": ""
             },
@@ -9046,6 +9838,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9076,9 +9869,14 @@
         {
             "name": "sebastian/lines-of-code",
             "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/lines-of-code.git",
+                "reference": "856e7f6a75a84e339195d48c556f23be2ebf75d0"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/lines-of-code/2.0.2/sebastian-lines-of-code-2.0.2.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/lines-of-code/zipball/856e7f6a75a84e339195d48c556f23be2ebf75d0",
                 "reference": "856e7f6a75a84e339195d48c556f23be2ebf75d0",
                 "shasum": ""
             },
@@ -9100,6 +9898,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9128,9 +9927,14 @@
         {
             "name": "sebastian/object-enumerator",
             "version": "5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/object-enumerator.git",
+                "reference": "202d0e344a580d7f7d04b3fafce6933e59dae906"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/object-enumerator/5.0.0/sebastian-object-enumerator-5.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/object-enumerator/zipball/202d0e344a580d7f7d04b3fafce6933e59dae906",
                 "reference": "202d0e344a580d7f7d04b3fafce6933e59dae906",
                 "shasum": ""
             },
@@ -9153,6 +9957,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9179,9 +9984,14 @@
         {
             "name": "sebastian/object-reflector",
             "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/object-reflector.git",
+                "reference": "24ed13d98130f0e7122df55d06c5c4942a577957"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/object-reflector/3.0.0/sebastian-object-reflector-3.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/object-reflector/zipball/24ed13d98130f0e7122df55d06c5c4942a577957",
                 "reference": "24ed13d98130f0e7122df55d06c5c4942a577957",
                 "shasum": ""
             },
@@ -9202,6 +10012,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9228,9 +10039,14 @@
         {
             "name": "sebastian/recursion-context",
             "version": "5.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/recursion-context.git",
+                "reference": "5d32fe257a9b39cb63146924d6b4e32a22d4502a"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/recursion-context/5.0.2/sebastian-recursion-context-5.0.2.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/5d32fe257a9b39cb63146924d6b4e32a22d4502a",
                 "reference": "5d32fe257a9b39cb63146924d6b4e32a22d4502a",
                 "shasum": ""
             },
@@ -9251,6 +10067,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9298,9 +10115,14 @@
         {
             "name": "sebastian/type",
             "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/type.git",
+                "reference": "462699a16464c3944eefc02ebdd77882bd3925bf"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/type/4.0.0/sebastian-type-4.0.0.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/462699a16464c3944eefc02ebdd77882bd3925bf",
                 "reference": "462699a16464c3944eefc02ebdd77882bd3925bf",
                 "shasum": ""
             },
@@ -9321,6 +10143,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9348,9 +10171,14 @@
         {
             "name": "sebastian/version",
             "version": "4.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/version.git",
+                "reference": "c51fa83a5d8f43f1402e3f32a005e6262244ef17"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/sebastian/version/4.0.1/sebastian-version-4.0.1.zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/version/zipball/c51fa83a5d8f43f1402e3f32a005e6262244ef17",
                 "reference": "c51fa83a5d8f43f1402e3f32a005e6262244ef17",
                 "shasum": ""
             },
@@ -9368,6 +10196,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -9395,9 +10224,14 @@
         {
             "name": "spatie/backtrace",
             "version": "1.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/backtrace.git",
+                "reference": "8ffe78be5ed355b5009e3dd989d183433e9a5adc"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/spatie/backtrace/1.8.2/spatie-backtrace-1.8.2.zip",
+                "url": "https://api.github.com/repos/spatie/backtrace/zipball/8ffe78be5ed355b5009e3dd989d183433e9a5adc",
                 "reference": "8ffe78be5ed355b5009e3dd989d183433e9a5adc",
                 "shasum": ""
             },
@@ -9417,6 +10251,7 @@
                     "Spatie\\Backtrace\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9453,9 +10288,14 @@
         {
             "name": "spatie/error-solutions",
             "version": "1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/error-solutions.git",
+                "reference": "e495d7178ca524f2dd0fe6a1d99a1e608e1c9936"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/spatie/error-solutions/1.1.3/spatie-error-solutions-1.1.3.zip",
+                "url": "https://api.github.com/repos/spatie/error-solutions/zipball/e495d7178ca524f2dd0fe6a1d99a1e608e1c9936",
                 "reference": "e495d7178ca524f2dd0fe6a1d99a1e608e1c9936",
                 "shasum": ""
             },
@@ -9490,6 +10330,7 @@
                     "Spatie\\LaravelIgnition\\": "legacy/laravel-ignition"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9521,9 +10362,14 @@
         {
             "name": "spatie/flare-client-php",
             "version": "1.11.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/flare-client-php.git",
+                "reference": "53f41b08a27cc039e1a8ed2be9a202e924f31bad"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/spatie/flare-client-php/1.11.1/spatie-flare-client-php-1.11.1.zip",
+                "url": "https://api.github.com/repos/spatie/flare-client-php/zipball/53f41b08a27cc039e1a8ed2be9a202e924f31bad",
                 "reference": "53f41b08a27cc039e1a8ed2be9a202e924f31bad",
                 "shasum": ""
             },
@@ -9558,6 +10404,7 @@
                     "Spatie\\FlareClient\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9584,9 +10431,14 @@
         {
             "name": "spatie/ignition",
             "version": "1.16.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/ignition.git",
+                "reference": "b59385bb7aa24dae81bcc15850ebecfda7b40838"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/spatie/ignition/1.16.0/spatie-ignition-1.16.0.zip",
+                "url": "https://api.github.com/repos/spatie/ignition/zipball/b59385bb7aa24dae81bcc15850ebecfda7b40838",
                 "reference": "b59385bb7aa24dae81bcc15850ebecfda7b40838",
                 "shasum": ""
             },
@@ -9629,6 +10481,7 @@
                     "Spatie\\Ignition\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9664,9 +10517,14 @@
         {
             "name": "spatie/laravel-ignition",
             "version": "2.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-ignition.git",
+                "reference": "45b3b6e1e73fc161cba2149972698644b99594ee"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/spatie/laravel-ignition/2.12.0/spatie-laravel-ignition-2.12.0.zip",
+                "url": "https://api.github.com/repos/spatie/laravel-ignition/zipball/45b3b6e1e73fc161cba2149972698644b99594ee",
                 "reference": "45b3b6e1e73fc161cba2149972698644b99594ee",
                 "shasum": ""
             },
@@ -9715,6 +10573,7 @@
                     "Spatie\\LaravelIgnition\\": "src"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9750,9 +10609,14 @@
         {
             "name": "symfony/yaml",
             "version": "v7.4.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "e101850ded5d2c0d44bf32abb8996404afec2dec"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/symfony/yaml/v7.4.15/symfony-yaml-v7.4.15.zip",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/e101850ded5d2c0d44bf32abb8996404afec2dec",
                 "reference": "e101850ded5d2c0d44bf32abb8996404afec2dec",
                 "shasum": ""
             },
@@ -9779,6 +10643,7 @@
                     "/Tests/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -9820,9 +10685,14 @@
         {
             "name": "theseer/tokenizer",
             "version": "1.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/theseer/tokenizer.git",
+                "reference": "b7489ce515e168639d17feec34b8847c326b0b3c"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://nexus.telecom.tm/repository/composer-proxy/theseer/tokenizer/1.3.1/theseer-tokenizer-1.3.1.zip",
+                "url": "https://api.github.com/repos/theseer/tokenizer/zipball/b7489ce515e168639d17feec34b8847c326b0b3c",
                 "reference": "b7489ce515e168639d17feec34b8847c326b0b3c",
                 "shasum": ""
             },
@@ -9838,6 +10708,7 @@
                     "src/"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
