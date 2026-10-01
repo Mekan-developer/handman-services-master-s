@@ -19,7 +19,6 @@ yarn-error.log
 /.vscode
 .claude/settings.local.json
 storage/maps/tiles.mbtiles
-.scribe
 
 # Глифы базовой карты: в репозитории только диапазоны 0-1279
 # (латиница, латиница расширенная, кириллица) — этого хватает для tk/ru.
