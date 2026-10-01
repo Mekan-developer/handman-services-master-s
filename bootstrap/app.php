@@ -63,6 +63,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping();
     })
     ->withMiddleware(function (Middleware $middleware) {
+        // TLS terminates at the host proxy in front of the nginx container (bound to
+        // 127.0.0.1 only), so X-Forwarded-* is trusted to keep generated URLs on https.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             SetLocale::class,
             HandleInertiaRequests::class,
