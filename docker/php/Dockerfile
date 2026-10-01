@@ -29,7 +29,20 @@ COPY vite.config.* tailwind.config.js postcss.config.js ./
 COPY resources ./resources
 COPY --from=vendor /build/vendor/tightenco/ziggy ./vendor/tightenco/ziggy
 
-RUN npm run build
+# .env в контекст не попадает (.dockerignore) — VITE_* вшиваются в бандл через build args.
+ARG VITE_APP_NAME=HANDYMAN
+ARG VITE_REVERB_APP_KEY
+ARG VITE_REVERB_HOST
+ARG VITE_REVERB_PORT=443
+ARG VITE_REVERB_SCHEME=https
+ENV VITE_APP_NAME=$VITE_APP_NAME \
+    VITE_REVERB_APP_KEY=$VITE_REVERB_APP_KEY \
+    VITE_REVERB_HOST=$VITE_REVERB_HOST \
+    VITE_REVERB_PORT=$VITE_REVERB_PORT \
+    VITE_REVERB_SCHEME=$VITE_REVERB_SCHEME
+
+RUN test -n "$VITE_REVERB_APP_KEY" || { echo "FATAL: VITE_REVERB_APP_KEY не передан в build args" >&2; exit 1; } \
+ && npm run build
 
 
 # --- Этап 3: PHP-FPM  ---
@@ -50,6 +63,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ffmpeg \
         git \
+        gosu \
         unzip \
         libzip-dev \
         libfreetype6-dev \
@@ -86,10 +100,9 @@ COPY docker/php/www.prod.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-USER www-data
+# Root: entrypoint чинит права на тома, затем gosu/php-fpm → www-data.
+# Local compose задаёт user: UID:GID — entrypoint тогда пропускает chown.
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# ДОБАВИТЬ ЭТУ СТРОКУ:
 CMD ["php-fpm"]
 
 # --- Этап 4: Nginx ---

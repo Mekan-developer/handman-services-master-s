@@ -20,28 +20,29 @@ services:
         APT_MIRROR: ${APT_MIRROR:-https://nexus.telecom.tm/repository/debian-proxy}
         COMPOSER_MIRROR: ${COMPOSER_MIRROR:-https://nexus.telecom.tm/repository/composer-proxy/}
         NPM_REGISTRY: ${NPM_REGISTRY:-https://nexus.telecom.tm/repository/npm-proxy/}
-    container_name: handyman_app   
+        VITE_APP_NAME: ${VITE_APP_NAME:-HANDYMAN}
+        VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-}
+        VITE_REVERB_HOST: ${VITE_REVERB_HOST:-}
+        VITE_REVERB_PORT: ${VITE_REVERB_PORT:-443}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME:-https}
+    container_name: handyman_app
 
   nginx:
     image: nginx:1.27-alpine
-    container_name: handyman_nginx 
+    container_name: handyman_nginx
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:80"
     volumes:
       - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
     depends_on: [app]
-      
-  horizon:
+
+  queue:
     <<: *php
     container_name: handyman_queue
-    command: php artisan horizon
+    # laravel/horizon не установлен — обычный worker.
+    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
     stop_grace_period: 60s
-    healthcheck:
-      test: ["CMD-SHELL", "php artisan horizon:status | grep -q running"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   reverb:
     <<: *php
@@ -85,7 +86,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s  
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
@@ -97,8 +98,8 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
-      retries: 5 
+      retries: 5
 
 volumes:
   db_data:
-  redis_data:          
+  redis_data:

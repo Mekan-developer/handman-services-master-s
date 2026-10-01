@@ -1,6 +1,7 @@
 #!/bin/sh
-# Прод-entrypoint для app / horizon / reverb / scheduler.
-# Миграции выполняет только один контейнер — тот, где RUN_MIGRATIONS=true (app).
+# Entrypoint для app / horizon / reverb / scheduler.
+# Prod (root): chown storage → кэш → gosu/php-fpm.
+# Local (APP_ENV=local): без config/view:cache; при root — только chown.
 set -e
 
 cd /var/www/handyman
@@ -15,10 +16,13 @@ if ! grep -q '^APP_KEY=base64:' .env; then
     exit 1
 fi
 
-# Ждём БД. depends_on: service_healthy покрывает старт с нуля, но не рестарт
-# mysql под нагрузкой, поэтому цикл оставлен.
-# Креды читаются из .env через phpdotenv, а не через getenv(): .env монтируется
-# файлом, переменных окружения в контейнере нет.
+# local | production | … — из файла .env (не из getenv: в prod env_file ≠ файл на диске)
+APP_ENV_VALUE=$(grep -E '^APP_ENV=' .env | head -1 | cut -d= -f2- | tr -d '\r' | tr -d '"' | tr -d "'")
+IS_LOCAL=0
+if [ "$APP_ENV_VALUE" = "local" ] || [ "$APP_ENV_VALUE" = "development" ]; then
+    IS_LOCAL=1
+fi
+
 echo "[entrypoint] ожидание базы данных..."
 i=0
 until php -r '
@@ -37,22 +41,57 @@ until php -r '
 done
 echo "[entrypoint] база данных доступна"
 
-# Манифест пакетов не собирается на этапе build (composer --no-scripts),
-# т.к. package:discover требует загруженного приложения и .env.
-php artisan package:discover --ansi
+# Tomа/bind-mount часто от UID 33 или root — www-data (1000) писать не может.
+ensure_writable_storage() {
+    mkdir -p \
+        storage/framework/cache \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        storage/app/public \
+        bootstrap/cache
+    chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+    chmod -R ug+rwx storage bootstrap/cache 2>/dev/null || true
+}
 
-# Символическая ссылка public/storage → storage/app/public (том с загрузками).
-php artisan storage:link --force >/dev/null 2>&1 || true
+run_as_app_user() {
+    if [ "$(id -u)" = "0" ]; then
+        ensure_writable_storage
+        if [ "$1" = "php-fpm" ]; then
+            exec "$@"
+        fi
+        exec gosu www-data "$@"
+    fi
+    exec "$@"
+}
 
-echo "[entrypoint] очистка старых кэшей..."
-php artisan optimize:clear
-php artisan route:clear
-php artisan config:clear
+run_artisan() {
+    if [ "$(id -u)" = "0" ]; then
+        gosu www-data php artisan "$@"
+    else
+        php artisan "$@"
+    fi
+}
 
+if [ "$(id -u)" = "0" ]; then
+    ensure_writable_storage
+fi
+
+run_artisan package:discover --ansi
+run_artisan storage:link --force >/dev/null 2>&1 || true
+
+if [ "$IS_LOCAL" = "1" ]; then
+    echo "[entrypoint] local — пропуск config/route/view/event:cache"
+    run_as_app_user "$@"
+fi
+
+# Отдельный optimize:clear не нужен: *:cache сами чистят свой кэш, а
+# optimize:clear ещё и делает cache:clear — сбрасывал бы Redis-кэш на старте
+# каждого из 4 контейнеров.
 echo "[entrypoint] прогрев кэшей..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-php artisan event:cache
+run_artisan config:cache
+run_artisan route:cache
+run_artisan view:cache
+run_artisan event:cache
 
-exec "$@"
+run_as_app_user "$@"
