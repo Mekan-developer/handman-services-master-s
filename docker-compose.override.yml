@@ -38,6 +38,11 @@ services:
     # root: named volume / Windows bind иначе EACCES у npm/vite (UID 1000).
     user: "0:0"
     restart: "no"
+    environment:
+      NPM_CONFIG_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org/}
+      # Нестабильный канал: меньше параллельных загрузок + ретраи вместо ECONNRESET.
+      NPM_CONFIG_MAXSOCKETS: "4"
+      NPM_CONFIG_FETCH_RETRIES: "5"
     command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
     ports: ["5173:5173"]
     volumes:

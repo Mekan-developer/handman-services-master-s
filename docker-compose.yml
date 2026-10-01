@@ -17,9 +17,9 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1000}
-        APT_MIRROR: ${APT_MIRROR:-https://nexus.telecom.tm/repository/debian-proxy}
-        COMPOSER_MIRROR: ${COMPOSER_MIRROR:-https://nexus.telecom.tm/repository/composer-proxy/}
-        NPM_REGISTRY: ${NPM_REGISTRY:-https://nexus.telecom.tm/repository/npm-proxy/}
+        APT_MIRROR: ${APT_MIRROR:-http://deb.debian.org/debian}
+        COMPOSER_MIRROR: ${COMPOSER_MIRROR:-}
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
         VITE_APP_NAME: ${VITE_APP_NAME:-HANDYMAN}
         VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-}
         VITE_REVERB_HOST: ${VITE_REVERB_HOST:-}
@@ -65,6 +65,8 @@ services:
   sms-gateway:
     build:
       context: ./socket-server
+      args:
+        NPM_REGISTRY: ${NPM_REGISTRY:-}
     image: handyman-sms:local
     container_name: handyman_sms
     restart: unless-stopped
