@@ -1,9 +1,40 @@
+# Прод-оверрайд: .env монтируется файлом; storage — том (логи/кэш/uploads).
+# user root — entrypoint делает chown и сбрасывает в www-data (см. entrypoint.prod.sh).
+# env_file сброшен: иначе env-переменные контейнера перекрывают .env на диске,
+# и правки .env не применяются после `restart` (только после пересоздания).
 services:
-  app:       { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
-  horizon:   { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
-  reverb:    { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
-  scheduler: { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
-  artisan:   { volumes: !override [ storage_app:/var/www/handyman/storage/app ] }
+  app:
+    user: "0:0"
+    env_file: !reset []
+    volumes: !override
+      - ./.env:/var/www/handyman/.env:ro
+      - storage_data:/var/www/handyman/storage
+  queue:
+    user: "0:0"
+    env_file: !reset []
+    volumes: !override
+      - ./.env:/var/www/handyman/.env:ro
+      - storage_data:/var/www/handyman/storage
+  reverb:
+    user: "0:0"
+    env_file: !reset []
+    volumes: !override
+      - ./.env:/var/www/handyman/.env:ro
+      - storage_data:/var/www/handyman/storage
+  scheduler:
+    user: "0:0"
+    env_file: !reset []
+    volumes: !override
+      - ./.env:/var/www/handyman/.env:ro
+      - storage_data:/var/www/handyman/storage
+  # Без entrypoint (нет chown/gosu) — запускаем сразу от www-data, иначе
+  # `artisan migrate` создаст лог в storage от root и FPM не сможет в него писать.
+  artisan:
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file: !reset []
+    volumes: !override
+      - ./.env:/var/www/handyman/.env:ro
+      - storage_data:/var/www/handyman/storage
 
   nginx:
     image: handyman-nginx:local
@@ -14,8 +45,17 @@ services:
       args:
         COMPOSER_MIRROR: ${COMPOSER_MIRROR:-https://nexus.telecom.tm/repository/composer-proxy/}
         NPM_REGISTRY: ${NPM_REGISTRY:-https://nexus.telecom.tm/repository/npm-proxy/}
+        VITE_APP_NAME: ${VITE_APP_NAME:-HANDYMAN}
+        VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY:-}
+        VITE_REVERB_HOST: ${VITE_REVERB_HOST:-}
+        VITE_REVERB_PORT: ${VITE_REVERB_PORT:-443}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME:-https}
     volumes: !override
-      - storage_app:/var/www/handyman/storage/app:ro
+      - storage_data:/var/www/handyman/storage:ro
+
+  sms-gateway:
+    environment:
+      ENABLE_TEST_PAGE: "false"
 
 volumes:
-  storage_app:
+  storage_data:

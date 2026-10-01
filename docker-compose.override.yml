@@ -1,14 +1,16 @@
+# Entrypoint с хоста — правки без rebuild. user наследуется 1000:1000 (как storage).
 x-dev: &dev
   volumes:
     - ./:/var/www/handyman
     - /var/www/handyman/vendor
     - /var/www/handyman/bootstrap/cache
     - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-app.ini:ro
+    - ./docker/php/entrypoint.prod.sh:/usr/local/bin/entrypoint.sh:ro
   restart: "no"
 
 services:
   app:       { <<: *dev }
-  horizon:   { <<: *dev }
+  queue:   { <<: *dev }
   reverb:
     <<: *dev
     ports: ["8080:8080"]
@@ -33,15 +35,18 @@ services:
     image: node:22
     container_name: handyman_node
     working_dir: /var/www/handyman
-    user: "${UID:-1000}:${GID:-1000}"
+    # root: named volume / Windows bind иначе EACCES у npm/vite (UID 1000).
+    user: "0:0"
     restart: "no"
-    command: sh -c "npm ci && npm run dev"
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
     ports: ["5173:5173"]
     volumes:
       - ./:/var/www/handyman
+      - node_modules_data:/var/www/handyman/node_modules
 
   db:    { restart: "no", ports: ["3366:3306"] }
   redis: { restart: "no", ports: ["6379:6379"] }
 
 volumes:
   sms_node_modules:
+  node_modules_data:
