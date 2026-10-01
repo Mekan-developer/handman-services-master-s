@@ -80,9 +80,15 @@ services:
     container_name: handyman_mysql
     restart: unless-stopped
     env_file: [docker/db.env]
+    # Флаги, а не my.cnf: на Windows bind-mount получает 777, и MySQL
+    # игнорирует world-writable конфиг.
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+05:00
+      - --max-allowed-packet=64M
     volumes:
       - db_data:/var/lib/mysql
-      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 10s
