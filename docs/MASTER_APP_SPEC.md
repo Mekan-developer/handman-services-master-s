@@ -417,4 +417,4 @@ The following contracts are **stable** as of this document; the Flutter app can 
 
 The service is subscription-only — masters pay for access, the platform never pays masters, so there is no payment/commission model to account for on the mobile side.
 
-Anything marked **planned** in this doc may change before implementation. The generated API reference at `/docs` is authoritative when it disagrees with this file.
+Anything marked **planned** in this doc may change before implementation. The generated API reference at `/docs/api` is authoritative when it disagrees with this file.
