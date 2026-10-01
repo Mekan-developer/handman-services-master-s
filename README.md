@@ -33,7 +33,7 @@ A platform for clients to search and book handyman services. Administrators mana
 | Testing | PHPUnit v10 (+ Mockery, Collision) |
 | Code Style | Laravel Pint v1 |
 | Static Analysis | Larastan v3 — level 6 (`phpstan.neon`) |
-| API Docs | Scribe v5 — served at `/docs`, gated by `ProtectScribeDocs` |
+| API Docs | Scramble — served at `/docs/api`, gated by `RestrictedDocsAccess` |
 | Dev Tooling | Laravel Boost v2, Breeze v2 (auth scaffolding), IDE Helper, Ignition |
 
 ### Frontend
@@ -188,7 +188,7 @@ app/
 │   │   ├── TilesController.php        # /tiles/{z}/{x}/{y}.pbf from MBTiles
 │   │   └── SystemStatusController.php # /system-status health JSON
 │   ├── Middleware/             # CheckRole, EnsureMaster, EnsureClient, SetLocale,
-│   │                           # HandleInertiaRequests, ProtectScribeDocs
+│   │                           # HandleInertiaRequests
 │   ├── Requests/               # Form Requests (web + Api/V1 + Api/V1/Client)
 │   ├── Resources/              # Eloquent API Resources
 │   └── Traits/
@@ -328,7 +328,7 @@ APP_NAME="Alo-komek"         # Shown in browser title bar and Vite (VITE_APP_NAM
 APP_ENV=local                # local | staging | production
 APP_KEY=                     # Run: php artisan key:generate
 APP_DEBUG=true               # Set false in production
-APP_URL=http://localhost     # Full public URL (used in emails, links, Scribe)
+APP_URL=http://localhost     # Full public URL (used in emails, links, API docs)
 APP_TIMEZONE=Asia/Ashgabat
 
 # ── Localization ─────────────────────────────────────────────────────────────
@@ -931,7 +931,7 @@ Run `php artisan route:list --path=api/v1` for the authoritative list.
 
 ### API documentation
 
-Scribe generates the docs (`php artisan scribe:generate`) and serves them at `/docs`, with `/docs.openapi` and `/docs.postman` alongside. Access is gated by `ProtectScribeDocs` (wired in `config/scribe.php` → `laravel.middleware`): open in local/dev, **administrators only in production**, everyone else gets a `404` so the endpoint is not discoverable.
+Scramble generates the docs on the fly from routes, Form Requests and Resources and serves them at `/docs/api`, with the OpenAPI spec at `/docs/api.json`. Access is gated by Scramble's `RestrictedDocsAccess` (`config/scramble.php` → `middleware`): open in local, closed elsewhere unless the `viewApiDocs` gate allows it.
 
 Ready-to-run requests live in the single `bruno/` collection ([Bruno](https://www.usebruno.com/) — open the folder, pick the `local` environment). It mirrors the mobile app: one collection, one `{{token}}` saved by **Verify OTP**, folders ordered the way a real session runs — sign in → catalog → order → become a master → master work. `{{locale}}` flips every request between `tk` and `ru`.
 
@@ -1088,7 +1088,7 @@ php artisan config:show database                # Show config values
 php artisan cache:clear                         # Also flushes the translations cache
 
 # ── Docs & quality ───────────────────────────────────────────────────────────
-php artisan scribe:generate       # Regenerate API docs at /docs
+php artisan scramble:export       # Export OpenAPI spec to api.json
 vendor/bin/pint --dirty           # Format changed PHP files
 vendor/bin/phpstan analyse        # Static analysis
 php artisan test --compact        # Full test suite
