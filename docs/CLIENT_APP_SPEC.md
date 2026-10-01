@@ -462,5 +462,5 @@ curl -X POST http://localhost:8000/api/v1/client/orders \
 - Order status enum values: `pending`, `assigned`, `in_progress`, `completed`, `cancelled`.
 - Master application status enum values: `pending`, `approved`, `rejected`.
 
-The generated API reference at `/docs` (Scribe) is authoritative if it ever disagrees with
+The generated API reference at `/docs/api` (Scramble) is authoritative if it ever disagrees with
 this file.
