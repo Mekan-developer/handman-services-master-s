@@ -7,7 +7,9 @@ use App\Actions\DeclineOrderAction;
 use App\Actions\RespondToOrderAction;
 use App\Actions\StartMasterOrderAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\CategoryOrdersRequest;
 use App\Http\Resources\Api\V1\AvailableOrderResource;
+use App\Http\Resources\Api\V1\CategoryOrderResource;
 use App\Http\Resources\Api\V1\MasterOrderResource;
 use App\Http\Resources\Api\V1\OrderMasterResponseResource;
 use App\Models\Master;
@@ -58,6 +60,27 @@ class MasterOrderController extends Controller
         );
 
         return AvailableOrderResource::collection($orders);
+    }
+
+    /**
+     * Every open order in the master's categories, near or far. Distance and
+     * `is_within_radius` are filled only once the master has sent a GPS ping.
+     */
+    public function byCategory(CategoryOrdersRequest $request): AnonymousResourceCollection
+    {
+        /** @var Master $master */
+        $master = $request->user();
+
+        $location = $this->masterRepository->latestLocation($master);
+
+        $orders = $this->repository->openInMasterCategories(
+            $master,
+            $request->categoryId(),
+            $location ? (float) $location->latitude : null,
+            $location ? (float) $location->longitude : null,
+        );
+
+        return CategoryOrderResource::collection($orders);
     }
 
     /** Respond to an offered order. The order stays open — the client decides who gets it. */

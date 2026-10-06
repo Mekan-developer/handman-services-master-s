@@ -212,6 +212,50 @@ class OrderRepository
             ->values();
     }
 
+    /**
+     * Every open order in the master's categories, regardless of distance,
+     * newest first.
+     *
+     * Unlike availableForMaster() the radius is not a filter here — it only
+     * marks which orders the master can respond to right now. Orders whose
+     * auto-search has ended are still listed, at the maximum radius.
+     */
+    public function openInMasterCategories(
+        Master $master,
+        ?int $categoryId,
+        ?float $latitude,
+        ?float $longitude,
+        int $perPage = 15,
+    ): LengthAwarePaginator {
+        $orders = Order::with(['category', 'city', 'photos'])
+            ->where('status', OrderStatus::Pending)
+            ->whereNull('master_id')
+            ->whereNotNull('search_started_at')
+            ->whereIn('category_id', $this->masterCategoryIds($master))
+            ->when($categoryId, fn ($q, $id) => $q->where('category_id', $id))
+            ->where('client_id', '!=', $master->client_id)
+            ->whereDoesntHave('declines', fn ($q) => $q->where('master_id', $master->id))
+            ->whereDoesntHave('masterResponses', fn ($q) => $q->where('master_id', $master->id))
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $orders->getCollection()->each(function (Order $order) use ($latitude, $longitude): void {
+            if ($latitude === null || $longitude === null) {
+                $order->distance_km = null;
+                $order->is_within_radius = false;
+
+                return;
+            }
+
+            $order->distance_km = round($order->distanceKmTo($latitude, $longitude), 2);
+            $order->is_within_radius = $order->search_radius_km !== null
+                && $order->distance_km <= $order->search_radius_km;
+        });
+
+        return $orders;
+    }
+
     public function hasResponded(Order $order, int $masterId): bool
     {
         return OrderMasterResponse::where('order_id', $order->id)

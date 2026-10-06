@@ -1,0 +1,68 @@
+meta {
+  name: Category Orders (all open orders in my categories)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/api/v1/master/orders/by-category
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~category_id: 1
+  ~page: 1
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Category Orders
+
+  Every open (pending, unclaimed, search started) order in the master's
+  categories — **regardless of distance**, newest first, paginated by 15.
+  Orders the master declined or already responded to, and their own orders,
+  are excluded.
+
+  `category_id` (optional) narrows the list to one category; a category the
+  master doesn't work in simply yields an empty list.
+
+  `is_within_radius` tells whether `respond` will be accepted right now —
+  respond still requires the master to be inside the order's search radius.
+  Without a GPS ping `distance_km` is `null` and `is_within_radius` is `false`.
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": 42,
+        "client_name": "Aman Jumayev",
+        "client_phone": "+99362111222",
+        "category": "Сантехника",
+        "city": "Ашхабад",
+        "description": "Сломался кран на кухне",
+        "address": "Ashgabat, Korogly 12",
+        "latitude": 37.95,
+        "longitude": 58.38,
+        "distance_km": 12.4,
+        "is_within_radius": false,
+        "search_radius_km": 3,
+        "search_started_at": "2026-08-15T10:00:00+05:00",
+        "photos": [],
+        "created_at": "2026-08-15T10:00:00+05:00"
+      }
+    ],
+    "links": { "...": "..." },
+    "meta": { "current_page": 1, "per_page": 15, "total": 1 }
+  }
+  ```
+}

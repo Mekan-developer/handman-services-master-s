@@ -66,6 +66,8 @@ Route::prefix('master')->group(function () {
             // Auto-search feed. Must stay above the {order} route, otherwise
             // "available" is swallowed as an order id.
             Route::get('available', [MasterOrderController::class, 'available'])->name('available');
+            // Every open order in the master's categories, outside the radius too.
+            Route::get('by-category', [MasterOrderController::class, 'byCategory'])->name('by-category');
             Route::post('{order}/respond', [MasterOrderController::class, 'respond'])->name('respond');
             Route::post('{order}/decline', [MasterOrderController::class, 'decline'])->name('decline');
 
