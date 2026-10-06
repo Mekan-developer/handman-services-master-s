@@ -378,7 +378,7 @@ MBTILES_PATH=maps/tiles.mbtiles      # Relative to storage/
 
 # ── OTP SMS gateway (socket-server/) ─────────────────────────────────────────
 SMS_GATEWAY_URL=http://127.0.0.1:3000   # Must match PORT in socket-server/.env
-SMS_GATEWAY_SECRET=changeme             # Must match GATEWAY_SECRET in socket-server/.env
+SMS_GATEWAY_SECRET=changeme             # Must match OTP_SECRET in socket-server/.env
 OTP_TTL_MINUTES=3
 
 # ── Dev only ─────────────────────────────────────────────────────────────────
@@ -1043,6 +1043,6 @@ Checklist:
 - Serve over **HTTPS** (required for the self-hosted map tiles)
 - `queue:work` and `schedule:work` running under a supervisor
 - `reverb:start` running, `REVERB_SCHEME=https`, the WebSocket port proxied
-- `socket-server/` running with a real `GATEWAY_SECRET`
+- `socket-server/` running with a long random `OTP_SECRET` (same value as `SMS_GATEWAY_SECRET`), `ENABLE_TEST_PAGE=false`, and only `/socket.io/` proxied publicly — `/emit-otp` and `/health` stay on `127.0.0.1`
 - `storage/maps/tiles.mbtiles` copied onto the server (not in git)
 - The public `orders` channel carries `OrderCreated` with the client's name — move it to a private, staff-gated channel before exposing the panel publicly
