@@ -1,7 +1,7 @@
 meta {
   name: List My Orders
   type: http
-  seq: 4
+  seq: 5
 }
 
 get {
@@ -33,7 +33,9 @@ docs {
   **Query params:**
   - `filter=active` — assigned + in_progress orders
   - `filter=history` — completed + cancelled orders
-  - (no filter) — all orders
+  - `filter=awaiting_response` — orders this master responded to and the
+    client has not decided on yet (still `pending`, not assigned to anyone)
+  - (no filter) — all orders assigned to this master
 
   **Response 200:**
   ```json

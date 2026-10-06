@@ -30,8 +30,11 @@ docs {
   A master who has never sent a location gets an empty list — a normal state
   right after login, not an error. Send a ping from `06_master_profile` first.
 
-  The client's name and phone are **not** included: the order is not theirs yet.
-  They appear after a successful claim.
+  The client's name and phone are included so the master can call before
+  responding.
+
+  For every open order in the master's categories regardless of distance, see
+  **By Category**.
 
   **Response 200:**
   ```json
@@ -39,6 +42,8 @@ docs {
     "data": [
       {
         "id": 42,
+        "client_name": "Aman Jumayev",
+        "client_phone": "+99362111222",
         "category": "Сантехника",
         "city": "Ашхабад",
         "description": "Сломался кран на кухне",

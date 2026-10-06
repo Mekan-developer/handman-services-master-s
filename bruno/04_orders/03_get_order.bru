@@ -40,9 +40,14 @@ docs {
     "data": {
       "id": 1,
       "status": "assigned",
-      "category": "Сантехника",
+      "status_label": "Назначен мастер",
       "description": "Кран в ванной течёт",
-      "address": "ул. Атамырата Ниязова, д. 42",
+      "client_address": "ул. Атамырата Ниязова, д. 42",
+      "client_lat": "37.9382000",
+      "client_lng": "58.3833000",
+      "final_price": null,
+      "city": { "id": 5, "name": "Ашхабад" },
+      "category": { "id": 2, "name": "Сантехника" },
       "master": {
         "id": 11,
         "name": "Aydogdy Ussadow",
@@ -50,7 +55,7 @@ docs {
         "location": {
           "lat": 37.9364,
           "lng": 58.3795,
-          "recorded_at": "2026-06-15T14:32:00"
+          "recorded_at": "2026-06-15 14:32:00"
         }
       },
       "photos": [
@@ -58,12 +63,19 @@ docs {
       ],
       "tasks": [],
       "review": null,
-      "created_at": "2026-05-16T10:00:00+05:00"
+      "assigned_at": "2026-05-16 10:05:00",
+      "started_at": null,
+      "completed_at": null,
+      "cancelled_at": null,
+      "created_at": "2026-05-16 10:00:00"
     }
   }
   ```
 
+  `client_lat` / `client_lng` come back as strings (decimal cast); dates use
+  `Y-m-d H:i:s` here, unlike the ISO-8601 dates on the master side.
+
   **Errors:**
-  - `403` — order does not belong to this client
-  - `404` — order not found
+  - `404` — order not found or does not belong to this client
+  - `401` — missing / invalid token
 }

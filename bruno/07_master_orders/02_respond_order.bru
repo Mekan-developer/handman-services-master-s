@@ -1,7 +1,7 @@
 meta {
-  name: Respond (claim order)
+  name: Respond (offer myself)
   type: http
-  seq: 2
+  seq: 3
 }
 
 post {
@@ -20,32 +20,52 @@ headers {
 }
 
 docs {
-  # Respond — claim an offered order
+  # Respond — offer myself for an order
 
-  The master takes an order from the auto-search feed. This is a **race**: the
-  same order is offered to every master in range, and the claim is settled by
-  an atomic conditional update — whoever gets there first wins, the rest get
-  `422 already claimed`.
+  The master answers an order from the feed. This does **not** assign the
+  order: several masters may respond to the same one, the order stays
+  `pending`, and the **client** picks the winner (`04_orders` → List Order
+  Responses → Approve / Reject).
+
+  The client is notified live (`MasterRespondedToOrder` on their channel). The
+  master learns the outcome over `private-master.{id}`: `MasterAssigned` when
+  approved, `OrderResponseRejected` when turned down, `OrderResponseSuperseded`
+  when the client chose someone else, `OrderResponseWithdrawn` when the order
+  was cancelled.
 
   Everything is re-checked server-side, including the distance, because nothing
-  stops an app from POSTing an order id it never received in the feed.
+  stops an app from POSTing an order id it never received in the feed. Orders
+  from **By Category** outside the radius (`is_within_radius: false`) are
+  rejected here with `out of search radius`.
 
-  On success the order becomes `assigned`, `MasterAssigned` is broadcast to the
-  client's channel, and the response carries the full order **with** the
-  client's contact details.
+  After responding the order leaves both feeds and shows up in
+  **List My Orders** with `filter=awaiting_response`.
 
-  **Response 200:** `MasterOrderResource` with `status: "assigned"`
+  **Response 201:** `OrderMasterResponseResource`
+  ```json
+  {
+    "data": {
+      "id": 7,
+      "order_id": 42,
+      "status": "pending",
+      "created_at": "2026-08-15T10:05:00+05:00",
+      "decided_at": null,
+      "rejection_reason": null
+    }
+  }
+  ```
 
   **Errors (all `422`, message localized by `X-Locale`):**
 
-  | Cause                                    | Meaning                              |
-  |------------------------------------------|--------------------------------------|
-  | already claimed                          | another master won, or admin assigned |
-  | search expired                           | auto-search gave up; admin assigns now |
-  | category mismatch                        | not one of the master's trades        |
-  | out of search radius                     | too far for the order's current radius |
-  | master location unknown                  | no GPS ping yet                       |
-  | master unavailable / access expired      | switched off, blocked, or unsubscribed |
+  | Cause                               | Meaning                                  |
+  |-------------------------------------|------------------------------------------|
+  | already claimed                     | the order already has a master, or is not `pending` |
+  | own order                           | placed from this same account as a client |
+  | category mismatch                   | not one of the master's trades            |
+  | master location unknown             | no GPS ping yet                           |
+  | out of search radius                | too far for the order's current radius    |
+  | already responded                   | this master already answered this order   |
+  | master unavailable / access expired | switched off, blocked, or unsubscribed    |
 
   - `404` — order not found
   - `403` — token has no usable master profile (see `reason`)

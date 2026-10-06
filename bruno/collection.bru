@@ -18,7 +18,9 @@ docs {
   4. `05_become_master` → Submit Application — status becomes `pending`.
   5. Admin panel → **Заявки мастеров** → approve + issue a subscription.
   6. `06_master_profile` → Get My Profile — the same token now passes `ensure.master`.
-  7. `07_master_orders` → Available Orders, then Respond — the master offers himself.
+  7. `06_master_profile` → Send Location, then `07_master_orders` → Available
+     Orders (or By Category for every order in the master's trades), then
+     Respond — the master offers himself, the order stays `pending`.
   8. `04_orders` → List Order Responses (saves `{{response_id}}`), then Approve
      Response — the order becomes `assigned` and starts answering in
      `10_realtime` → Order Track.
@@ -33,7 +35,7 @@ docs {
   | `04_orders`            | yes          | client orders + master responses        |
   | `05_become_master`     | yes          | application + review status            |
   | `06_master_profile`    | yes, approved| profile, availability, GPS             |
-  | `07_master_orders`     | yes, approved| auto-search feed, work, tasks          |
+  | `07_master_orders`     | yes, approved| feeds (radius / category), work, tasks |
   | `08_master_subscription`| partly      | price list public, own subscription not|
   | `09_settings`          | no           | one T&C text, shared by both roles     |
   | `10_realtime`          | yes          | Reverb channel auth + master trail     |

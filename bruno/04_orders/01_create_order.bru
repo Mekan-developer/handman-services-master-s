@@ -47,15 +47,19 @@ docs {
   Saves the new order id into `{{order_id}}`, which the master folder reuses.
 
   **Required fields:**
-  - `city_id`, `category_id`, `description`
-  - `client_phone`, `client_address`, `client_lat`, `client_lng`
+  - `city_id`, `category_id`, `description` (5..2000 chars)
+  - `client_phone` (6..20 chars), `client_lat`, `client_lng`
 
   **Optional:**
-  - `photos[]` — up to 4 images (max 8 MB each)
+  - `client_address` — up to 255 chars
+  - `photos[]` — up to 4 images (jpeg/png/webp, max 8 MB each)
 
-  **Response 201:** `ClientOrderResource`
+  `client_name` is not sent — it is taken from the account (`name`, or the
+  phone when the name is still empty).
+
+  **Response 201:** `ClientOrderResource` (same shape as Get Order)
 
   **Errors:**
   - `422` — validation error
-  - `403` — client profile incomplete (name or city_id missing)
+  - `401` — missing / invalid token
 }

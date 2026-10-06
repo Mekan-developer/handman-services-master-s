@@ -1,12 +1,12 @@
 meta {
   name: Complete Order
   type: http
-  seq: 10
+  seq: 11
 }
 
 post {
   url: {{base_url}}/api/v1/master/orders/{{order_id}}/complete
-  body: json
+  body: none
   auth: bearer
 }
 
@@ -15,30 +15,38 @@ auth:bearer {
 }
 
 headers {
-  Content-Type: application/json
   Accept: application/json
   X-Locale: {{locale}}
-}
-
-body:json {
-  {
-    "final_price": 150.00
-  }
 }
 
 docs {
   # Complete Order
 
-  Changes order status: `in_progress` → `completed`. `final_price` is recorded
-  for reporting only — the platform does not pay masters, it earns from their
-  access subscriptions instead.
+  Changes order status: `in_progress` → `completed`. No request body — the
+  endpoint does not accept a price; `final_price` in the response is whatever
+  the administrator set in the panel (`null` otherwise).
 
   After this the client can leave a review (`04_orders` → Leave Review).
 
-  **Response 200:**
+  **Response 200:** `MasterOrderResource`
   ```json
   {
-    "data": { "id": 1, "status": "completed", "final_price": 150.00 }
+    "data": {
+      "id": 1,
+      "status": "completed",
+      "client_name": "Merdan",
+      "client_phone": "+99361234567",
+      "address": "Ashgabat, Korogly 12",
+      "latitude": 37.95,
+      "longitude": 58.38,
+      "category": "Сантехника",
+      "description": "Сломался кран на кухне",
+      "final_price": null,
+      "assigned_at": "2026-05-16T10:05:00+05:00",
+      "started_at": "2026-05-16T11:00:00+05:00",
+      "completed_at": "2026-05-16T12:30:00+05:00",
+      "created_at": "2026-05-16T10:00:00+05:00"
+    }
   }
   ```
 
