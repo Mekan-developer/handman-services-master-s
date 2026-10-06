@@ -57,7 +57,7 @@ Put these in `--dart-define`, never in source:
 
 | Setting | Dev | Production |
 |---|---|---|
-| `API_BASE_URL` | `http://localhost/api/v1` | `https://alo-komek.com.tm/api/v1` (confirm) |
+| `API_BASE_URL` | `http://localhost/api/v1` | `https://Handyman.com.tm/api/v1` (confirm) |
 | `REVERB_APP_KEY` | `4liesygc2gk2bijxales` | ask backend |
 | `REVERB_HOST` | same host as the API | same host as the API |
 | `REVERB_PORT` | `80` | `443` |

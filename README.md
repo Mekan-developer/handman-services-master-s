@@ -324,7 +324,7 @@ cd socket-server && cp .env.example .env && npm install && npm start
 
 ```dotenv
 # ── Application ──────────────────────────────────────────────────────────────
-APP_NAME="Alo-komek"         # Shown in browser title bar and Vite (VITE_APP_NAME)
+APP_NAME="Handyman"         # Shown in browser title bar and Vite (VITE_APP_NAME)
 APP_ENV=local                # local | staging | production
 APP_KEY=                     # Run: php artisan key:generate
 APP_DEBUG=true               # Set false in production

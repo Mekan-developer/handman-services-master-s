@@ -34,10 +34,10 @@ Do **not** use `flutter_map` with a `TileLayer` for this — it expects raster i
 
 | Resource | Production URL |
 |---|---|
-| Style JSON | `https://alo-komek.com.tm/maps/style.json` |
-| Vector tiles | `https://alo-komek.com.tm/tiles/{z}/{x}/{y}.pbf` |
-| Glyphs (fonts) | `https://alo-komek.com.tm/maps/fonts/{fontstack}/{range}.pbf` |
-| Sprite (icons) | `https://alo-komek.com.tm/maps/sprite` |
+| Style JSON | `https://Handyman.com.tm/maps/style.json` |
+| Vector tiles | `https://Handyman.com.tm/tiles/{z}/{x}/{y}.pbf` |
+| Glyphs (fonts) | `https://Handyman.com.tm/maps/fonts/{fontstack}/{range}.pbf` |
+| Sprite (icons) | `https://Handyman.com.tm/maps/sprite` |
 
 | Param | Value |
 |---|---|
@@ -54,10 +54,10 @@ The raw `/maps/style.json` file on disk has relative URLs (`"tiles": ["/tiles/{z
 
 ```dart
 Future<String> loadStyleJson() async {
-  final res = await http.get(Uri.parse('https://alo-komek.com.tm/maps/style.json'));
+  final res = await http.get(Uri.parse('https://Handyman.com.tm/maps/style.json'));
   final style = jsonDecode(res.body) as Map<String, dynamic>;
 
-  const base = 'https://alo-komek.com.tm';
+  const base = 'https://Handyman.com.tm';
   (style['sources'] as Map<String, dynamic>)['openmaptiles'] = {
     'type': 'vector',
     'tiles': ['$base/tiles/{z}/{x}/{y}.pbf'],
