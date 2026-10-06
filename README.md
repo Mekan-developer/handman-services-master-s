@@ -1,6 +1,6 @@
-# Alo-kömek — Handyman Service (Admin Panel & Backend)
+# HANDYMAN — Admin Panel & Backend
 
-A platform for clients to search and book handyman services. Administrators manage masters, assign orders, sell access subscriptions and watch master locations in real time through a web admin panel. The service earns from master subscriptions only — the platform never pays masters and does not track their earnings. Masters and clients interact through dedicated Flutter mobile apps that talk to the versioned REST API of this same application.
+A platform for clients to search and book handyman services. Administrators manage masters, review "become a master" applications, sell access subscriptions and watch master locations in real time through a web admin panel. The service earns from master subscriptions only — the platform never pays masters and does not track their earnings. Clients and masters use **one** Flutter mobile app that talks to the versioned REST API of this same application.
 
 ---
 
@@ -10,10 +10,11 @@ A platform for clients to search and book handyman services. Administrators mana
 |---|---|
 | Admin Panel | Laravel 11 + Inertia.js v2 + Vue 3 |
 | Backend API | Laravel 11 + Sanctum (`/api/v1/`) |
-| Mobile Apps | Flutter (Android & iOS) — separate repositories |
+| Mobile App | Flutter (Android & iOS), one app for both roles — separate repository |
 | WebSocket | Laravel Reverb |
 | OTP SMS Gateway | Node.js Socket.IO bridge (`socket-server/`) + Flutter gateway phone |
-| Database | SQLite (default, dev) / MySQL 8 (production) |
+| Database | MySQL 8 (Docker, production) / SQLite (native dev default) |
+| Cache / Queue | Redis (Docker, production) / database driver (native dev default) |
 | Maps | Self-hosted vector tiles served by Laravel from MBTiles + MapLibre GL |
 
 ---
@@ -29,12 +30,13 @@ A platform for clients to search and book handyman services. Administrators mana
 | SPA Bridge | Inertia.js v2 (`inertiajs/inertia-laravel`) |
 | API Auth | Laravel Sanctum v4 |
 | WebSocket | Laravel Reverb v1 |
+| Redis Client | Predis v3 |
 | Named Routes | Ziggy v2 |
 | Testing | PHPUnit v10 (+ Mockery, Collision) |
 | Code Style | Laravel Pint v1 |
 | Static Analysis | Larastan v3 — level 6 (`phpstan.neon`) |
 | API Docs | Scramble — served at `/docs/api`, gated by `RestrictedDocsAccess` |
-| Dev Tooling | Laravel Boost v2, Breeze v2 (auth scaffolding), IDE Helper, Ignition |
+| Dev Tooling | Laravel Boost v2, Breeze v2 (auth scaffolding), IDE Helper, Debugbar, Ignition, Sail |
 
 ### Frontend
 
@@ -61,7 +63,7 @@ A platform for clients to search and book handyman services. Administrators mana
 
 ## Architecture & Patterns
 
-This project enforces strict layered architecture. Every developer must follow these patterns without exception.
+This project enforces a strict layered architecture. Every developer must follow these patterns without exception.
 
 ```
 HTTP Request
@@ -78,11 +80,11 @@ HTTP Request
 | **Thin Controllers** | Only handle HTTP: receive request, call action/service, return response |
 | **Repository Pattern** | ALL database queries live in Repositories — never in Controllers or Services |
 | **Services** | Complex multi-step business logic or external integrations (`OtpGatewayService`) |
-| **Actions** | Single-purpose operations (e.g. `RestartOrderSearchAction`, `CreditMasterBalanceAction`) |
+| **Actions** | Single-purpose operations (e.g. `RespondToOrderAction`, `ApproveOrderResponseAction`, `RestartOrderSearchAction`) |
 | **Form Requests** | All validation — never `$request->validate()` in controllers |
 | **API Resources** | All API responses — never return raw models or arrays |
 | **Jobs** | All background/async processing (image conversion) |
-| **Observers** | Model event handling (`MasterObserver`, registered in `AppServiceProvider`) |
+| **Observers** | Model event handling (`ClientObserver`, `MasterObserver`, `OrderObserver`) |
 | **Enums** | All statuses and fixed value sets — never raw strings |
 | **Exceptions** | Domain failures throw `ApiException` subclasses instead of returning `false` |
 
@@ -107,49 +109,53 @@ HTTP Request
 
 ```
 Oblast ─┬─< Region
-        └─< City ─┬─< Master ─┬─< MasterLocation      (GPS trail, one row per ping)
-                  │           ├─< MasterPayout        (paid_by → User)
-                  │           ├─< OrderReview
-                  │           └─>< Category           (pivot: category_master)
-                  ├─< Client
+        └─< City ─┬─< Client ──── Master ─┬─< MasterLocation      (GPS trail, one row per ping)
+                  │   (one account,       ├─< MasterSubscription
+                  │    optional role)     ├─< OrderReview
+                  │                       └─>< Category           (pivot: category_master)
                   └─< Order
 
 Category ─┬─< Category            (self-referencing parent/children)
           └─── CategoryContent ─< CategoryContentImage
 
-Order ─┬─> City, Category, Master, Client
+Order ─┬─> City, Category, Client (required), Master (once a response is approved)
        ├─< OrderPhoto             (photos of the problem, client-supplied)
-       ├─< OrderTask ─< OrderTaskPhoto   (before/after pair per performed task)
+       ├─< OrderTask ─< OrderTaskPhoto   (before/after photos per performed task)
+       ├─< OrderMasterResponse    (masters who offered themselves; the client picks one)
+       ├─< OrderMasterDecline     (masters who dismissed the offer)
        ├─< MasterLocation         (the trip taken for this order)
-       ├─< OrderMasterDecline     (masters who dismissed the auto-search offer)
        └─── OrderReview
 
+SubscriptionPlan ─< MasterSubscription
 Standalone: User (admin staff), Banner, Setting, PendingOtp
 ```
 
 | Entity | Role |
 |---|---|
-| `Oblast` / `Region` / `City` | Geography. Masters, clients and orders are all scoped to a city |
+| `Oblast` / `Region` / `City` | Geography. Clients and orders carry a city; the auto-search itself ignores it |
 | `Category` | Service catalog, self-nesting, bilingual, with an optional `CategoryContent` landing page |
-| `Master` | The handyman — a profile **on top of a `Client` account** (`client_id`), never a standalone login. Carries the application (categories, `experience_years`, `about`), its review verdict (`App\Enums\MasterStatus`), access expiry derived from subscriptions, availability flag, live location |
-| `Client` | Mobile app user, can be blocked by an administrator. Owns the account's avatar (`photo`) — the `Master` profile shows the same file. Optionally has one `Master` profile |
-| `Order` | The job. Carries status (`App\Enums\OrderStatus`), photos, tasks, one review, and the auto-search state (`search_started_at`, `search_radius_km`, `search_expired_at`) |
+| `Client` | Mobile app account, can be blocked by an administrator. Owns the avatar (`photo`) — the `Master` profile shows the same file. Optionally has one `Master` profile |
+| `Master` | The handyman — a profile **on top of a `Client` account** (`client_id`, unique), never a standalone login. Carries the application (categories, `experience_years`, `about`), its review verdict (`MasterStatus`), access expiry derived from subscriptions, availability flag, live location |
+| `Order` | The job. Always belongs to a client (`client_id` is required). Carries status (`OrderStatus`), photos, tasks, one review, and the auto-search state (`search_started_at`, `search_radius_km`, `search_expired_at`) |
+| `OrderMasterResponse` | A master offered themselves for an order (`OrderResponseStatus`: `pending` → `approved` / `rejected`) |
+| `OrderMasterDecline` | A master dismissed an offer — hides it from that master's feeds only |
 | `OrderTask` | One discrete piece of work with before/after photos — e.g. "replaced hose" |
-| `OrderMasterDecline` | A master dismissed an auto-search offer — hides it from that master's feed only |
 | `SubscriptionPlan` | Tariff sold to masters: bilingual name, duration in days, price, soft deleted so sold subscriptions keep their link |
-| `MasterSubscription` | A purchase: snapshot of plan name/price/duration, status (`App\Enums\SubscriptionStatus`), period, who issued it |
+| `MasterSubscription` | A purchase: snapshot of plan name/price/duration, status (`SubscriptionStatus`), period, who issued it |
 | `PendingOtp` | OTP parked for manual delivery when the SMS gateway is down |
-| `Setting` | Key/value app settings exposed to both mobile apps |
-| `User` | Admin panel staff — administrator / manager / operator (`App\Enums\UserRole`) |
+| `Setting` | Key/value app settings (app rules, auto-search radii, auto-cancel deadline) |
+| `User` | Admin panel staff — administrator / manager / operator (`UserRole`) |
 
 ### Enums (`app/Enums/`)
 
 | Enum | Values |
 |---|---|
-| `OrderStatus` | `pending`, `assigned`, `in_progress`, `completed`, `cancelled` (+ `label()`, `color()`, `isFinal()`) |
-| `UserRole` | `administrator`, `manager`, `operator` (+ `assignable()`, `canManage()`) |
-| `SubscriptionStatus` | `pending`, `active`, `expired`, `cancelled` (+ `label()`, `color()`, `isFinal()`, `canTransitionTo()`) |
+| `OrderStatus` | `pending`, `assigned`, `in_progress`, `completed`, `cancelled` (+ `label()`, `color()`, `isFinal()`, `isTrackable()`) |
+| `OrderResponseStatus` | `pending`, `approved`, `rejected` — a master's response to an order |
 | `MasterStatus` | `pending`, `approved`, `rejected` — where a master application stands (+ `label()`, `color()`, `grantsAccess()`, `canTransitionTo()`) |
+| `SubscriptionStatus` | `pending`, `active`, `expired`, `cancelled` (+ `label()`, `color()`, `isFinal()`, `canTransitionTo()`) |
+| `UserRole` | `administrator`, `manager`, `operator` (+ `assignable()`, `canManage()`, `canAccessAdminSections()`) |
+| `AnalyticsPeriod` | `daily`, `weekly`, `monthly`, `yearly` — dashboard chart grouping |
 | `OtpDeliveryChannel` | Delivery route of a generated OTP (SMS gateway vs. manual) |
 | `OtpRecipientType` | Recipient a parked OTP belongs to |
 | `CategoryIconType` | Icon source for a category: `preset` (SVG from the set), `image` (uploaded WebP ≤ 50 KB), `custom` (legacy SVG, read-only) |
@@ -161,7 +167,7 @@ Enforced by the `role` middleware alias (`App\Http\Middleware\CheckRole`) in `ro
 | Section | administrator | manager | operator |
 |---|:--:|:--:|:--:|
 | Profile, `/system-status` | ✅ | ✅ | ✅ |
-| Dashboard, geography, categories, masters, clients, orders, banners, settings, notifications, OTP codes | ✅ | ✅ | ❌ |
+| Dashboard, geography, categories, masters, master applications, clients, orders, banners, settings, notifications, OTP codes | ✅ | ✅ | ❌ |
 | Users (`/users`) | ✅ | ❌ | ❌ |
 | Subscriptions & plans (`/subscriptions`) | ✅ | ❌ | ❌ |
 
@@ -171,15 +177,21 @@ Enforced by the `role` middleware alias (`App\Http\Middleware\CheckRole`) in `ro
 
 ```
 app/
-├── Actions/                    # ~55 single-purpose operations (Create/Update/Delete/Assign/…)
+├── Actions/                    # ~66 single-purpose operations
+│   └── Concerns/               # EnsuresMasterEligibility, SyncsMasterAccess
 ├── Console/Commands/
-│   ├── SimulateMasterMovement.php          # master:simulate-movement — demo GPS pings
-│   ├── ExpandOrderSearchRadiusCommand.php  # orders:expand-search-radius — every minute
-│   └── ExpireMasterSubscriptionsCommand.php # subscriptions:expire — hourly
-├── Enums/                      # OrderStatus, UserRole, SubscriptionStatus, Otp*, CategoryIconType
-├── Events/                     # MasterAssigned, MasterLocationUpdated, OrderCreated,
+│   ├── ExpandOrderSearchRadiusCommand.php   # orders:expand-search-radius — every minute
+│   ├── CancelStaleOrdersCommand.php         # orders:cancel-stale-orders — hourly
+│   ├── ExpireMasterSubscriptionsCommand.php # subscriptions:expire — hourly
+│   ├── PruneMasterLocations.php             # locations:prune — nightly 03:30
+│   └── SimulateMasterMovement.php           # master:simulate-movement — demo GPS pings
+├── Enums/                      # see the table above
+├── Events/                     # ClientCreated, MasterAssigned, MasterLocationUpdated,
+│                               # MasterRespondedToOrder, OrderCreated, OrderResponse{Rejected,
+│                               # Superseded,Withdrawn}, OrderSearch{Started,RadiusExpanded,Exhausted},
 │                               # OrderStatusChanged, PendingOtpCreated
-├── Exceptions/                 # ApiException + Master/Order/Otp/Subscription domain exceptions
+├── Exceptions/                 # ApiException + Category/Client/Master/MasterApplication/
+│                               # Order/Otp/Subscription domain exceptions
 ├── Http/
 │   ├── Controllers/            # Web controllers (thin, Inertia)
 │   │   ├── Api/V1/             # Master API controllers
@@ -187,35 +199,35 @@ app/
 │   │   ├── Auth/               # Breeze auth controllers
 │   │   ├── TilesController.php        # /tiles/{z}/{x}/{y}.pbf from MBTiles
 │   │   └── SystemStatusController.php # /system-status health JSON
-│   ├── Middleware/             # CheckRole, EnsureMaster, EnsureClient, SetLocale,
+│   ├── Middleware/             # CheckRole, EnsureClient, EnsureMaster, SetLocale,
 │   │                           # HandleInertiaRequests
 │   ├── Requests/               # Form Requests (web + Api/V1 + Api/V1/Client)
 │   ├── Resources/              # Eloquent API Resources
-│   └── Traits/
-│       └── WithNotification.php
+│   └── Traits/WithNotification.php
 ├── Jobs/                       # ConvertOrderPhotoJob, ConvertTaskPhotoJob
-├── Listeners/                  # NotifyAdminsOnNewOrder
-├── Models/                     # 19 Eloquent models
-├── Notifications/              # NewOrderNotification (database channel)
-├── Observers/                  # MasterObserver
+├── Listeners/                  # NotifyAdminsOnNewClient, NotifyAdminsOnNewOrder,
+│                               # NotifyAdminsOnOrderSearchExhausted
+├── Models/                     # 22 Eloquent models
+├── Notifications/              # NewClient, NewOrder, OrderSearchExhausted (database channel)
+├── Observers/                  # ClientObserver, MasterObserver, OrderObserver
 ├── Policies/                   # UserPolicy
-├── Providers/                  # AppServiceProvider (observer + queue heartbeat + processed counter)
-├── Repositories/               # 14 repositories — all database query logic
+├── Providers/                  # AppServiceProvider (observers + queue heartbeat + processed counter)
+├── Repositories/               # 16 repositories — all database query logic
 ├── Services/                   # OtpGatewayService, SystemStatusService, ReverbMetricsService
 └── Support/                    # Framework-agnostic helpers (PhotoConverter, CategoryIcon)
 
 resources/js/
-├── Components/                 # CategoryIcon, CategoryPicker, CityFilterSelect, ConfirmModal, IconPicker,
-│                               # ImageLightbox, Modal, NotificationPanel, OblastCitySelect,
-│                               # Pagination, PasswordInput, PendingOtpPanel, PhoneInput,
-│                               # ServiceIcon, form primitives
+├── Components/                 # CategoryIcon, CategoryPicker, CityFilterSelect, ConfirmModal,
+│                               # IconPicker, ImageLightbox, Modal, NotificationPanel,
+│                               # OblastCitySelect, Pagination, PasswordInput, PendingOtpPanel,
+│                               # PhoneInput, ServiceIcon, form primitives
 ├── Layouts/
 │   ├── AdminLayout.vue         # Sidebar + topbar, notifications, OTP alerts
 │   └── GuestLayout.vue         # Login / password reset shell
 ├── Pages/                      # Auth, Banners, Categories, Cities, Clients, Dashboard,
-│                               # Masters (Index + Map), Oblasts, Orders (Index + Show),
+│                               # Masters (Index, Map, Applications), Oblasts, Orders (Index + Show),
 │                               # PendingOtps, Profile, Regions, Settings, Subscriptions, Users
-│                               # (each section has a Partials/ folder with its modals)
+│                               # (each section keeps its modals in Partials/)
 ├── stores/                     # useThemeStore, useLocaleStore, useNotificationStore
 ├── utils/                      # loadMapStyle.js, formatPhone.js
 ├── app.js                      # Inertia + Pinia + Ziggy + vue-i18n bootstrap
@@ -224,8 +236,8 @@ resources/js/
 └── i18n.js                     # vue-i18n instance (messages injected from PHP at runtime)
 
 lang/
-├── ru/                         # api, auth, banners, categories, cities, clients, dashboard,
-│                               # layout, masters, notifications, oblasts, orders,
+├── ru/                         # 20 files: api, auth, banners, categories, cities, clients,
+│                               # dashboard, layout, masters, notifications, oblasts, orders,
 │                               # pending_otps, profile, regions, resources, settings,
 │                               # subscriptions, users, validation
 └── tk/                         # Turkmen — mirrors ru/ file-for-file, key-for-key
@@ -238,11 +250,11 @@ routes/
 └── api/v1.php                  # Versioned mobile API
 
 database/
-├── migrations/                 # 39 migrations
+├── migrations/                 # 51 migrations
 ├── factories/
-└── seeders/                    # Oblast, City, Category, Master, MasterLocation, Client,
-                                # Order, Setting
+└── seeders/                    # Oblast, City, Category, Setting
 
+docker/                         # php (Dockerfile, entrypoint, php.ini), nginx, socket, db.env
 public/
 ├── maps/                       # MapLibre style.json, glyphs, sprites
 ├── icons/
@@ -251,8 +263,8 @@ public/
 storage/maps/tiles.mbtiles      # Vector tile archive — NOT in git (~118 MB), copy manually
 
 socket-server/                  # Node.js Socket.IO OTP bridge (own package.json / .env)
-bruno/                          # Ready-to-run Bruno API request collection (one app, both roles)
-docs/                           # MASTER_APP_SPEC.md, MASTER_APP_MAP_INTEGRATION.md, tasks/
+bruno/                          # Ready-to-run Bruno API collection (one app, both roles)
+docs/tasks/                     # Task notes
 
 tests/
 ├── Feature/                    # Feature tests (primary), incl. Api/V1 and Api/V1/Client
@@ -263,57 +275,60 @@ tests/
 
 ## Local Development Setup
 
-> **Docker**: the repository also ships a Docker environment (nginx + php-fpm 8.3 + MySQL 8).
-> See [docs/DOCKER.md](docs/DOCKER.md) for the full walkthrough — setup, migrations, seeders and troubleshooting.
-> The steps below describe the native (non-Docker) setup.
+### Option A — Docker (recommended)
 
-### Requirements
+`docker-compose.yml` defines the stack; `docker-compose.override.yml` is picked up automatically in development and mounts the source for live edits.
 
-- PHP 8.2+ (8.3 recommended) with `sqlite3`, `gd`, `pdo` extensions
-- Composer
-- Node.js 20+
-- MySQL 8 — only if you deviate from the default SQLite connection
-
-### Steps
+| Service | Purpose | Dev port |
+|---|---|---|
+| `app` | php-fpm 8.3 | — |
+| `nginx` | Web server | `8000` |
+| `queue` | `queue:work` | — |
+| `scheduler` | `schedule:work` | — |
+| `reverb` | `reverb:start` | `8080` |
+| `sms-gateway` | `socket-server/` OTP bridge | `3000` |
+| `node` | Vite dev server (`npm run dev`) | `5173` |
+| `db` | MySQL 8 | `3366` |
+| `redis` | Cache / queue / session | `6379` |
+| `artisan` | One-off Artisan runner | — |
 
 ```bash
-# 1. Clone
-git clone <repo-url>
-cd project
+cp .env.example .env                 # then fill DB_*, REDIS_*, REVERB_* (see Environment Variables)
+docker compose up -d --build
+docker compose run --rm artisan key:generate
+docker compose run --rm artisan migrate --seed
+docker compose run --rm artisan storage:link
+```
 
-# 2. Dependencies
+Production uses `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build`: the `.env` is mounted read-only, `storage/` lives in a named volume, and nginx serves a built frontend image.
+
+### Option B — Native
+
+Requirements: PHP 8.2+ (8.3 recommended) with `sqlite3`, `gd`, `pdo`; Composer; Node.js 20+.
+
+```bash
 composer install
 npm install
 
-# 3. Environment
 cp .env.example .env
 php artisan key:generate
 
-# 4. Database — SQLite is the default and needs no configuration
+# SQLite is the default and needs no configuration
 touch database/database.sqlite
 php artisan migrate --seed
 
-# 5. Storage symlink (order/task photos, banners, client avatars)
-php artisan storage:link
+php artisan storage:link             # order/task photos, banners, client avatars
 
-# 6. Basemap archive (optional — only for map screens)
-#    Copy tiles.mbtiles into storage/maps/ manually; it is not in git.
+# Basemap archive (optional — only for map screens):
+# copy tiles.mbtiles into storage/maps/ manually; it is not in git.
 
-# 7. Frontend + web server (two terminals — there is no `composer run dev` script here)
+# Each in its own terminal:
 npm run dev
 php artisan serve
-
-# 8. Queue worker — REQUIRED for image conversion, admin notifications and OTP broadcasts
-php artisan queue:work
-
-# 9. WebSocket server — REQUIRED for realtime order alerts and the live map
-php artisan reverb:start
-
-# 10. Scheduler — REQUIRED for the master auto-search radius to grow
-php artisan schedule:work
-
-# 11. OTP SMS gateway bridge (optional in dev — without it OTPs fall back to manual delivery)
-cd socket-server && cp .env.example .env && npm install && npm start
+php artisan queue:work               # REQUIRED — image conversion, notifications, broadcasts
+php artisan reverb:start             # REQUIRED — realtime alerts and live maps
+php artisan schedule:work            # REQUIRED — auto-search radius, stale orders, subscriptions
+cd socket-server && cp .env.example .env && npm install && npm start   # optional in dev
 ```
 
 > **Vite over LAN**: set `VITE_DEV_SERVER_HOST` to your machine's LAN IP if you open the panel from another device (`vite.config.js` reads it for both `server.host` and HMR).
@@ -322,51 +337,38 @@ cd socket-server && cp .env.example .env && npm install && npm start
 
 ## Environment Variables
 
+`.env.example` is the native-dev baseline; `.env.production.example` is the full production-shaped file (MySQL, Redis, Reverb). The values that matter for this project:
+
 ```dotenv
 # ── Application ──────────────────────────────────────────────────────────────
-APP_NAME="Handyman"         # Shown in browser title bar and Vite (VITE_APP_NAME)
-APP_ENV=local                # local | staging | production
-APP_KEY=                     # Run: php artisan key:generate
-APP_DEBUG=true               # Set false in production
-APP_URL=http://localhost     # Full public URL (used in emails, links, API docs)
+APP_NAME="Handyman"
+APP_URL=http://localhost          # Full public URL (links, API docs)
 APP_TIMEZONE=Asia/Ashgabat
-
-# ── Localization ─────────────────────────────────────────────────────────────
-APP_LOCALE=ru                # Default locale: ru or tk
+APP_LOCALE=ru                     # ru | tk
 APP_FALLBACK_LOCALE=ru
 
 # ── Database ─────────────────────────────────────────────────────────────────
-DB_CONNECTION=sqlite         # sqlite (default) | mysql
-# DB_HOST=127.0.0.1          # Uncomment the block below when using MySQL
-# DB_PORT=3306
-# DB_DATABASE=handyman
-# DB_USERNAME=root
-# DB_PASSWORD=
+DB_CONNECTION=sqlite              # mysql in Docker / production
+# DB_HOST=db  DB_PORT=3306  DB_DATABASE=  DB_USERNAME=  DB_PASSWORD=
 
 # ── Queue, Cache, Session ────────────────────────────────────────────────────
-QUEUE_CONNECTION=database    # Use redis in production
-CACHE_STORE=database
+QUEUE_CONNECTION=database         # redis in Docker / production
+CACHE_STORE=database              # redis in Docker / production
 SESSION_DRIVER=database
-SESSION_LIFETIME=120
-
-# ── Storage ──────────────────────────────────────────────────────────────────
-FILESYSTEM_DISK=local        # Photos are written to the `public` disk regardless
 
 # ── WebSocket — Laravel Reverb ───────────────────────────────────────────────
 BROADCAST_CONNECTION=reverb
-REVERB_APP_ID=               # Generated by: php artisan reverb:install
+REVERB_APP_ID=                    # Generated by: php artisan reverb:install
 REVERB_APP_KEY=
 REVERB_APP_SECRET=
-REVERB_HOST="127.0.0.1"
-REVERB_PORT=8880
-REVERB_SCHEME=http           # https in production
+REVERB_HOST=reverb                # Docker service name; 127.0.0.1 natively
+REVERB_PORT=8080
+REVERB_SCHEME=http                # https in production
 
-# Injected into Vite for the frontend Echo client
 VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
-VITE_REVERB_HOST=            # Leave empty in dev: Echo falls back to window.location.hostname,
-                             # so the socket follows the host the page was opened from (LAN IP, localhost).
-                             # Set the public WS domain in production. Never "${REVERB_HOST}" — that is
-                             # the server-side host (docker service name), unreachable from the browser.
+VITE_REVERB_HOST=                 # Leave empty in dev: Echo falls back to window.location.hostname.
+                                  # Set the public WS domain in production. Never "${REVERB_HOST}" —
+                                  # that is the server-side host, unreachable from the browser.
 VITE_REVERB_PORT="${REVERB_PORT}"
 VITE_REVERB_SCHEME="${REVERB_SCHEME}"
 
@@ -380,12 +382,14 @@ SMS_GATEWAY_SECRET=changeme             # Must match GATEWAY_SECRET in socket-se
 OTP_TTL_MINUTES=3
 
 # ── Dev only ─────────────────────────────────────────────────────────────────
-VITE_DEV_SERVER_HOST=127.0.0.1   # LAN IP when testing from a phone
+VITE_DEV_SERVER_HOST=127.0.0.1    # LAN IP when testing from a phone
 ```
 
-All custom values are exposed through `config/services.php`: `services.tiles.style_url`, `services.mbtiles.path`, `services.sms_gateway.{url,secret}`, `services.otp.ttl_minutes`. Never read `env()` outside config files — it returns `null` once configs are cached.
+Custom values are exposed through `config/services.php`: `services.tiles.style_url`, `services.mbtiles.path`, `services.sms_gateway.{url,secret}`, `services.otp.ttl_minutes`. Never read `env()` outside config files — it returns `null` once configs are cached.
 
-> **Note**: `.env.example` currently omits the `REVERB_*` / `VITE_REVERB_*` block. Copy it from the snippet above (or from a working `.env`) after `cp .env.example .env`, otherwise broadcasting silently fails.
+> **Note**: `.env.example` still ships Laravel's defaults (`APP_NAME=Laravel`, `APP_LOCALE=en`, `BROADCAST_CONNECTION=log`) and has no `REVERB_*` / `VITE_REVERB_*` block. Fix those after `cp .env.example .env`, otherwise broadcasting silently does nothing.
+
+Business settings that admins change at runtime are **not** env variables — they live in the `settings` table and are edited at **Settings**: app rules (`client_app_rules`), auto-search radii (`master_search_initial_radius_km` = 20, `master_search_max_radius_km` = 80) and the auto-cancel deadline (`order_auto_cancel_hours` = 48). Defaults are constants on `App\Models\Setting`.
 
 ---
 
@@ -413,7 +417,6 @@ const { t } = useI18n()
 
 <template>
     <AdminLayout :title="t('section.page_title')">
-        <!-- Single root element inside the layout slot -->
         <div class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-800">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">
                 {{ t('section.heading') }}
@@ -436,7 +439,7 @@ Both `ru` and `tk` must always be complete. A key present in one language and mi
 
 ### PHP lang files are the single source of truth
 
-There is **no separate frontend dictionary**. `HandleInertiaRequests::loadTranslations()` reads every file under `lang/ru/` and `lang/tk/` and shares them as the `translations` Inertia prop; `app.js` pushes them into vue-i18n on boot and after every Inertia visit. `resources/js/i18n.js` only creates the empty instance.
+There is **no separate frontend dictionary**. `HandleInertiaRequests::loadTranslations()` reads every file under `lang/ru/` and `lang/tk/` and shares them as the `translations` Inertia prop; `app.js` pushes them into vue-i18n on boot and after every Inertia visit.
 
 ```
 lang/ru/*.php  ─┐
@@ -448,26 +451,11 @@ lang/tk/*.php  ─┘
 
 Laravel's `:placeholder` syntax is normalized to vue-i18n's `{placeholder}` in `app.js`, so `t('notifications.created', { resource })` works with the exact same PHP string.
 
-```php
-// lang/ru/notifications.php
-return [
-    'created' => ':resource успешно создан',
-    'updated' => ':resource успешно обновлён',
-    'deleted' => ':resource успешно удалён',
-];
-
-// lang/ru/resources.php
-return ['city' => 'Город', 'master' => 'Мастер', 'order' => 'Заказ'];
-
-// Usage (PHP)
-__('notifications.created', ['resource' => __('resources.city')])
-```
-
 > Translations are cached forever in production (`inertia.translations` cache key). Run `php artisan cache:clear` after editing lang files on a production server.
 
 ### Locale resolution
 
-`SetLocale` middleware runs on both `web` and `api` stacks, before authentication, so even a `401` comes back translated. Web requests read the locale from the session (set via `POST /locale/{locale}`), mobile apps send an `X-Locale: tk` header.
+`SetLocale` middleware runs on both `web` and `api` stacks, before authentication, so even a `401` comes back translated. Web requests read the locale from the session (set via `POST /locale/{locale}`), the mobile app sends an `X-Locale: tk` header.
 
 ---
 
@@ -492,9 +480,9 @@ class CityController extends Controller
 }
 ```
 
-Available methods: `notifySuccess()` · `notifyError()` · `notifyWarning()` · `notifyInfo()`
+Available methods: `notifySuccess()` · `notifyError()` · `notifyWarning()` · `notifyInfo()`. All accept a lang key + optional replace array and flash to `session('notification')`, which `HandleInertiaRequests` shares as an Inertia prop.
 
-All methods accept a lang key + optional replace array. They flash to `session('notification')`, which `HandleInertiaRequests` shares as an Inertia prop.
+Key convention: `notifications.created|updated|deleted` with a `:resource` replace; resource names live in `lang/{ru,tk}/resources.php`.
 
 ### Frontend — Automatic Pickup
 
@@ -502,15 +490,13 @@ All methods accept a lang key + optional replace array. They flash to `session('
 
 ### Notification Bell & Panel
 
-The topbar bell shows the unread count and opens `NotificationPanel.vue` — a slide-in drawer listing all admin notifications (mark one/all as read, delete one/all), backed by `NotificationController` at `/notifications/*`. `unreadNotificationsCount` is a shared Inertia prop, so the badge stays in sync without extra API calls.
-
-Database notifications use Laravel's built-in `notifications` table (UUID primary key, polymorphic `notifiable`) — migration `2026_05_22_162610_create_notifications_table.php`.
+The topbar bell shows the unread count and opens `NotificationPanel.vue` — a slide-in drawer listing all admin notifications (mark one/all as read, delete one/all), backed by `NotificationController` at `/notifications/*`. `unreadNotificationsCount` is a shared Inertia prop. Admin staff receive three database notifications: new client, new order, and auto-search exhausted.
 
 ---
 
 ## Image Upload Convention
 
-Synchronous conversion is **prohibited**. Photos are stored as-is, then converted to WebP by a queued job.
+Synchronous conversion is **prohibited** for order and task photos. They are stored as-is, then converted to WebP by a queued job.
 
 ```
 Upload (order photo / task photo)
@@ -522,10 +508,9 @@ Upload (order photo / task photo)
                     └── status → done  (on failure: status → failed, job retries)
 ```
 
-Row status values live as constants on the photo models: `pending` · `converting` · `done` · `failed`, so the UI can show progress and never blocks on processing.
+Row status values: `pending` · `converting` · `done` · `failed`, so the UI can show progress and never blocks on processing.
 
-Single **profile-sized** uploads are the exception — they convert inline because there is
-no status column to poll and the payload is tiny:
+Single **profile-sized** uploads are the exception — they convert inline because there is no status column to poll and the payload is tiny:
 
 | Upload | Helper | Result |
 |---|---|---|
@@ -533,46 +518,53 @@ no status column to poll and the payload is tiny:
 | Category content image | `PhotoConverter::convertContent()` | WebP, width 700 when > 800 KB |
 | Category icon | `PhotoConverter::convertToMaxBytes()` | WebP ≤ 50 KB, width ≤ 512 (`CategoryIcon`) |
 
-**One person, one avatar.** A master profile always hangs off a client account, so the
-photo lives on `clients.photo` and `MasterResource` reads it through the relation —
-`masters` has no photo column. It is uploaded in three places, all landing in
-`StoreClientPhotoAction`: the admin clients form, `POST /client/auth/complete-registration`
-and `PATCH /client/me`. The last one is multipart-only via `POST` + `_method=PATCH`,
-since PHP fills `$_FILES` on `POST` alone.
-
-`convertToMaxBytes()` steps the WebP quality down (85 → 25) and, if the budget is still
-missed, shrinks the canvas by 25 % and retries — transparency is preserved throughout.
+**One person, one avatar.** A master profile always hangs off a client account, so the photo lives on `clients.photo` — `masters` has no photo column. It is uploaded in three places, all landing in `StoreClientPhotoAction`: the admin clients form, `POST /client/auth/complete-registration` and `PATCH /client/me`. The last one is multipart-only via `POST` + `_method=PATCH`, since PHP fills `$_FILES` on `POST` alone.
 
 ---
 
 ## Realtime (Laravel Reverb)
 
-### Broadcast channels (`routes/channels.php`)
+### Broadcast channels
 
 | Channel | Type | Who may subscribe | Carries |
 |---|---|---|---|
-| `masters-map.{cityId}` | public | anyone (tighten in production) | `MasterLocationUpdated` |
-| `available-orders` | public | master apps | `OrderSearchStarted`, `OrderSearchRadiusExpanded` — refresh signals carrying only an order id and a radius |
+| `orders` | public | admin panel | `OrderCreated`, `MasterAssigned`, `OrderStatusChanged` |
+| `clients` | public | admin panel | `ClientCreated` |
+| `available-orders` | public | the mobile app (master side) | `OrderSearchStarted`, `OrderSearchRadiusExpanded` — refresh signals carrying only an order id and a radius |
+| `masters-map.{cityId}` | private | admin staff except operators | `MasterLocationUpdated` |
 | `admin.pending-otps` | private | admin staff except operators | `PendingOtpCreated` |
-| `client.{clientId}` | private | the Client that owns the Sanctum token | `MasterAssigned`, `OrderStatusChanged` |
-| `master.{masterId}` | private | the Master that owns the Sanctum token | `MasterAssigned`, `OrderStatusChanged` |
+| `client.{clientId}` | private | the Client that owns the Sanctum token | `MasterRespondedToOrder`, `MasterAssigned`, `OrderStatusChanged`, `MasterLocationUpdated` (pings tagged with their order) |
+| `master.{masterId}` | private | the Client whose master profile has that id | `MasterAssigned`, `OrderStatusChanged`, `OrderResponseRejected`, `OrderResponseSuperseded`, `OrderResponseWithdrawn` |
 | `App.Models.User.{id}` | private | the admin user | Laravel database notifications |
 
-Mobile apps authorize private channels against `POST /api/v1/broadcasting/auth` (`auth:sanctum`).
+The mobile app authorizes private channels against `POST /api/v1/broadcasting/auth` (`auth:sanctum`). One token and one socket cover both `client.{id}` and `master.{id}`.
 
 ### New-order alert flow
 
 1. A client creates an order → `OrderCreated` is dispatched
 2. `NotifyAdminsOnNewOrder` sends `NewOrderNotification` to admin staff (database channel)
 3. The admin panel receives the broadcast, shows a toast via `useNotificationStore.info()`
-4. `public/sounds/alarm.mp3` plays — **only when the browser tab is active** (Page Visibility API), so alerts do not stack up
+4. `public/sounds/alarm.mp3` plays — **only when the browser tab is active** (Page Visibility API)
 5. The bell badge (`unreadNotificationsCount`) increments
 
 ---
 
-## Master Auto-Search (expanding radius)
+## Orders: Auto-Search, Responses, Assignment
 
-A client order is not routed by city — it is offered to masters by **geographic distance**, in a radius that widens every minute until somebody claims it.
+A client order is not routed by city and not assigned by an administrator. It is offered to masters by **geographic distance**, masters **respond**, and the **client picks** one of them.
+
+```
+order created (app, or admin "on behalf of a client")
+   └── auto-search starts, radius grows every minute
+          └── masters see it in their feed → POST respond     (order stays pending)
+                 └── client sees the responses → approve one   → order assigned to that master
+                                                                 other pending responses superseded
+```
+
+### Creating an order
+
+- **Mobile app**: `POST /api/v1/client/orders` → `CreateClientOrderAction`. `client_name` is taken from the account, not from the request.
+- **Admin panel**: `POST /orders` → `CreateOrderForClientAction` picks an existing client (`client_id`) or finds/creates one by phone, then calls the same `CreateClientOrderAction`, so the auto-search starts exactly as from the app. Every order has a client — `orders.client_id` is `NOT NULL`.
 
 ### How the radius grows
 
@@ -584,71 +576,80 @@ A client order is not routed by city — it is offered to masters by **geographi
 | 2 | 40 km |
 | 3 | 60 km |
 | 4 | 80 km |
-| 5 | would be 100 km → **over the maximum, the search closes** |
+| 5 | would be 100 km → **over the maximum, the search is marked exhausted** |
 
 The radius is derived from `now() − search_started_at` on every tick rather than incremented, so a missed or duplicated scheduler run cannot drift it.
 
-Both bounds are configurable at **Settings → Авто-поиск мастера** (`master_search_initial_radius_km`, `master_search_max_radius_km`; defaults live on `App\Models\Setting`). Validation enforces `initial ≤ max`, comparing a partial submit against the stored counterpart.
-
-### Flow
-
 1. `CreateClientOrderAction` stamps `search_started_at = now()` and `search_radius_km = initial`, then fires `OrderSearchStarted`.
-2. `orders:expand-search-radius` runs **every minute** (`bootstrap/app.php` → `withSchedule`, `withoutOverlapping`) and hands each searching order to `ExpandOrderSearchRadiusAction`.
-3. On each widening → `OrderSearchRadiusExpanded` broadcasts on the public `available-orders` channel. Master apps treat both events as a "reload your feed" signal and call `GET /api/v1/master/orders/available`.
-4. A master claims the order with `POST /api/v1/master/orders/{order}/respond` → `RespondToOrderAction`.
-5. Once `radius(n)` would exceed the maximum → `search_expired_at` is set, `OrderSearchExhausted` fires, `NotifyAdminsOnOrderSearchExhausted` sends `OrderSearchExhaustedNotification` to admin staff, and the order shows a **«Поиск мастера не дал результата»** badge in `/orders`. From then on masters can neither see nor claim it — an administrator restarts the search from the order page (`POST orders/{order}/restart-search` → `RestartOrderSearchAction`), which resets `search_started_at`/`search_radius_km` and clears `search_expired_at`. There is no manual master-assignment path in the admin panel — masters only end up on an order through their own accepted response (`ApproveOrderResponseAction`).
+2. `orders:expand-search-radius` runs **every minute** and hands each searching order to `ExpandOrderSearchRadiusAction` → `OrderSearchRadiusExpanded` on `available-orders`. The app treats both events as a "reload your feed" signal.
+3. Once `radius(n)` would exceed the maximum, `search_expired_at` is set, the radius stays at the maximum, `OrderSearchExhausted` fires and `NotifyAdminsOnOrderSearchExhausted` notifies admin staff; the order gets a **«Поиск мастера не дал результата»** badge in `/orders`. The radius stops growing, but the order **stays visible and open to responses** within the maximum radius. An administrator can restart the search (`POST /orders/{order}/restart-search` → `RestartOrderSearchAction`).
+4. `orders:cancel-stale-orders` runs **hourly** and cancels orders still `pending` and unassigned `order_auto_cancel_hours` (default 48) after creation.
 
-> **Both `schedule:work` and `queue:work` must be running.** Without the scheduler the radius never grows; without the queue worker admins never receive the exhaustion notification.
+> **Both `schedule:work` and `queue:work` must be running.** Without the scheduler the radius never grows and stale orders never close; without the queue worker admins never receive notifications.
 
-### Matching rules
+### Two master feeds
 
-A master sees an order only when **all** of these hold:
+| Endpoint | Shows | Order |
+|---|---|---|
+| `GET /api/v1/master/orders/available` | Orders inside their own current search radius from the master's last GPS ping | nearest first, not paginated |
+| `GET /api/v1/master/orders/by-category` | Every open order in the master's categories, regardless of distance; optional `category_id` filter. Each item carries `distance_km` and `is_within_radius` | newest first, paginated by 15 |
 
-- order is `pending` with no `master_id`, and its search has not expired
-- the order's category is one of the master's categories
-- distance(master's last GPS ping → order) ≤ the order's current `search_radius_km`
-- the master has not declined that order
+Both feeds share the base rules — an order is listed only when:
 
-**City is deliberately not part of the match** — an 80 km radius crosses city borders by design. `city_id` stays a reporting/filtering dimension in the admin panel.
+- it is `pending`, has no `master_id`, and its search has started;
+- its category is one of the master's categories;
+- it was not placed from the master's own client account;
+- the master has neither declined it nor already responded to it.
 
-A master with no row in `master_locations` is excluded: `GET .../available` returns an empty list (a normal state right after login), and `respond` fails with `master_location_unknown`.
+**City is deliberately not part of the match** — an 80 km radius crosses city borders by design.
+
+A master with no row in `master_locations` gets an empty `available` feed (a normal state right after login); `by-category` still lists orders, with `distance_km: null` and `is_within_radius: false`.
+
+Both feeds expose the client's name and phone (`AvailableOrderResource` / `CategoryOrderResource`) so the master can call before responding.
 
 ### Distance is computed in two passes
 
-`OrderRepository::availableForMaster()` pre-filters in SQL with a **plain-arithmetic bounding box** (no `acos`/`radians`), then settles the exact circle in PHP via `Order::distanceKmTo()` (haversine) and sorts nearest-first.
+`OrderRepository::availableForMaster()` pre-filters in SQL with a **plain-arithmetic bounding box** (no `acos`/`radians`), then settles the exact circle in PHP via `Order::distanceKmTo()` (haversine) and sorts nearest-first. MySQL, PostgreSQL and the SQLite build used by the test suite disagree on which trigonometric functions exist, so a `selectRaw` haversine would tie the feature to one driver.
 
-This is deliberate: MySQL, PostgreSQL and the SQLite build used by the test suite disagree on which trigonometric functions exist, so a `selectRaw` haversine would tie the feature to one driver and break the tests. The candidate set the bounding box lets through is small, so the PHP pass costs nothing.
+### Responding
 
-### Claiming is a race
+`POST /api/v1/master/orders/{order}/respond` → `RespondToOrderAction` creates an `OrderMasterResponse` (`pending`) and broadcasts `MasterRespondedToOrder` to the client. **The order is not assigned** — several masters may respond to the same order. Everything is re-checked server-side, because nothing stops an app from posting an id it never saw in a feed:
 
-`OrderRepository::claimForMaster()` puts the guard in the `WHERE` clause:
+All failures are `422` with a localized message from `orders.errors.*`:
 
-```php
-Order::where('id', $order->id)
-    ->whereNull('master_id')
-    ->where('status', OrderStatus::Pending)
-    ->whereNull('search_expired_at')
-    ->update([...]);   // affected rows === 1 → this master won
-```
+| Check | Lang key |
+|---|---|
+| order is `pending` and has no master | `already_claimed` |
+| not the master's own order | `own_order` |
+| master is available, active and subscribed | `master_unavailable` / `master_inactive` |
+| category is one of the master's | `category_mismatch` |
+| master has a GPS ping | `master_location_unknown` |
+| distance ≤ the order's current `search_radius_km` | `out_of_search_radius` |
+| no earlier response from this master | `already_responded` |
 
-Two simultaneous responders resolve to one `UPDATE` touching a row and one touching none; the loser gets `orders.errors.already_claimed`. No locks, no transaction needed.
+So an order from the `by-category` feed with `is_within_radius: false` is listed but cannot be responded to yet.
+
+### The client decides
+
+| Endpoint | Action | Effect |
+|---|---|---|
+| `GET /client/orders/{order}/responses` | — | Pending responses, nearest master first, with avatar and average rating |
+| `POST …/responses/{id}/approve` | `ApproveOrderResponseAction` | In one transaction: order → `assigned` to that master, response → `approved`, every other pending response → `rejected` (`OrderResponseSuperseded` to those masters), `MasterAssigned` to both sides |
+| `POST …/responses/{id}/reject` | `RejectOrderResponseAction` | Only that response → `rejected` (`OrderResponseRejected`); the order stays open |
+
+When an order is cancelled (by the client, an admin or the stale sweep), `UpdateOrderStatusAction` withdraws all pending responses and notifies those masters with `OrderResponseWithdrawn`.
+
+A master follows their open responses with `GET /api/v1/master/orders?filter=awaiting_response`.
 
 ### Declining
 
-`POST /api/v1/master/orders/{order}/decline` writes to `order_master_declines` (unique on `order_id + master_id`, idempotent). It **only** hides the order from that master's own feed — the search keeps running and other masters still see it. A master who changes their mind can still claim it directly by id.
-
-### Privacy
-
-`AvailableOrderResource` is intentionally narrower than `MasterOrderResource`: an unclaimed order exposes category, description, address, coordinates and distance, but **not** `client_name` or `client_phone`. Those appear only after the claim succeeds.
-
-The public `available-orders` channel carries nothing but an order id and a radius. `OrderCreated` — whose payload includes the client's name — stays on the admin-only `orders` channel; the master-facing signal is the separate, contentless `OrderSearchStarted`.
+`POST /api/v1/master/orders/{order}/decline` writes to `order_master_declines` (unique on `order_id + master_id`, idempotent). It only hides the order from that master's own feeds — the search keeps running and other masters still see it.
 
 ---
 
 ## Becoming a Master
 
-One mobile app, one account. Everyone registers as a **client**; the master role
-is applied for from inside the app and granted by an administrator.
+One mobile app, one account. Everyone registers as a **client**; the master role is applied for from inside the app and granted by an administrator.
 
 ```
 client signs up (OTP)
@@ -668,20 +669,10 @@ client signs up (OTP)
 
 Design decisions worth keeping:
 
-- **Approval and access are separate.** Approving only flips the status; access
-  comes from a subscription, which the same screen can issue in one go because
-  the master pays the owner in person. An approved master with no subscription
-  is a valid state — the app shows "renew", not "apply".
-- **Re-applying reuses the row.** Only a `rejected` applicant may submit again;
-  the verdict fields are cleared and the same `masters` row goes back to
-  `pending`, so one client never accumulates several master profiles
-  (`masters.client_id` is unique).
-- **Losing the master role never signs anyone out.** Deactivation and rejection
-  leave Sanctum tokens alone — the token belongs to the client account.
-  `MasterObserver` only drops `is_available`.
-- **A master entered by hand in the admin panel** still gets a client account:
-  `CreateMasterAction` reuses the one matching the phone number or creates it,
-  and marks the profile `approved` — an administrator entering it *is* the review.
+- **Approval and access are separate.** Approving only flips the status; access comes from a subscription, which the same screen can issue in one go because the master pays the owner in person. An approved master with no subscription is a valid state — the app shows "renew", not "apply".
+- **Re-applying reuses the row.** Only a `rejected` applicant may submit again; the verdict fields are cleared and the same `masters` row goes back to `pending`, so one client never accumulates several master profiles (`masters.client_id` is unique).
+- **Losing the master role never signs anyone out.** Deactivation and rejection leave Sanctum tokens alone — the token belongs to the client account. `MasterObserver` only drops `is_available`.
+- **Name, phone and city live on the client.** `ClientObserver` mirrors them onto the master profile; `PATCH /master/me` edits only trade details (`category_ids`, `experience_years`, `about`).
 
 ### Deleting accounts
 
@@ -692,60 +683,43 @@ Because a master is a role on a client account, the two deletes are not symmetri
 | Delete **master** | Removes the role only. The client account, its orders, its login and its avatar all stay |
 | Delete **client** | Takes the master profile, the orders this person *placed*, their tasks, photos and reviews, and the avatar file |
 
-Both are blocked while the master has work on the books — `DeleteMasterAction` and
-`DeleteClientAction` throw `MasterException` / `ClientException`, the controller turns it
-into a `notifyError`:
+Both are blocked while the master has work on the books — completed orders (the client's history would be gutted) and assigned / in-progress orders (`orders.master_id` is `ON DELETE SET NULL`, so the job would be left orphaned). `DeleteMasterAction` / `DeleteClientAction` throw `MasterException` / `ClientException`, and the controller turns it into a `notifyError`. Cancelled orders never block anything.
 
-- **completed orders** — the client who ordered the job keeps seeing it, its review and its
-  before/after photos; erasing the master would gut that history;
-- **assigned / in-progress orders** — `orders.master_id` is `ON DELETE SET NULL`, so
-  deleting mid-job would leave an order sitting in `assigned` with nobody assigned to it.
+**Children are deleted through Eloquent, not the foreign keys.** A database-level cascade never fires model events, so the rows would vanish while their files stayed on disk. `ClientObserver::deleting` deletes the master profile and the client's orders through the models, which lets `OrderObserver::deleted` drop `orders/{id}` from the public disk. The `ON DELETE CASCADE` keys stay as the backstop for anything that bypasses the model.
 
-Cancelled orders never block anything.
-
-**Why the children are deleted through Eloquent, not the foreign keys.** `masters.client_id`
-and `orders.client_id` are both `ON DELETE CASCADE`, and a database-level cascade **never
-fires model events** — the rows would vanish while their uploaded files stayed on disk
-forever. `ClientObserver::deleting` therefore deletes the master profile and the client's
-orders through the models, which lets `OrderObserver::deleted` drop `orders/{id}` from the
-public disk in one call. The foreign keys stay as the backstop for anything that bypasses
-the model (raw SQL, `->where(...)->delete()`).
+---
 
 ## Master Subscriptions
 
-The service owner sells masters timed access to the platform. **This is the only revenue stream** — the platform does not pay masters, does not hold a balance for them and does not track their per-order earnings. The client pays the master directly; `orders.final_price` is bookkeeping for reporting, nothing more.
+The service owner sells masters timed access to the platform. **This is the only revenue stream** — the platform does not pay masters and does not track their per-order earnings. The client pays the master directly; `orders.final_price` is bookkeeping set by an administrator, nothing more.
 
 ### Two tables
 
 | Table | Purpose |
 |---|---|
 | `subscription_plans` | The owner's tariffs: bilingual name/description, `duration_days`, `price`, `is_active`, `sort_order`. **Soft deleted** so already sold subscriptions never lose their link |
-| `master_subscriptions` | A purchase. Carries a **snapshot** of `plan_name`, `price_paid` and `duration_days` — later edits to the plan must never rewrite history (same trick the old payout ledger used) |
+| `master_subscriptions` | A purchase. Carries a **snapshot** of `plan_name`, `price_paid` and `duration_days` — later edits to the plan never rewrite history |
 
 There is no seeder for plans — the owner creates them in the admin panel.
 
 ### `access_expires_at` has exactly one writer
 
-`Master::hasActiveAccess()` and every consumer of it (`EnsureMaster`, `EnsuresMasterEligibility`, `MasterRepository` filters) are unchanged. What changed is **who writes the column**:
-
-- it is no longer editable by hand — `Store/UpdateMasterRequest` do not accept it;
+- it is not editable by hand — `Store/UpdateMasterRequest` do not accept it;
 - every subscription action funnels through `App\Actions\Concerns\SyncsMasterAccess`, which sets it to `MAX(expires_at)` across the master's `active` + `pending` subscriptions;
-- with nothing left the deadline is set to `now()` — **never `null`**, because `null` means *unlimited* to `hasActiveAccess()` (legacy masters created before subscriptions keep that meaning);
+- with nothing left the deadline is set to `now()` — **never `null`**, because `null` means *unlimited* to `Master::hasActiveAccess()` (legacy masters created before subscriptions keep that meaning);
 - a new master created without a plan starts with access closed.
 
-Free access is granted the same way as paid: issue a subscription with `price_paid = 0` and a note. That keeps it auditable — who granted it, when and why.
+Free access is granted the same way as paid: issue a subscription with `price_paid = 0` and a note, which keeps it auditable.
 
 ### Renewal is a queue, not an overwrite
 
-At most one subscription per master is `active`. Selling to a master who already has a running one does **not** start from `now()` and does not error out — the new purchase is created `pending`, starting the moment the current one ends:
+At most one subscription per master is `active`. Selling to a master who already has a running one creates the new purchase as `pending`, starting the moment the current one ends:
 
 ```
 ├─ active   01.01 → 31.01   ← running
 └─ pending  31.01 → 02.03   ← paid for, waiting its turn
 access_expires_at = 02.03   (MAX over active + pending)
 ```
-
-Paid-for days are never burned, and the "one active" invariant holds.
 
 ### Status transitions
 
@@ -763,22 +737,14 @@ Manually activating a queued subscription while another is still running is reje
 
 ### The clock: `subscriptions:expire`
 
-Registered in `bootstrap/app.php` → `withSchedule()`, hourly, `withoutOverlapping()`. One pass does three things in order:
-
-1. `active` rows past `expires_at` → `expired`;
-2. `pending` rows whose `starts_at` has arrived → `active` (only when nothing else is running for that master);
-3. re-derive `access_expires_at` for every touched master.
-
-It is idempotent — a skipped run just catches up on the next tick.
+Hourly, `withoutOverlapping()`. One pass: `active` rows past `expires_at` → `expired`; `pending` rows whose `starts_at` has arrived → `active` (only when nothing else is running for that master); re-derive `access_expires_at` for every touched master. Idempotent — a skipped run catches up on the next tick.
 
 ### Who buys
 
-The administrator issues subscriptions manually after taking payment, exactly like the rest of the money flow in this project — there is no payment gateway. The mobile API is **read-only** for masters.
+The administrator issues subscriptions manually after taking payment — there is no payment gateway. The mobile API is **read-only** for masters:
 
-Two endpoints, and their auth is deliberately asymmetric:
-
-- `GET /api/v1/master/subscription-plans` is **public**. Someone weighing whether to apply has no master profile yet, so the price list has to be reachable without one. It is a price list: no PII, nothing to protect.
-- `GET /api/v1/master/subscription` runs under `ensure.master:allow-expired`. The middleware parameter skips only the `hasActiveAccess()` check; "is a master" and `is_active` still apply.
+- `GET /api/v1/master/subscription-plans` is **public**: someone weighing whether to apply has no master profile yet.
+- `GET /api/v1/master/subscription` runs under `ensure.master:allow-expired`, so a master with a lapsed subscription can still see "expired on …, renew".
 
 ### Web routes (administrator only)
 
@@ -794,77 +760,68 @@ Two endpoints, and their auth is deliberately asymmetric:
 | `POST` | `/subscriptions/{subscription}/status` | Change status |
 | `DELETE` | `/subscriptions/{subscription}` | Delete and recompute access |
 
-A master can also be given their first subscription right in the create-master form: pick a plan, optionally type a different price.
-
 ---
 
-## Live Master Tracking on the Admin Map
+## Live Master Tracking
 
-The admin map (`/masters/map`) shows masters in real time. When a master's mobile app pings its location:
+When the mobile app pings its location:
 
-1. Master `POST`s to `/api/v1/master/{master}/location` with its Sanctum token (`{master}` must be the token owner)
+1. The master `POST`s to `/api/v1/master/{master}/location` with the Sanctum token (`{master}` must be the token owner)
 2. `UpdateMasterLocationAction` stores the ping and dispatches `MasterLocationUpdated`
-3. The event broadcasts on the public channel `masters-map.{cityId}`
-4. Any open admin map subscribed to that city animates the marker smoothly
+3. The event goes to the private `masters-map.{cityId}` channel (admin map) and, when the ping is tagged with an order, to that order's `client.{clientId}`
 
-**Every ping carries an `order_id` whenever one can be determined.** `order_id` is what ties a position to a job: both the client's live map and the admin order map draw their polyline from it, and it decides whether the event also reaches `client.{clientId}`. A tag sent by the app is verified (`OrderRepository::findForMasterOrFail` + `OrderStatus::isTrackable()`) — never trusted, since a foreign id would stream the master into a stranger's map. A ping that arrives **without** a tag is bound server-side to the master's single open (`assigned`/`in_progress`) job, so the trail survives an app that does not bother to label its pings. If the master holds several open jobs at once the ping stays untagged: guessing would draw them onto the wrong client's map.
+**Every ping carries an `order_id` whenever one can be determined.** A tag sent by the app is verified (`OrderRepository::findForMasterOrFail` + `OrderStatus::isTrackable()`) — never trusted, since a foreign id would stream the master into a stranger's map. An untagged ping is bound server-side to the master's single open (`assigned`/`in_progress`) job; with several open jobs it stays untagged rather than guessing.
 
-### Basemap Rendering (`Pages/Masters/Map.vue`)
+The client app replays the trail through `GET /api/v1/client/orders/{order}/track` (500 newest pings, optional `since`) and follows new points over the socket.
 
-The base layer is rendered by **MapLibre GL** (GPU vector rendering — sharp at any zoom and on HiDPI), mounted into Leaflet via the `L.maplibreGL` bridge, so all markers, popups, trajectories and Reverb channel code stay pure Leaflet.
+Pings accumulate quickly, so `locations:prune` runs nightly: untagged pings are kept 7 days, order-tagged pings 30 days after the order closed (`--ping-days`, `--order-days`).
 
-- **Source**: the whole MapLibre stack is **self-hosted by this application** — no external tile service, no separate tileserver process. This is deliberate: public OSM tile servers are blocked in Turkmenistan, so the basemap must come from our own origin.
-  - **Vector tiles**: `GET /tiles/{z}/{x}/{y}.pbf` → `TilesController::vectorTile()` reads them straight out of the MBTiles SQLite archive at `storage/maps/tiles.mbtiles` (`MBTILES_PATH`). Tiles are stored gzipped in the TMS row scheme, so the controller flips Y and sets `Content-Encoding: gzip`. A missing tile returns `204`, which is normal for sea and unmapped areas.
-  - **Style, glyphs, sprites**: static files under `public/maps/` (`style.json`, `fonts/`, `sprite.*`).
-  - The archive itself is **not in git** (~118 MB) — copy it onto each machine manually.
-- **Style URL is not hardcoded**: `TILES_STYLE_URL` → `config('services.tiles.style_url')` → shared by `HandleInertiaRequests` as the `tilesStyleUrl` prop → read via `usePage().props.tilesStyleUrl`.
-- `maplibre-gl` is a lazy chunk — `@maplibre/maplibre-gl-leaflet` is dynamically imported in `onMounted`, so it loads only on map screens.
-- `utils/loadMapStyle.js` rewrites the style's `tiles`/`glyphs`/`sprite` URLs to absolute ones, because MapLibre resolves them inside a Web Worker that has no page origin. All three map screens (`Masters/Map.vue`, `Orders/Show.vue`, `Orders/Partials/CreateOrderModal.vue`) go through it and therefore share one basemap stack.
+### Basemap Rendering
 
-> **Production**: serve the whole app over **HTTPS** — an HTTP tile origin is blocked as mixed content on an HTTPS panel. Since tiles come from the same origin, no CORS setup is needed.
+The base layer is rendered by **MapLibre GL**, mounted into Leaflet via the `L.maplibreGL` bridge, so markers, popups, trajectories and channel code stay pure Leaflet.
 
-### Per-Order Live Tracking (`/orders/{order}`)
+- **Everything is self-hosted** — public OSM tile servers are blocked in Turkmenistan.
+  - **Vector tiles**: `GET /tiles/{z}/{x}/{y}.pbf` → `TilesController::vectorTile()` reads the MBTiles archive at `storage/maps/tiles.mbtiles` (`MBTILES_PATH`). Tiles are gzipped in the TMS row scheme, so the controller flips Y and sets `Content-Encoding: gzip`. A missing tile returns `204` — normal for sea and unmapped areas.
+  - **Style, glyphs, sprites**: static files under `public/maps/`.
+  - The archive is **not in git** (~118 MB) — copy it onto each machine manually.
+- **Style URL is not hardcoded**: `TILES_STYLE_URL` → `config('services.tiles.style_url')` → `tilesStyleUrl` Inertia prop.
+- `maplibre-gl` is a lazy chunk — loaded only on map screens.
+- `utils/loadMapStyle.js` rewrites the style's `tiles`/`glyphs`/`sprite` URLs to absolute ones (MapLibre resolves them inside a Web Worker with no page origin). `Masters/Map.vue`, `Orders/Show.vue` and `Orders/Partials/CreateOrderModal.vue` all go through it.
 
-When a master is assigned and the order is trackable (`is_trackable` on `OrderResource` — the page never hardcodes the status list):
+> **Production**: serve the whole app over **HTTPS** — an HTTP tile origin is blocked as mixed content on an HTTPS panel.
 
-- On mount, loads the trajectory from `GET /orders/{order}/master-trajectory` → `MasterLocationRepository::trackForOrder()`, i.e. **only pings tagged with this order**, oldest first. The master marker is placed on the head of that trail, falling back to their last global ping when the trail is still empty.
-- Subscribes to `masters-map.{cityId}` and moves the marker in real time
-- Extends the polyline only on events whose `order_id` matches this order — the same master driving to their next job must not extend this line
-- Shows a live distance (Haversine) and ETA chip (assuming 60 km/h) with a pulsing dot
-- Unsubscribes and cleans up on `onBeforeUnmount`
+### Per-Order Tracking (`/orders/{order}`)
+
+When a master is assigned and the order is trackable (`is_trackable` on `OrderResource`):
+
+- loads the trail from `GET /orders/{order}/master-trajectory` → `MasterLocationRepository::trackForOrder()` (only pings tagged with this order, oldest first);
+- subscribes to `masters-map.{cityId}` and extends the polyline only on events whose `order_id` matches this order;
+- shows a live distance and ETA chip (assuming 60 km/h);
+- unsubscribes on `onBeforeUnmount`.
 
 **Testing without the Flutter app**:
 
 ```bash
-php artisan reverb:start                                    # terminal 1
-php artisan master:simulate-movement 1 --interval=3 --steps=60   # terminal 2
+php artisan reverb:start                                          # terminal 1
+php artisan master:simulate-movement 1 --interval=3 --steps=60    # terminal 2
 ```
-
-Master 1 broadcasts a new location every 3 seconds for 3 minutes — open `/masters/map` and watch the marker move. The command sends untagged pings on purpose and lets the action bind each one to whatever job the master is on at that moment, so a job assigned mid-run starts drawing its trail immediately.
 
 ---
 
-## API (Mobile Apps)
+## API (Mobile App)
 
 | Rule | Detail |
 |---|---|
-| Base path | `/api/v1/` (registered in `bootstrap/app.php` → `routes/api/v1.php`) |
-| Controllers | `app/Http/Controllers/Api/V1/` (master) and `Api/V1/Client/` (client) |
-| Auth | Laravel Sanctum, token-based, no sessions. **One token for both roles**: sign-in issues a `mobile-client` token gated by `ensure.client`, and the same token opens the master endpoints through `ensure.master` |
+| Base path | `/api/v1/` (`routes/api/v1.php`) |
+| Controllers | `app/Http/Controllers/Api/V1/` (master) and `Api/V1/Client/` (client) — never shared with web controllers |
+| Auth | Sanctum, token-based. **One token for both roles**: sign-in issues a `mobile-client` token gated by `ensure.client`, and the same token opens the master endpoints through `ensure.master` |
 | Responses | Always via Eloquent API Resources |
 | Errors | Localized JSON from the global handler in `bootstrap/app.php` |
 | Locale | Send `X-Locale: ru|tk` |
 
 ### One account, two roles
 
-A single mobile app serves both sides. Everyone signs up as a **client**; "become
-a master" adds a master profile to that same account (`masters.client_id`), and
-an administrator reviews it. There is no separate master login.
-
-`EnsureMaster` therefore resolves the master profile from the authenticated
-client and swaps it into the request, so master controllers keep reading
-`$request->user()` as a `Master`. It answers `403` with a machine-readable
-`reason` so the app can route to the right screen:
+`EnsureMaster` resolves the master profile from the authenticated client and swaps it into the request, so master controllers read `$request->user()` as a `Master`. It answers `403` with a machine-readable `reason`:
 
 | `reason` | Meaning |
 |---|---|
@@ -875,82 +832,61 @@ client and swaps it into the request, so master controllers keep reading
 | `disabled` | Profile deactivated by an administrator |
 | `access_expired` | Subscription lapsed |
 
-`GET /api/v1/client/me` carries `master_status`, `master_id` and
-`has_master_access` so the app knows which half to show without a second call.
+`GET /api/v1/client/me` carries `master_status`, `master_id` and `has_master_access` so the app knows which half to show without a second call.
 
-Web (Inertia) and API controllers are **strictly separate**. Never reuse or share a controller between both.
-
-**Flutter references**: [docs/MASTER_APP_SPEC.md](docs/MASTER_APP_SPEC.md) (full master app spec — endpoints, WebSocket contracts, screen flow) and [docs/MASTER_APP_MAP_INTEGRATION.md](docs/MASTER_APP_MAP_INTEGRATION.md) (map/tiles integration).
-
-### Master API — `ensure.master` unless marked public
+### Master API — `ensure.master` unless marked otherwise
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/api/v1/master/subscription-plans` | public | Subscription price list — reachable without a token on purpose (see below) |
-| `GET` | `/api/v1/master/subscription` | Sanctum, `ensure.master:allow-expired` | Own subscription: current one, access deadline, history |
-| `GET` | `/api/v1/master/me` | Sanctum | Profile, access expiry, categories, experience |
-| `PATCH` | `/api/v1/master/me` | Sanctum | Edit own trade details: `category_ids`, `experience_years`, `about` (all optional, partial). Name, phone and city are edited on the client account and mirrored by `ClientObserver` |
-| `PATCH` | `/api/v1/master/availability` | Sanctum | Toggle "ready for work" |
-| `POST` | `/api/v1/master/{master}/location` | Sanctum | GPS ping; `{master}` **must** match the token owner |
-| `GET` | `/api/v1/master/orders` | Sanctum | Assigned orders (`filter=active` / `history`) |
-| `GET` | `/api/v1/master/orders/available` | Sanctum | Auto-search feed: unclaimed orders inside the current radius, nearest first |
-| `POST` | `/api/v1/master/orders/{order}/respond` | Sanctum | Claim an offered order (first responder wins) |
-| `POST` | `/api/v1/master/orders/{order}/decline` | Sanctum | Hide an offer from this master's feed only |
-| `GET` | `/api/v1/master/orders/{order}` | Sanctum | Order details |
-| `POST` | `/api/v1/master/orders/{order}/start` | Sanctum | Mark as `in_progress` on arrival |
-| `POST` | `/api/v1/master/orders/{order}/complete` | Sanctum | Mark the job as done |
-| `POST` | `/api/v1/master/orders/{order}/tasks` | Sanctum | Add a performed task |
-| `POST` | `/api/v1/master/orders/{order}/tasks/{task}/photo` | Sanctum | Upload a before/after photo |
-| `DELETE` | `/api/v1/master/orders/{order}/tasks/{task}` | Sanctum | Remove a task |
+| `GET` | `/master/subscription-plans` | public | Subscription price list |
+| `GET` | `/master/subscription` | `ensure.master:allow-expired` | Own subscription: current one, access deadline, history |
+| `GET` `PATCH` | `/master/me` | Sanctum | Profile; edit `category_ids`, `experience_years`, `about` |
+| `PATCH` | `/master/availability` | Sanctum | Toggle "ready for work" |
+| `POST` | `/master/{master}/location` | Sanctum | GPS ping; `{master}` **must** match the token owner |
+| `GET` | `/master/orders` | Sanctum | Own orders: `filter=active` / `history` / `awaiting_response` |
+| `GET` | `/master/orders/available` | Sanctum | Feed: open orders inside their radius, nearest first |
+| `GET` | `/master/orders/by-category` | Sanctum | Feed: every open order in the master's categories, paginated, `category_id` filter |
+| `POST` | `/master/orders/{order}/respond` | Sanctum | Offer myself for an order (the client decides) |
+| `POST` | `/master/orders/{order}/decline` | Sanctum | Hide an order from this master's feeds |
+| `GET` | `/master/orders/{order}` | Sanctum | Order details (assigned to this master) |
+| `POST` | `/master/orders/{order}/start` | Sanctum | `assigned` → `in_progress` |
+| `POST` | `/master/orders/{order}/complete` | Sanctum | `in_progress` → `completed` |
+| `POST` | `/master/orders/{order}/tasks` | Sanctum | Add a performed task |
+| `POST` | `/master/orders/{order}/tasks/{task}/photo` | Sanctum | Upload a before/after photo (max 2 per type) |
+| `DELETE` | `/master/orders/{order}/tasks/{task}` | Sanctum | Remove a task |
 
 ### Client API — `ensure.client` unless marked public
 
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/api/v1/client/settings` | public | App rules/terms — the only rules endpoint, both roles read it |
-| `GET` | `/api/v1/client/{oblasts,regions,cities}` | public | Geography catalog |
-| `GET` | `/api/v1/client/categories` | public | Service categories |
-| `GET` | `/api/v1/client/categories/search` | public | Category search |
-| `GET` | `/api/v1/client/categories/{category}/content` | public | Category landing content |
-| `GET` | `/api/v1/client/banners` | public | Promo banners |
-| `POST` | `/api/v1/client/auth/request-otp` | public | Send OTP to phone number |
-| `POST` | `/api/v1/client/auth/verify-otp` | public | Verify OTP, returns a Sanctum token |
-| `POST` | `/api/v1/client/auth/complete-registration` | Sanctum | Save name + city after first login |
-| `POST` | `/api/v1/client/auth/logout` | Sanctum | Revoke the current token |
-| `GET` `PATCH` | `/api/v1/client/me` | Sanctum | Read / update profile (includes the master role on this account) |
-| `GET` | `/api/v1/client/master-application` | Sanctum | Own master application and its verdict, `null` if never applied |
-| `POST` | `/api/v1/client/master-application` | Sanctum | "Become a master": city, categories, years of experience, short bio |
-| `GET` `POST` | `/api/v1/client/orders` | Sanctum | List / create orders |
-| `GET` `PATCH` | `/api/v1/client/orders/{order}` | Sanctum | Read / update an order |
-| `POST` | `/api/v1/client/orders/{order}/cancel` | Sanctum | Cancel an order |
-| `POST` | `/api/v1/client/orders/{order}/review` | Sanctum | Leave a review after completion |
+| `GET` | `/client/settings` | public | App rules/terms — both roles read it |
+| `GET` | `/client/{oblasts,regions,cities}` | public | Geography catalog |
+| `GET` | `/client/categories`, `/client/categories/search` | public | Category tree / search |
+| `GET` | `/client/categories/{category}/content` | public | Category landing content |
+| `GET` | `/client/banners` | public | Promo banners |
+| `POST` | `/client/auth/request-otp` | public | Send OTP to phone number |
+| `POST` | `/client/auth/verify-otp` | public | Verify OTP, returns the Sanctum token |
+| `POST` | `/client/auth/complete-registration` | Sanctum | Save name + city (+ avatar) after first login |
+| `POST` | `/client/auth/logout` | Sanctum | Revoke the current token |
+| `GET` `PATCH` | `/client/me` | Sanctum | Read / update profile (includes the master role on this account) |
+| `GET` `POST` | `/client/master-application` | Sanctum | Own application / "become a master" |
+| `GET` `POST` | `/client/orders` | Sanctum | List / create orders |
+| `GET` `PATCH` | `/client/orders/{order}` | Sanctum | Read / update an order (only while `pending`) |
+| `POST` | `/client/orders/{order}/cancel` | Sanctum | Cancel while no master is assigned |
+| `POST` | `/client/orders/{order}/review` | Sanctum | Review after completion, once |
+| `GET` | `/client/orders/{order}/responses` | Sanctum | Pending master responses |
+| `POST` | `/client/orders/{order}/responses/{id}/approve` | Sanctum | Pick the master |
+| `POST` | `/client/orders/{order}/responses/{id}/reject` | Sanctum | Turn one master down |
+| `GET` | `/client/orders/{order}/track` | Sanctum | Master's trail for the client map |
 
-**Broadcast auth**: `POST /api/v1/broadcasting/auth` (`auth:sanctum`) — mobile apps point their Reverb/Pusher `authEndpoint` here.
+**Broadcast auth**: `POST /api/v1/broadcasting/auth` (`auth:sanctum`).
 
 Run `php artisan route:list --path=api/v1` for the authoritative list.
 
 ### API documentation
 
-Scramble generates the docs on the fly from routes, Form Requests and Resources and serves them at `/docs/api`, with the OpenAPI spec at `/docs/api.json`. Access is gated by Scramble's `RestrictedDocsAccess` (`config/scramble.php` → `middleware`): open in local, closed elsewhere unless the `viewApiDocs` gate allows it.
-
-Ready-to-run requests live in the single `bruno/` collection ([Bruno](https://www.usebruno.com/) — open the folder, pick the `local` environment). It mirrors the mobile app: one collection, one `{{token}}` saved by **Verify OTP**, folders ordered the way a real session runs — sign in → catalog → order → become a master → master work. `{{locale}}` flips every request between `tk` and `ru`.
-
----
-
-## Infrastructure Monitoring
-
-`GET /system-status` (auth only) powers the status dots in `AdminLayout.vue` and the monitoring cards on `/settings`. Every number is measured — nothing is simulated on the frontend.
-
-| Source | What it measures | How |
-| --- | --- | --- |
-| **Queue** | worker alive, pending jobs, jobs finished today | `Queue::looping` writes `queue:worker_heartbeat` (stale after 120 s); `Queue::size()`; `Queue::after` increments `queue:processed:{Y-m-d}` |
-| **Reverb** | reachability, open channels, connections, response time | `ReverbMetricsService` calls the signed Pusher-compatible endpoints `/apps/{id}/channels` and `/apps/{id}/connections` on `REVERB_HOST:REVERB_PORT` |
-| **OTP gateway** | bridge alive, connected phones, last OTP | `GET {SMS_GATEWAY_URL}/health` + `otp_gateway:last_sent` cache key |
-| **WebSocket card** | this browser's own socket | read directly from `window.Echo.connector.pusher` (state + subscribed channels) |
-
-`SystemStatusService` caches the whole snapshot for 10 s so open admin tabs don't storm Reverb and the SMS gateway. The **Переподключить** buttons request `?fresh=1` to bypass that cache; the WebSocket button reconnects the Echo client itself.
-
-When a source is unreachable its card shows `—` instead of a number — a missing metric never renders as `0`.
+- **Scramble** generates OpenAPI docs from routes, Form Requests and Resources at `/docs/api` (spec at `/docs/api.json`). Access is gated by `RestrictedDocsAccess`: open in local, closed elsewhere unless the `viewApiDocs` gate allows it.
+- **Bruno** — `bruno/` is a ready-to-run collection with request bodies, example responses and error tables in each request's Docs tab. Open the folder, pick the `local` environment; **Verify OTP** saves `{{token}}`, and the folders follow a real session: sign in → catalog → order → become a master → master work → realtime.
 
 ---
 
@@ -958,74 +894,61 @@ When a source is unreachable its card shows `—` instead of a number — a miss
 
 OTP codes are generated by `DispatchOtpAction` and pushed to the Flutter SMS-gateway phone through the Socket.IO bridge (`OtpGatewayService` → `POST {SMS_GATEWAY_URL}/emit-otp` with the `X-Gateway-Secret` header → `socket-server/` re-emits the `otp` event).
 
-**When the gateway is unreachable, login is not blocked.** Instead:
+**When the gateway is unreachable, login is not blocked:**
 
 1. The code is still written to cache, so `verify-otp` accepts it as usual.
-2. A row is parked in `pending_otps` (`PendingOtpRepository::replaceForPhone()` — only the latest code per phone survives).
-3. `request-otp` answers `200` with `delivery: "manual"` and a localized `delivery_message` telling the caller to phone support.
-4. The **OTP-коды** sidebar section (`Pages/PendingOtps/Index.vue`) and the dashboard both render `Components/PendingOtpPanel.vue`, which polls `GET /pending-otps/data` every 30 s and shows the code, phone, recipient and a live countdown, so an administrator or manager can dictate it. `DELETE /pending-otps/{id}` dismisses a delivered code; expired rows are purged on every poll.
-5. Parking a code fires `PendingOtpCreated` — a **queued** broadcast (`ShouldBroadcast`, not `ShouldBroadcastNow`) on the private `admin.pending-otps` channel, so the caller's login request never waits on Reverb. Open panels prepend the code instantly; the 30 s poll is the fallback if the worker or Reverb is down.
-6. The sidebar item carries an amber badge fed by the `pendingOtpCount` shared prop, refreshed on broadcast via `router.reload({ only: ['pendingOtpCount'] })`, plus a toast and alarm sound from `AdminLayout`.
+2. A row is parked in `pending_otps` (only the latest code per phone survives).
+3. `request-otp` answers `200` with `delivery: "manual"` and a localized `delivery_message`.
+4. The **OTP-коды** section and the dashboard render `PendingOtpPanel.vue`, which polls `GET /pending-otps/data` every 30 s and shows the code, phone and a live countdown, so staff can dictate it.
+5. Parking a code fires `PendingOtpCreated` — a queued broadcast on the private `admin.pending-otps` channel, so the login request never waits on Reverb.
+6. The sidebar item carries an amber badge fed by the `pendingOtpCount` shared prop, plus a toast and alarm sound.
 
-Codes live only as long as `OTP_TTL_MINUTES`. The routes sit behind `auth` + `role:administrator,manager` — operators never see them.
+Codes live only as long as `OTP_TTL_MINUTES`. Operators never see them.
 
 ---
 
-## System Status
+## System Status & Monitoring
 
-`GET /system-status` (any authenticated user) returns the health of the three moving parts the panel depends on:
+`GET /system-status` (any authenticated user) powers the status dots in `AdminLayout.vue` and the monitoring cards on `/settings`. Every number is measured — nothing is simulated on the frontend.
 
-```json
-{
-  "queue":       "ok | error",
-  "websocket":   "ok | error",
-  "otp_gateway": { "status": "ok | error", "clients": 0, "last_sent": null }
-}
-```
+| Source | What it measures | How |
+| --- | --- | --- |
+| **Queue** | worker alive, pending jobs, jobs finished today | `Queue::looping` writes `queue:worker_heartbeat` (stale after 120 s); `Queue::size()`; `Queue::after` increments `queue:processed:{Y-m-d}` |
+| **Reverb** | reachability, open channels, connections, response time | `ReverbMetricsService` calls the signed Pusher-compatible `/apps/{id}/channels` and `/apps/{id}/connections` endpoints |
+| **OTP gateway** | bridge alive, connected phones, last OTP | `GET {SMS_GATEWAY_URL}/health` + `otp_gateway:last_sent` cache key |
+| **WebSocket card** | this browser's own socket | read from `window.Echo.connector.pusher` |
 
-- **queue** — `AppServiceProvider` writes a `queue:worker_heartbeat` cache key on every worker loop; the status is `error` if the heartbeat is older than 120 s (i.e. no `queue:work` running).
-- **websocket** — HTTP probe against the configured Reverb host/port.
-- **otp_gateway** — `GET {SMS_GATEWAY_URL}/health`, reporting how many gateway phones are connected and when the last OTP was emitted.
+`SystemStatusService` caches the snapshot for 10 s; the **Переподключить** buttons request `?fresh=1` to bypass it. An unreachable source shows `—`, never `0`.
+
+---
+
+## Scheduled Commands
+
+All registered in `bootstrap/app.php` → `withSchedule()`, each `withoutOverlapping()`.
+
+| Command | Frequency | Purpose |
+|---|---|---|
+| `orders:expand-search-radius` | every minute | Grow the auto-search radius, mark exhausted searches |
+| `orders:cancel-stale-orders` | hourly | Cancel orders unassigned past `order_auto_cancel_hours` |
+| `subscriptions:expire` | hourly | Expire / start subscriptions, re-derive master access |
+| `locations:prune` | daily 03:30 | Delete GPS pings past their retention window |
 
 ---
 
 ## Adding a New Feature
 
-Follow this order every time — no skipping steps.
-
 ```
-Step 1 — Database
-    php artisan make:migration create_xxx_table
-    php artisan make:model Xxx -f              # -f creates factory
-
-Step 2 — Repository
-    Create app/Repositories/XxxRepository.php  # all queries live here
-
-Step 3 — Business Logic
-    php artisan make:class Actions/CreateXxxAction
-    (or app/Services/XxxService.php for multi-step logic)
-
-Step 4 — Controller
-    php artisan make:controller XxxController  # thin — HTTP only
-
-Step 5 — Validation & Response
-    php artisan make:request StoreXxxRequest
-    php artisan make:resource XxxResource
-
-Step 6 — Vue Component
-    Create resources/js/Pages/Xxx/Index.vue (+ Partials/XxxFormModal.vue)
-    Dark mode + i18n, uses AdminLayout
-
-Step 7 — Translations
-    Add keys to lang/ru/xxx.php AND lang/tk/xxx.php — that is all
-    (the frontend picks them up automatically through the Inertia prop)
-
-Step 8 — Tests
-    php artisan make:test --phpunit XxxTest
-    Cover: happy path + validation failure + authorization + edge cases
+Step 1 — Database        php artisan make:migration … / make:model Xxx -f
+Step 2 — Repository      app/Repositories/XxxRepository.php — all queries live here
+Step 3 — Business logic  php artisan make:class Actions/CreateXxxAction (or a Service)
+Step 4 — Controller      php artisan make:controller XxxController — thin, HTTP only
+Step 5 — Validation      php artisan make:request StoreXxxRequest / make:resource XxxResource
+Step 6 — Vue             resources/js/Pages/Xxx/Index.vue (+ Partials/), dark mode + i18n, AdminLayout
+Step 7 — Translations    keys in lang/ru/xxx.php AND lang/tk/xxx.php
+Step 8 — Tests           php artisan make:test --phpunit XxxTest — happy path, validation,
+                         authorization, edge cases
+Step 9 — API docs        for API endpoints, add or update the request in bruno/
 ```
-
----
 
 ## Adding a New Package or Service
 
@@ -1041,18 +964,16 @@ Step 8 — Tests
 
 ```bash
 vendor/bin/pint --dirty            # Format changed PHP files — run before every commit
-vendor/bin/pint                    # Format the whole codebase
+vendor/bin/phpstan analyse         # Larastan level 6
 
-vendor/bin/phpstan analyse         # Larastan level 6 over app/ (middleware excluded)
-
-php artisan test --compact                              # All tests
-php artisan test --compact tests/Feature/CityTest.php   # Single file
-php artisan test --compact --filter=it_creates_a_city   # Single test
+php artisan test --compact                                    # All tests
+php artisan test --compact tests/Feature/OrderTest.php        # Single file
+php artisan test --compact --filter=test_master_sees          # By name
 ```
 
 Every feature, action and model must have PHPUnit tests covering the happy path, validation failure and edge cases. Tests are never deleted without approval.
 
-**Test environment**: `phpunit.xml` is the single source of truth (sqlite `:memory:`, `array` cache, `sync` queue). `tests/bootstrap.php` copies those `<env>` entries into `$_SERVER` before Laravel boots — required because `docker-compose` injects the real `.env` into the container via `env_file`, and Laravel's env repository reads `$_SERVER` ahead of `putenv()`. Without it the suite silently runs against the live Redis and MySQL. Add new test-only variables to `phpunit.xml`; the bootstrap picks them up automatically.
+**Test environment**: `phpunit.xml` is the single source of truth (sqlite `:memory:`, `array` cache, `sync` queue). `tests/bootstrap.php` copies those `<env>` entries into `$_SERVER` before Laravel boots — required because `docker-compose` injects the real `.env` into the container, and Laravel's env repository reads `$_SERVER` ahead of `putenv()`. Without it the suite would run against the live Redis and MySQL. Add new test-only variables to `phpunit.xml`.
 
 ---
 
@@ -1060,38 +981,32 @@ Every feature, action and model must have PHPUnit tests covering the happy path,
 
 ```bash
 # ── Development ──────────────────────────────────────────────────────────────
-npm run dev                       # Vite dev server
-npm run build                     # Production asset build
-php artisan serve                 # Laravel dev server
+npm run dev / npm run build
+php artisan serve
 
 # ── Workers & services ───────────────────────────────────────────────────────
-php artisan queue:work            # Process queued jobs (image conversion, broadcasts)
-php artisan reverb:start          # WebSocket server
-php artisan schedule:work         # Scheduler (auto-search radius + subscription expiry)
-cd socket-server && npm start     # OTP Socket.IO bridge
+php artisan queue:work
+php artisan reverb:start
+php artisan schedule:work
+php artisan schedule:list                 # Verify the four scheduled commands
 
-php artisan orders:expand-search-radius   # One-off sweep of the auto-search, for debugging
-php artisan subscriptions:expire          # One-off subscription clock tick, for debugging
-php artisan schedule:list                 # Verify both scheduled commands are registered
+# ── One-off runs for debugging ───────────────────────────────────────────────
+php artisan orders:expand-search-radius
+php artisan orders:cancel-stale-orders
+php artisan subscriptions:expire
+php artisan locations:prune --ping-days=7 --order-days=30
+php artisan master:simulate-movement 1 --interval=3 --steps=60
 
 # ── Database ─────────────────────────────────────────────────────────────────
-php artisan migrate               # Run pending migrations
-php artisan migrate --seed        # Migrate + seed
-php artisan migrate:fresh --seed  # Drop all tables, migrate, seed
-php artisan storage:link          # Symlink public/storage
+php artisan migrate
+php artisan migrate:fresh --seed
+php artisan storage:link
 
-# ── Demo / debugging ─────────────────────────────────────────────────────────
-php artisan master:simulate-movement 1 --interval=3 --steps=60
-php artisan route:list --except-vendor          # All application routes
-php artisan route:list --path=api/v1            # Mobile API only
-php artisan config:show database                # Show config values
-php artisan cache:clear                         # Also flushes the translations cache
-
-# ── Docs & quality ───────────────────────────────────────────────────────────
-php artisan scramble:export       # Export OpenAPI spec to api.json
-vendor/bin/pint --dirty           # Format changed PHP files
-vendor/bin/phpstan analyse        # Static analysis
-php artisan test --compact        # Full test suite
+# ── Inspection ───────────────────────────────────────────────────────────────
+php artisan route:list --path=api/v1
+php artisan config:show database
+php artisan cache:clear                   # Also flushes the translations cache
+php artisan scramble:export               # Export the OpenAPI spec to api.json
 ```
 
 ---
@@ -1106,23 +1021,19 @@ php artisan test --compact        # Full test suite
 | `docs:` | Documentation updates |
 | `test:` | Adding or fixing tests |
 
-Example: `feat: add city management with repository and PHPUnit tests`
-
 ---
 
 ## Deployment
 
-The recommended target is [Laravel Cloud](https://cloud.laravel.com/), which handles scaling, zero-downtime deploys, queue workers and WebSocket servers. See `.env.production.example` for a production-shaped environment file.
+Production runs on Docker (`docker-compose.yml` + `docker-compose.prod.yml`), configured from `.env.production.example`. [Laravel Cloud](https://cloud.laravel.com/) is an alternative target.
 
-Before going live:
+Outside Docker, before going live:
 
 ```bash
 composer install --no-dev --optimize-autoloader
-npm install && npm run build
+npm ci && npm run build
 php artisan migrate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache && php artisan route:cache && php artisan view:cache
 php artisan storage:link
 ```
 
@@ -1130,8 +1041,8 @@ Checklist:
 
 - `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` set to the real HTTPS URL
 - Serve over **HTTPS** (required for the self-hosted map tiles)
-- `queue:work` running under a supervisor — image conversion, admin notifications and OTP broadcasts all depend on it
-- `reverb:start` running, `REVERB_SCHEME=https` and the WebSocket port proxied
+- `queue:work` and `schedule:work` running under a supervisor
+- `reverb:start` running, `REVERB_SCHEME=https`, the WebSocket port proxied
 - `socket-server/` running with a real `GATEWAY_SECRET`
 - `storage/maps/tiles.mbtiles` copied onto the server (not in git)
-- Switch `masters-map.{cityId}` to a private channel with an admin gate before exposing the panel publicly
+- The public `orders` channel carries `OrderCreated` with the client's name — move it to a private, staff-gated channel before exposing the panel publicly
