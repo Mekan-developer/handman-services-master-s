@@ -177,7 +177,8 @@ class OrderRepository
 
     /**
      * Pending, unclaimed orders in the master's categories that currently sit
-     * inside their own search radius, nearest first.
+     * inside their own search radius, nearest first. Orders whose auto-search
+     * has ended stay in the feed at the maximum radius.
      *
      * The SQL pass is a plain-arithmetic bounding box (no trigonometry, so it
      * behaves identically on MySQL, PostgreSQL and SQLite); the small candidate
@@ -195,7 +196,6 @@ class OrderRepository
             ->where('status', OrderStatus::Pending)
             ->whereNull('master_id')
             ->whereNotNull('search_started_at')
-            ->whereNull('search_expired_at')
             ->whereIn('category_id', $this->masterCategoryIds($master))
             // A master is also a client: never offer them an order they placed themselves.
             ->where('client_id', '!=', $master->client_id)
@@ -333,9 +333,17 @@ class OrderRepository
         return $order->fresh();
     }
 
-    public function markSearchExpired(Order $order): Order
+    /**
+     * Closes the auto-search and pins the radius at the maximum, so the order
+     * stays offered to every master within that radius until it is taken or
+     * auto-cancelled.
+     */
+    public function markSearchExpired(Order $order, int $finalRadiusKm): Order
     {
-        $order->update(['search_expired_at' => now()]);
+        $order->update([
+            'search_expired_at' => now(),
+            'search_radius_km' => $finalRadiusKm,
+        ]);
 
         return $order->fresh();
     }

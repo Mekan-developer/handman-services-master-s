@@ -76,12 +76,6 @@ class OrderException extends ApiException
         return new self((string) __('orders.errors.out_of_search_radius'));
     }
 
-    /** The auto-search gave up on this order — only an administrator can assign it now. */
-    public static function searchExpired(): self
-    {
-        return new self((string) __('orders.errors.search_expired'));
-    }
-
     /** No GPS ping was ever recorded for this master, so distance cannot be checked. */
     public static function masterLocationUnknown(): self
     {

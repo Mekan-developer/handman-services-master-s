@@ -13,7 +13,8 @@ use App\Repositories\OrderRepository;
  * radius(n) = n * initial, where n is the minute of the search the order is
  * currently in — minute 1 keeps the initial radius, minute 2 doubles it, and so
  * on. Once the next step would overshoot the configured maximum the search is
- * closed and administrators take over.
+ * closed: the radius is pinned at the maximum (masters there can still respond)
+ * and administrators are notified.
  *
  * Derived from elapsed time rather than incremented per tick, so a missed or
  * duplicated scheduler run cannot drift the radius.
@@ -33,7 +34,7 @@ class ExpandOrderSearchRadiusAction
         $newRadiusKm = $minuteNumber * $initialRadiusKm;
 
         if ($newRadiusKm > $maxRadiusKm) {
-            OrderSearchExhausted::dispatch($this->repository->markSearchExpired($order));
+            OrderSearchExhausted::dispatch($this->repository->markSearchExpired($order, $maxRadiusKm));
 
             return;
         }

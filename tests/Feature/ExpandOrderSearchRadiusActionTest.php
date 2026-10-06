@@ -73,7 +73,7 @@ class ExpandOrderSearchRadiusActionTest extends TestCase
 
         $fresh = $order->fresh();
         $this->assertNotNull($fresh->search_expired_at);
-        $this->assertSame(self::INITIAL, $fresh->search_radius_km, 'radius must stay at its last valid value');
+        $this->assertSame(self::MAX, $fresh->search_radius_km, 'radius is pinned at the maximum once the search ends');
         $this->assertTrue($fresh->needsManualAssignment());
 
         Event::assertDispatched(OrderSearchExhausted::class);

@@ -134,7 +134,6 @@ return [
         'already_reviewed' => 'Siz eýýäm bu sargyda syn goýduňyz',
         'already_claimed' => 'Sargydy başga usta eýýäm aldy',
         'out_of_search_radius' => 'Sargyt siziň gözleg radiusyňyzdan daşarda',
-        'search_expired' => 'Bu sargyt boýunça awtomatik gözleg tamamlandy — administrator gözlegi täzeden başladyp biler',
         'master_location_unknown' => 'Siziň ýerleşişiňiz kesgitlenmedi — geolokasiýany açyň',
         'already_responded' => 'Siz eýýäm bu sargyda teklip beripsiňiz',
         'own_order' => 'Öz sargyňyza teklip berip bilmersiňiz',

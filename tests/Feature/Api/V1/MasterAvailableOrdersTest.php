@@ -123,11 +123,24 @@ class MasterAvailableOrdersTest extends TestCase
         $this->available()->assertOk()->assertJsonCount(0, 'data');
     }
 
-    public function test_order_whose_search_expired_is_hidden(): void
+    public function test_order_whose_search_expired_stays_visible_within_the_max_radius(): void
+    {
+        $order = Order::factory()
+            ->forCategory($this->category)
+            ->at($this->kmNorth(60), self::LNG)
+            ->searching(80)
+            ->searchExpired()
+            ->create();
+
+        $response = $this->available()->assertOk()->assertJsonCount(1, 'data');
+        $this->assertSame($order->id, $response->json('data.0.id'));
+    }
+
+    public function test_order_whose_search_expired_is_hidden_beyond_the_max_radius(): void
     {
         Order::factory()
             ->forCategory($this->category)
-            ->at($this->kmNorth(5), self::LNG)
+            ->at($this->kmNorth(100), self::LNG)
             ->searching(80)
             ->searchExpired()
             ->create();

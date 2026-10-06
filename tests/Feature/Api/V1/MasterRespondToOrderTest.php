@@ -202,17 +202,18 @@ class MasterRespondToOrderTest extends TestCase
         app(RespondToOrderAction::class)->handle($master, $this->order());
     }
 
-    public function test_order_whose_search_expired_can_no_longer_be_responded_to(): void
+    public function test_master_can_still_respond_after_the_auto_search_ended(): void
     {
         $master = $this->master();
         $order = $this->order();
         $order->update(['search_expired_at' => now()]);
 
-        $this->respond($master, $order->fresh())
-            ->assertStatus(422)
-            ->assertJsonPath('message', __('orders.errors.search_expired'));
+        $this->respond($master, $order->fresh())->assertCreated();
 
-        $this->assertNull($order->fresh()->master_id);
+        $this->assertDatabaseHas('order_master_responses', [
+            'order_id' => $order->id,
+            'master_id' => $master->id,
+        ]);
     }
 
     public function test_master_can_respond_across_a_city_border(): void

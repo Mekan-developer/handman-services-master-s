@@ -34,10 +34,6 @@ class RespondToOrderAction
             throw OrderException::alreadyClaimed();
         }
 
-        if ($order->search_expired_at !== null) {
-            throw OrderException::searchExpired();
-        }
-
         if ($order->client_id === $master->client_id) {
             throw OrderException::ownOrder();
         }
