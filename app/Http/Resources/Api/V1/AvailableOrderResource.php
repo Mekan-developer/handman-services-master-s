@@ -8,10 +8,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * An unclaimed order offered to a master by the auto-search.
  *
- * Deliberately narrower than MasterOrderResource: the order does not belong to
- * this master yet, so the client's name and phone stay hidden until the claim
- * succeeds. Location and description are exposed because the master cannot
- * decide whether to respond without them.
+ * Narrower than MasterOrderResource: the order does not belong to this master
+ * yet. The client's name and phone, location and description are exposed so the
+ * master can decide whether to respond.
  */
 class AvailableOrderResource extends JsonResource
 {
@@ -24,6 +23,8 @@ class AvailableOrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'client_name' => $this->client_name,
+            'client_phone' => $this->client_phone,
             'category' => $this->whenLoaded('category', fn () => $this->category->name),
             'city' => $this->whenLoaded('city', fn () => $this->city->name),
             'description' => $this->description,

@@ -195,7 +195,7 @@ class MasterAvailableOrdersTest extends TestCase
             ->assertJsonCount(0, 'data');
     }
 
-    public function test_the_feed_never_leaks_the_client_contact_details(): void
+    public function test_the_feed_shows_the_client_name_and_phone(): void
     {
         Order::factory()
             ->forCategory($this->category)
@@ -205,8 +205,8 @@ class MasterAvailableOrdersTest extends TestCase
 
         $payload = $this->available()->assertOk()->json('data.0');
 
-        $this->assertArrayNotHasKey('client_name', $payload);
-        $this->assertArrayNotHasKey('client_phone', $payload);
+        $this->assertSame('Гурбан Гурбанов', $payload['client_name']);
+        $this->assertSame('+99362999999', $payload['client_phone']);
     }
 
     public function test_guest_cannot_read_the_feed(): void
