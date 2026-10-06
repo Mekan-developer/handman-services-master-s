@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\OrderStatus;
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Client;
 use App\Models\Master;
 use App\Models\Order;
 use Carbon\CarbonInterface;
@@ -19,6 +20,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
+            'client_id' => Client::factory(),
             'city_id' => fn () => City::query()->inRandomOrder()->value('id') ?? City::factory(),
             'category_id' => fn () => Category::query()
                 ->whereNotNull('parent_id')

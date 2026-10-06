@@ -113,6 +113,12 @@ return [
         'auto_cancelled_reason' => 'Awtomatik ýatyryldy — bellenen wagtyň dowamynda hiç bir teklip tassyklanmady',
     ],
 
+    'validation' => [
+        'client_required' => 'Sanawdan müşderi saýlaň ýa-da täzesini goşuň',
+        'client_name_required' => 'Müşderiniň adyny görkeziň',
+        'client_phone_required' => 'Müşderiniň telefonyny görkeziň',
+    ],
+
     'errors' => [
         'master_inactive' => 'Usta işjeň däl ýa-da girişiň möhleti gutardy',
         'city_mismatch' => 'Ussanyň şäheri sargydyň şäheri bilen gabat gelmeýär',

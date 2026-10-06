@@ -237,6 +237,49 @@ class OrderTest extends TestCase
             ->assertSessionHasErrors(['city_id', 'category_id', 'client_name', 'client_phone', 'description', 'client_lat', 'client_lng']);
     }
 
+    public function test_store_without_any_client_explains_what_to_do(): void
+    {
+        $this->actingAsAdmin();
+        $payload = $this->validPayload(City::factory()->create(), Category::factory()->create());
+        unset($payload['client_name'], $payload['client_phone']);
+
+        $this->post(route('orders.store'), $payload)
+            ->assertSessionHasErrors([
+                'client_id' => __('orders.validation.client_required'),
+                'client_name' => __('orders.validation.client_name_required'),
+                'client_phone' => __('orders.validation.client_phone_required'),
+            ]);
+
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_new_client_without_phone_gets_a_phone_error_only(): void
+    {
+        $this->actingAsAdmin();
+        $payload = $this->validPayload(City::factory()->create(), Category::factory()->create());
+        unset($payload['client_phone']);
+
+        $this->post(route('orders.store'), $payload)
+            ->assertSessionHasErrors(['client_phone' => __('orders.validation.client_phone_required')])
+            ->assertSessionDoesntHaveErrors(['client_id', 'client_name']);
+    }
+
+    public function test_selected_client_needs_no_name_or_phone_in_the_payload(): void
+    {
+        $this->actingAsAdmin();
+        $client = Client::factory()->create();
+        $payload = $this->validPayload(City::factory()->create(), Category::factory()->create());
+        unset($payload['client_name'], $payload['client_phone']);
+
+        $this->post(route('orders.store'), $payload + ['client_id' => $client->id])
+            ->assertRedirect(route('orders.index'));
+
+        $this->assertDatabaseHas('orders', [
+            'client_id' => $client->id,
+            'client_phone' => $client->phone,
+        ]);
+    }
+
     public function test_store_rejects_more_than_4_photos(): void
     {
         Storage::fake('public');

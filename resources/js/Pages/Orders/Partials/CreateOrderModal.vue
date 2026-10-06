@@ -59,6 +59,7 @@ const selectedClient = computed(() =>
 )
 
 function selectClient(client) {
+    form.clearErrors('client_id', 'client_name', 'client_phone')
     form.client_id = client.id
     form.client_name = client.name ?? ''
     form.client_phone = client.phone ?? ''
@@ -75,6 +76,7 @@ function deselectClient() {
 }
 
 function startNewClient() {
+    form.clearErrors('client_id', 'client_name', 'client_phone')
     form.client_id = null
     form.client_name = clientSearch.value.trim()
     form.client_phone = ''
@@ -84,6 +86,7 @@ function startNewClient() {
 }
 
 function backToSearch() {
+    form.clearErrors('client_name', 'client_phone')
     clientMode.value = 'search'
     form.client_name = ''
     form.client_phone = ''
@@ -289,7 +292,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                         :placeholder="t('orders.create.search_client')"
                                         @focus="showClientDropdown = true"
                                         @input="showClientDropdown = true"
-                                        :class="[inputClass, 'flex-1']"
+                                        :class="[inputClass, 'flex-1', form.errors.client_id ? errorInputClass : '']"
                                     />
                                     <button
                                         type="button"
@@ -324,6 +327,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                         {{ t('orders.create.create_named', { name: clientSearch }) }}
                                     </button>
                                 </div>
+                                <InputError class="mt-1" :message="form.errors.client_id" />
                             </div>
 
                             <!-- Режим нового клиента -->
