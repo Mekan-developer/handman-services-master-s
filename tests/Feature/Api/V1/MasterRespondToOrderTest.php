@@ -122,6 +122,19 @@ class MasterRespondToOrderTest extends TestCase
         $this->assertSame(1, OrderMasterResponse::where('order_id', $order->id)->count());
     }
 
+    public function test_master_cannot_respond_to_their_own_order(): void
+    {
+        $master = $this->master();
+        $order = $this->order();
+        $order->update(['client_id' => $master->client_id]);
+
+        $this->respond($master, $order->fresh())
+            ->assertStatus(422)
+            ->assertJsonPath('message', __('orders.errors.own_order'));
+
+        $this->assertDatabaseMissing('order_master_responses', ['order_id' => $order->id]);
+    }
+
     public function test_master_outside_the_current_radius_is_rejected(): void
     {
         $master = $this->master();

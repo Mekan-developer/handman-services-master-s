@@ -137,6 +137,7 @@ return [
         'search_expired' => 'Bu sargyt boýunça awtomatik gözleg tamamlandy — administrator gözlegi täzeden başladyp biler',
         'master_location_unknown' => 'Siziň ýerleşişiňiz kesgitlenmedi — geolokasiýany açyň',
         'already_responded' => 'Siz eýýäm bu sargyda teklip beripsiňiz',
+        'own_order' => 'Öz sargyňyza teklip berip bilmersiňiz',
         'response_not_pending' => 'Bu teklip boýunça eýýäm çözgüt kabul edildi',
         'search_restart_not_allowed' => 'Gözlegi diňe usta bellenilmedik täze sargyt üçin täzeden başlatyp bolýar',
         'order_not_trackable' => 'Sargyt eýýäm tamamlandy — onuň boýunça geoýerleşişi ibermek indi gerek däl',

@@ -94,6 +94,12 @@ class OrderException extends ApiException
         return new self((string) __('orders.errors.already_responded'));
     }
 
+    /** The master placed this order on their own client account. */
+    public static function ownOrder(): self
+    {
+        return new self((string) __('orders.errors.own_order'));
+    }
+
     /** The response was already approved or rejected — the client can't decide on it twice. */
     public static function responseNotPending(): self
     {

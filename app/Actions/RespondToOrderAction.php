@@ -38,6 +38,10 @@ class RespondToOrderAction
             throw OrderException::searchExpired();
         }
 
+        if ($order->client_id === $master->client_id) {
+            throw OrderException::ownOrder();
+        }
+
         $this->ensureMasterCanTakeOrders($master);
 
         if (! in_array($order->category_id, $this->orderRepository->masterCategoryIds($master), true)) {

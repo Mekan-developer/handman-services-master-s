@@ -197,6 +197,8 @@ class OrderRepository
             ->whereNotNull('search_started_at')
             ->whereNull('search_expired_at')
             ->whereIn('category_id', $this->masterCategoryIds($master))
+            // A master is also a client: never offer them an order they placed themselves.
+            ->where('client_id', '!=', $master->client_id)
             ->whereRaw('abs(client_lat - ?) <= (search_radius_km / ?)', [$latitude, Order::KM_PER_LAT_DEGREE])
             ->whereRaw('abs(client_lng - ?) <= (search_radius_km * ?)', [$longitude, $lngDegreesPerKm])
             ->whereDoesntHave('declines', fn ($q) => $q->where('master_id', $master->id))

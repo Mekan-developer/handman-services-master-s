@@ -135,6 +135,31 @@ class MasterAvailableOrdersTest extends TestCase
         $this->available()->assertOk()->assertJsonCount(0, 'data');
     }
 
+    public function test_master_does_not_see_an_order_placed_from_their_own_client_account(): void
+    {
+        Order::factory()
+            ->forCategory($this->category)
+            ->at($this->kmNorth(5), self::LNG)
+            ->searching(20)
+            ->create(['client_id' => $this->master->client_id]);
+
+        $this->available()->assertOk()->assertJsonCount(0, 'data');
+    }
+
+    public function test_master_still_sees_orders_placed_by_other_clients(): void
+    {
+        $other = Master::factory()->create();
+
+        $order = Order::factory()
+            ->forCategory($this->category)
+            ->at($this->kmNorth(5), self::LNG)
+            ->searching(20)
+            ->create(['client_id' => $other->client_id]);
+
+        $response = $this->available()->assertOk()->assertJsonCount(1, 'data');
+        $this->assertSame($order->id, $response->json('data.0.id'));
+    }
+
     public function test_orders_are_visible_across_city_borders(): void
     {
         Order::factory()
