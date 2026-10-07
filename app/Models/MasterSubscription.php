@@ -23,6 +23,7 @@ class MasterSubscription extends Model
         'status',
         'starts_at',
         'expires_at',
+        'expiry_reminded_at',
         'created_by',
         'note',
     ];
@@ -35,6 +36,7 @@ class MasterSubscription extends Model
             'status' => SubscriptionStatus::class,
             'starts_at' => 'datetime',
             'expires_at' => 'datetime',
+            'expiry_reminded_at' => 'datetime',
         ];
     }
 

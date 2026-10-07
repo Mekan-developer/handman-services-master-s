@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\SubscriptionStatus;
 use App\Models\Master;
 use App\Models\MasterSubscription;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -87,6 +88,31 @@ class MasterSubscriptionRepository
             ->whereNotNull('expires_at')
             ->where('expires_at', '<', now())
             ->get();
+    }
+
+    /**
+     * Running subscriptions ending before `$until` that nothing is queued behind
+     * and whose master has not been reminded yet — the reminder command's input.
+     * A master with a renewal already paid for loses no access, so they are left alone.
+     *
+     * @return Collection<int, MasterSubscription>
+     */
+    public function dueForExpiryReminder(CarbonInterface $until): Collection
+    {
+        return MasterSubscription::with('master')
+            ->where('status', SubscriptionStatus::Active->value)
+            ->whereNull('expiry_reminded_at')
+            ->whereBetween('expires_at', [now(), $until])
+            ->whereNotExists(fn ($q) => $q->selectRaw('1')
+                ->from('master_subscriptions as queued')
+                ->whereColumn('queued.master_id', 'master_subscriptions.master_id')
+                ->where('queued.status', SubscriptionStatus::Pending->value))
+            ->get();
+    }
+
+    public function markExpiryReminded(MasterSubscription $subscription): void
+    {
+        $subscription->update(['expiry_reminded_at' => now()]);
     }
 
     /** Queued subscriptions whose start date has arrived. */

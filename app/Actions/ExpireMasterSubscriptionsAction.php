@@ -6,6 +6,7 @@ use App\Actions\Concerns\SyncsMasterAccess;
 use App\Enums\SubscriptionStatus;
 use App\Models\Master;
 use App\Models\MasterSubscription;
+use App\Notifications\Push\SubscriptionExpiredNotification;
 use App\Repositories\MasterRepository;
 use App\Repositories\MasterSubscriptionRepository;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,8 @@ class ExpireMasterSubscriptionsAction
     /**
      * Roll the subscription clock forward in one pass: retire subscriptions that
      * ran out, promote the queued ones whose turn has come, then re-derive every
-     * touched master's access deadline.
+     * touched master's access deadline. Masters left without access are told so
+     * once the transaction has committed.
      *
      * @return array{expired: int, activated: int}
      */
@@ -31,17 +33,24 @@ class ExpireMasterSubscriptionsAction
         /** @var array<int, Master> $touched */
         $touched = [];
 
+        /** @var array<int, MasterSubscription> $expiredByMaster */
+        $expiredByMaster = [];
+
+        /** @var array<int, Master> $lostAccess */
+        $lostAccess = [];
+
         $expired = 0;
         $activated = 0;
 
-        DB::transaction(function () use (&$touched, &$expired, &$activated): void {
+        DB::transaction(function () use (&$touched, &$expiredByMaster, &$lostAccess, &$expired, &$activated): void {
             $this->subscriptions->dueForExpiry()->each(
-                function (MasterSubscription $subscription) use (&$touched, &$expired): void {
+                function (MasterSubscription $subscription) use (&$touched, &$expiredByMaster, &$expired): void {
                     $this->subscriptions->updateStatus($subscription, SubscriptionStatus::Expired);
                     $expired++;
 
                     if ($subscription->master !== null) {
                         $touched[$subscription->master->id] = $subscription->master;
+                        $expiredByMaster[$subscription->master->id] = $subscription;
                     }
                 }
             );
@@ -65,10 +74,18 @@ class ExpireMasterSubscriptionsAction
                 }
             );
 
-            foreach ($touched as $master) {
-                $this->syncMasterAccess($master, $this->subscriptions, $this->masters);
+            foreach ($touched as $masterId => $master) {
+                $synced = $this->syncMasterAccess($master, $this->subscriptions, $this->masters);
+
+                if (isset($expiredByMaster[$masterId]) && ! $synced->hasActiveAccess()) {
+                    $lostAccess[$masterId] = $synced;
+                }
             }
         });
+
+        foreach ($lostAccess as $masterId => $master) {
+            $master->notify(new SubscriptionExpiredNotification($expiredByMaster[$masterId]));
+        }
 
         return ['expired' => $expired, 'activated' => $activated];
     }

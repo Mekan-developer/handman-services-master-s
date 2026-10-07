@@ -49,6 +49,12 @@ return Application::configure(basePath: dirname(__DIR__))
             ->hourly()
             ->withoutOverlapping();
 
+        // Each subscription is reminded once (tracked in expiry_reminded_at), so
+        // hourly only decides how close to the 24-hour mark the push lands.
+        $schedule->command('subscriptions:remind-expiring')
+            ->hourly()
+            ->withoutOverlapping();
+
         // The deadline is measured in hours, so an hourly sweep is precise enough
         // and a skipped run only delays the cancellation by one tick.
         $schedule->command('orders:cancel-stale-orders')
