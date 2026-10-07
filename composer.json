@@ -7,7 +7,9 @@
     "require": {
         "php": "^8.2",
         "dedoc/scramble": "*",
+        "firebase/php-jwt": "*",
         "inertiajs/inertia-laravel": "^2.0",
+        "kreait/laravel-firebase": "*",
         "laravel/framework": "^11.0",
         "laravel/reverb": "^1.10",
         "laravel/sanctum": "^4.0",
