@@ -7,6 +7,9 @@ use App\Enums\OrderStatus;
 use App\Models\Client;
 use App\Models\Master;
 use App\Models\MasterLocation;
+use App\Models\Order;
+use App\Models\OrderMasterDecline;
+use App\Models\OrderMasterResponse;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -183,6 +186,50 @@ class MasterRepository
         $master->update(['access_expires_at' => $expiresAt]);
 
         return $master->refresh();
+    }
+
+    /**
+     * Masters who can take the order right now and whose last known position
+     * lies in the ring `excludeWithinKm < distance <= order search radius` —
+     * the ones the auto-search has just reached. Mirrors the eligibility rules
+     * of the available-orders feed, and skips accounts without a registered
+     * phone since there is nobody to push to.
+     *
+     * The SQL pass narrows by eligibility only; the distance check runs in PHP
+     * on the latest ping, like {@see OrderRepository::availableForMaster()}.
+     *
+     * @return Collection<int, Master>
+     */
+    public function reachedBySearch(Order $order, float $excludeWithinKm = 0): Collection
+    {
+        $radiusKm = (float) $order->search_radius_km;
+
+        return Master::with(['latestLocation', 'client'])
+            ->where('status', MasterStatus::Approved)
+            ->where('is_active', true)
+            ->where('is_available', true)
+            ->where(function ($q) {
+                $q->whereNull('access_expires_at')
+                    ->orWhere('access_expires_at', '>', now());
+            })
+            ->where('client_id', '!=', $order->client_id)
+            ->whereHas('categories', fn ($q) => $q->where('categories.id', $order->category_id))
+            ->whereHas('client.devices')
+            ->whereNotIn('id', OrderMasterDecline::select('master_id')->where('order_id', $order->id))
+            ->whereNotIn('id', OrderMasterResponse::select('master_id')->where('order_id', $order->id))
+            ->get()
+            ->filter(function (Master $master) use ($order, $radiusKm, $excludeWithinKm): bool {
+                $location = $master->latestLocation;
+
+                if ($location === null) {
+                    return false;
+                }
+
+                $distanceKm = $order->distanceKmTo((float) $location->latitude, (float) $location->longitude);
+
+                return $distanceKm <= $radiusKm && $distanceKm > $excludeWithinKm;
+            })
+            ->values();
     }
 
     /** Active masters in given city, optionally filtered by category — for order assignment dropdown. */

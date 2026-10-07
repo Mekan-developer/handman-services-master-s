@@ -43,6 +43,11 @@ class ExpandOrderSearchRadiusAction
             return;
         }
 
-        OrderSearchRadiusExpanded::dispatch($this->repository->expandRadius($order, $newRadiusKm));
+        $previousRadiusKm = (int) $order->search_radius_km;
+
+        OrderSearchRadiusExpanded::dispatch(
+            $this->repository->expandRadius($order, $newRadiusKm),
+            $previousRadiusKm,
+        );
     }
 }

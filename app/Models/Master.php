@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Master extends Authenticatable
 {
     /** @use HasFactory<MasterFactory> */
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /** @var array<int, string> */
     protected $fillable = [
@@ -91,6 +92,17 @@ class Master extends Authenticatable
     public function subscriptions(): HasMany
     {
         return $this->hasMany(MasterSubscription::class);
+    }
+
+    /**
+     * A master works from the same app and account as the client it belongs
+     * to, so master pushes go to that account's phones.
+     *
+     * @return array<string, list<string>>
+     */
+    public function routeNotificationForFcm(): array
+    {
+        return $this->client?->routeNotificationForFcm() ?? [];
     }
 
     public function hasActiveAccess(): bool

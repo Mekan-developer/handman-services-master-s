@@ -19,7 +19,14 @@ class OrderSearchRadiusExpanded implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Order $order) {}
+    /**
+     * @param  int  $previousRadiusKm  Radius before this step — masters inside it
+     *                                 were already offered the order.
+     */
+    public function __construct(
+        public Order $order,
+        public int $previousRadiusKm = 0,
+    ) {}
 
     /** @return array<int, Channel> */
     public function broadcastOn(): array
