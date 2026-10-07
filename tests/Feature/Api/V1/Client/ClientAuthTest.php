@@ -26,7 +26,8 @@ class ClientAuthTest extends TestCase
 
         $this->assertNotNull(Cache::get("client_otp:{$phone}"));
 
-        Http::assertSent(fn ($request) => $request->url() === config('services.sms_gateway.url').'/emit-otp'
+        Http::assertSent(fn ($request) => $request->url() === config('sms.gateway_url').'/emit-otp'
+            && $request->hasHeader('X-Otp-Secret', 'test-otp-secret')
             && $request['phone_number'] === '62111222');
     }
 

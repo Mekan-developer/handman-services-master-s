@@ -39,11 +39,6 @@ return [
         'path' => storage_path(env('MBTILES_PATH', 'maps/tiles.mbtiles')),
     ],
 
-    'sms_gateway' => [
-        'url' => env('SMS_GATEWAY_URL', 'http://127.0.0.1:3000'),
-        'secret' => env('SMS_GATEWAY_SECRET'),
-    ],
-
     'otp' => [
         'ttl_minutes' => (int) env('OTP_TTL_MINUTES', 3),
     ],

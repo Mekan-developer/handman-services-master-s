@@ -23,4 +23,9 @@ class OtpException extends ApiException
     {
         return new self((string) __('api.otp.send_failed'), 503);
     }
+
+    public static function gatewayNotConnected(): self
+    {
+        return new self((string) __('api.otp.gateway_not_connected'), 503);
+    }
 }

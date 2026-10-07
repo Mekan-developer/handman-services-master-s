@@ -8,19 +8,33 @@ use App\Models\Order;
 use App\Observers\ClientObserver;
 use App\Observers\MasterObserver;
 use App\Observers\OrderObserver;
+use App\Services\Sms\LogSmsSender;
+use App\Services\Sms\ModemSmsSender;
+use App\Services\Sms\SmsSender;
 use App\Services\SystemStatusService;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Queue\Events\JobPopping;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(SmsSender::class, function (Application $app): SmsSender {
+            return match (config('sms.driver')) {
+                'modem' => new ModemSmsSender(config('sms.gateway_url'), config('sms.otp_secret')),
+                'log' => $app->isProduction()
+                    ? throw new RuntimeException('The "log" SMS driver is not allowed in production — set SMS_DRIVER=modem.')
+                    : new LogSmsSender,
+                default => throw new InvalidArgumentException('Unknown SMS driver "'.config('sms.driver').'".'),
+            };
+        });
     }
 
     public function boot(): void

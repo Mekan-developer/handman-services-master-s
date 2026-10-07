@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Services\Sms\ModemSmsSender;
+use App\Services\Sms\SmsSender;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Throwable;
 
@@ -33,7 +35,7 @@ class SystemStatusService
      * @return array{
      *     queue: array{status: string, pending: int, processed: int},
      *     reverb: array{status: string, channels: int, connections: int, latency_ms: int|null},
-     *     otp_gateway: array{status: string, clients: int, last_sent: string|null},
+     *     otp_gateway: array{status: string, clients: int, last_sent: string|null, driver: string, device_label: string|null},
      *     checked_at: string
      * }
      */
@@ -87,27 +89,33 @@ class SystemStatusService
     }
 
     /**
-     * @return array{status: string, clients: int, last_sent: string|null}
+     * Резолвится здесь, а не в конструкторе: неверный SMS_DRIVER должен
+     * погасить только карточку шлюза, а не весь мониторинг.
+     *
+     * @return array{status: string, clients: int, last_sent: string|null, driver: string, device_label: string|null}
      */
     private function otpGateway(): array
     {
-        $lastSent = Cache::get('otp_gateway:last_sent');
+        $result = [
+            'status' => 'error',
+            'clients' => 0,
+            'last_sent' => Cache::get(ModemSmsSender::LAST_SENT_KEY),
+            'driver' => (string) config('sms.driver'),
+            'device_label' => config('sms.device_label'),
+        ];
 
         try {
-            $response = Http::timeout(2)->get(
-                rtrim((string) config('services.sms_gateway.url'), '/').'/health'
-            );
+            $status = app(SmsSender::class)->status();
+        } catch (Throwable $e) {
+            Log::warning("SMS driver status unavailable: {$e->getMessage()}");
 
-            if ($response->successful()) {
-                return [
-                    'status' => 'ok',
-                    'clients' => (int) ($response->json('clients') ?? 0),
-                    'last_sent' => $lastSent,
-                ];
-            }
-        } catch (Throwable) {
+            return $result;
         }
 
-        return ['status' => 'error', 'clients' => 0, 'last_sent' => $lastSent];
+        return [
+            ...$result,
+            'status' => $status['reachable'] ? 'ok' : 'error',
+            'clients' => $status['clients'],
+        ];
     }
 }

@@ -36,5 +36,9 @@
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
         <env name="TELESCOPE_ENABLED" value="false" force="true"/>
+        <env name="SMS_DRIVER" value="modem" force="true"/>
+        <env name="SMS_GATEWAY_URL" value="http://sms-gateway.test" force="true"/>
+        <env name="OTP_SECRET" value="test-otp-secret" force="true"/>
+        <env name="SMS_DEVICE_LABEL" value="" force="true"/>
     </php>
 </phpunit>

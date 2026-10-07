@@ -150,6 +150,8 @@ const wsSubscribed   = ref(null)
 const wsState        = ref('disconnected')
 const otpClients     = ref(0)
 const otpLastSent    = ref(null)
+const otpDeviceLabel = ref(null)
+const otpDriver      = ref('')
 const nowTime        = ref('—')
 
 const systemOk = computed(() =>
@@ -206,6 +208,8 @@ async function fetchStatus(fresh = false) {
         otpStatus.value    = data.otp_gateway.status
         otpClients.value   = data.otp_gateway.clients
         otpLastSent.value  = data.otp_gateway.last_sent
+        otpDeviceLabel.value = data.otp_gateway.device_label
+        otpDriver.value    = data.otp_gateway.driver
 
         nowTime.value = new Date(data.checked_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         updateWsStatus()
@@ -444,7 +448,7 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="text-[11px] text-gray-400 dark:text-slate-500">:3000</div>
+                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ otpDeviceLabel || '—' }} · {{ otpDriver }}</div>
                             <button
                                 type="button"
                                 @click="reconnect('otp')"

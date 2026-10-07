@@ -57,7 +57,7 @@ A platform for clients to search and book handyman services. Administrators mana
 
 | Service | Purpose |
 |---|---|
-| `socket-server/` | Express + Socket.IO bridge. Laravel `POST`s an OTP to `/emit-otp`, the server re-emits it to the connected Flutter SMS-gateway phone. Exposes `/health` used by the system status endpoint. |
+| `socket-server/` | Express + Socket.IO bridge. Laravel `POST`s an OTP to `/emit-otp`, the server re-emits it to every connected Flutter SMS phone. Exposes `/health` used by the system status endpoint. Full contract: [socket-server/README.md](socket-server/README.md) |
 
 ---
 
@@ -79,7 +79,7 @@ HTTP Request
 |---|---|
 | **Thin Controllers** | Only handle HTTP: receive request, call action/service, return response |
 | **Repository Pattern** | ALL database queries live in Repositories — never in Controllers or Services |
-| **Services** | Complex multi-step business logic or external integrations (`OtpGatewayService`) |
+| **Services** | Complex multi-step business logic or external integrations (`SystemStatusService`); swappable drivers behind an interface (`Services/Sms/SmsSender`) |
 | **Actions** | Single-purpose operations (e.g. `RespondToOrderAction`, `ApproveOrderResponseAction`, `RestartOrderSearchAction`) |
 | **Form Requests** | All validation — never `$request->validate()` in controllers |
 | **API Resources** | All API responses — never return raw models or arrays |
@@ -213,7 +213,8 @@ app/
 ├── Policies/                   # UserPolicy
 ├── Providers/                  # AppServiceProvider (observers + queue heartbeat + processed counter)
 ├── Repositories/               # 16 repositories — all database query logic
-├── Services/                   # OtpGatewayService, SystemStatusService, ReverbMetricsService
+├── Services/                   # SystemStatusService, ReverbMetricsService
+│   └── Sms/                    # SmsSender interface + ModemSmsSender, LogSmsSender
 └── Support/                    # Framework-agnostic helpers (PhotoConverter, CategoryIcon)
 
 resources/js/
@@ -262,7 +263,7 @@ public/
 
 storage/maps/tiles.mbtiles      # Vector tile archive — NOT in git (~118 MB), copy manually
 
-socket-server/                  # Node.js Socket.IO OTP bridge (own package.json / .env)
+socket-server/                  # Node.js Socket.IO OTP bridge (own package.json / .env / README.md)
 bruno/                          # Ready-to-run Bruno API collection (one app, both roles)
 docs/tasks/                     # Task notes
 
@@ -328,7 +329,7 @@ php artisan serve
 php artisan queue:work               # REQUIRED — image conversion, notifications, broadcasts
 php artisan reverb:start             # REQUIRED — realtime alerts and live maps
 php artisan schedule:work            # REQUIRED — auto-search radius, stale orders, subscriptions
-cd socket-server && cp .env.example .env && npm install && npm start   # optional in dev
+cd socket-server && cp .env.example .env && npm ci && npm start   # optional in dev (or SMS_DRIVER=log)
 ```
 
 > **Vite over LAN**: set `VITE_DEV_SERVER_HOST` to your machine's LAN IP if you open the panel from another device (`vite.config.js` reads it for both `server.host` and HMR).
@@ -376,16 +377,18 @@ VITE_REVERB_SCHEME="${REVERB_SCHEME}"
 TILES_STYLE_URL="/maps/style.json"   # Shared to the frontend as the `tilesStyleUrl` Inertia prop
 MBTILES_PATH=maps/tiles.mbtiles      # Relative to storage/
 
-# ── OTP SMS gateway (socket-server/) ─────────────────────────────────────────
-SMS_GATEWAY_URL=http://127.0.0.1:3000   # Must match PORT in socket-server/.env
-SMS_GATEWAY_SECRET=changeme             # Must match OTP_SECRET in socket-server/.env
+# ── OTP by SMS (socket-server/) ──────────────────────────────────────────────
+SMS_DRIVER=modem                        # modem (gateway) | log (dev only, refused in production)
+SMS_GATEWAY_URL=http://127.0.0.1:3000   # http://sms-gateway:3000 inside Docker
+OTP_SECRET=                             # Same value in socket-server and the phone's Auth Token
+SMS_DEVICE_LABEL=                       # Sending phone's name on the Settings status card
 OTP_TTL_MINUTES=3
 
 # ── Dev only ─────────────────────────────────────────────────────────────────
 VITE_DEV_SERVER_HOST=127.0.0.1    # LAN IP when testing from a phone
 ```
 
-Custom values are exposed through `config/services.php`: `services.tiles.style_url`, `services.mbtiles.path`, `services.sms_gateway.{url,secret}`, `services.otp.ttl_minutes`. Never read `env()` outside config files — it returns `null` once configs are cached.
+Custom values are exposed through `config/services.php`: `services.tiles.style_url`, `services.mbtiles.path`, `services.otp.ttl_minutes`; the SMS settings live in `config/sms.php` (`driver`, `gateway_url`, `otp_secret`, `device_label`). Never read `env()` outside config files — it returns `null` once configs are cached.
 
 > **Note**: `.env.example` still ships Laravel's defaults (`APP_NAME=Laravel`, `APP_LOCALE=en`, `BROADCAST_CONNECTION=log`) and has no `REVERB_*` / `VITE_REVERB_*` block. Fix those after `cp .env.example .env`, otherwise broadcasting silently does nothing.
 
@@ -892,7 +895,15 @@ Run `php artisan route:list --path=api/v1` for the authoritative list.
 
 ## OTP Delivery & Manual Fallback
 
-OTP codes are generated by `DispatchOtpAction` and pushed to the Flutter SMS-gateway phone through the Socket.IO bridge (`OtpGatewayService` → `POST {SMS_GATEWAY_URL}/emit-otp` with the `X-Gateway-Secret` header → `socket-server/` re-emits the `otp` event).
+OTP codes are generated by `DispatchOtpAction`, kept in the cache for `OTP_TTL_MINUTES`, and sent through an event:
+
+```
+DispatchOtpAction ─▶ SmsCodeRequested ─▶ SendSmsCode (sync listener) ─▶ SmsSender (sms.driver)
+                                                                        ├── modem: POST {SMS_GATEWAY_URL}/emit-otp, X-Otp-Secret ─▶ socket-server ─▶ phone
+                                                                        └── log:   code written to the log (development; refused in production)
+```
+
+The listener is synchronous on purpose: a failed send must reach `DispatchOtpAction` in the same request. `ModemSmsSender` throws `OtpException` on `503` (no phone connected), any other non-2xx or a timeout, and `RuntimeException` when `SMS_GATEWAY_URL` or `OTP_SECRET` is empty. The gateway contract is documented in [socket-server/README.md](socket-server/README.md).
 
 **When the gateway is unreachable, login is not blocked:**
 
@@ -915,7 +926,7 @@ Codes live only as long as `OTP_TTL_MINUTES`. Operators never see them.
 | --- | --- | --- |
 | **Queue** | worker alive, pending jobs, jobs finished today | `Queue::looping` writes `queue:worker_heartbeat` (stale after 120 s); `Queue::size()`; `Queue::after` increments `queue:processed:{Y-m-d}` |
 | **Reverb** | reachability, open channels, connections, response time | `ReverbMetricsService` calls the signed Pusher-compatible `/apps/{id}/channels` and `/apps/{id}/connections` endpoints |
-| **OTP gateway** | bridge alive, connected phones, last OTP | `GET {SMS_GATEWAY_URL}/health` + `otp_gateway:last_sent` cache key |
+| **OTP gateway** | bridge alive, connected phones, last OTP `SmsSender::status()` → `GET {SMS_GATEWAY_URL}/health` (2 s timeout) + `otp_gateway:last_sent` cache key; the card also shows `SMS_DEVICE_LABEL` and the driver |
 | **WebSocket card** | this browser's own socket | read from `window.Echo.connector.pusher` |
 
 `SystemStatusService` caches the snapshot for 10 s; the **Переподключить** buttons request `?fresh=1` to bypass it. An unreachable source shows `—`, never `0`.
@@ -1043,6 +1054,6 @@ Checklist:
 - Serve over **HTTPS** (required for the self-hosted map tiles)
 - `queue:work` and `schedule:work` running under a supervisor
 - `reverb:start` running, `REVERB_SCHEME=https`, the WebSocket port proxied
-- `socket-server/` running with a long random `OTP_SECRET` (same value as `SMS_GATEWAY_SECRET`), `ENABLE_TEST_PAGE=false`, and only `/socket.io/` proxied publicly — `/emit-otp` and `/health` stay on `127.0.0.1`
+- `socket-server/` running with a long random `OTP_SECRET` (the same value as in the Laravel `.env` and on the phone), `ENABLE_TEST_PAGE=false`; the phone connects through HTTPS `/socket.io/`, or port 3000 is firewalled to the phone's IP — `/emit-otp` and `/health` are never public
 - `storage/maps/tiles.mbtiles` copied onto the server (not in git)
 - The public `orders` channel carries `OrderCreated` with the client's name — move it to a private, staff-gated channel before exposing the panel publicly
