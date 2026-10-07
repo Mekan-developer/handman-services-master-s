@@ -1,16 +1,24 @@
-FROM node:22 AS sms-gateway
+# OTP gateway: Express + Socket.IO bridge between Laravel and the SMS phone.
+FROM node:24-alpine
+
+ENV NODE_ENV=production
+
 WORKDIR /var/www/socket-server
 
-# 1. Зеркало npm (NPM_REGISTRY из .env). Пусто — registry.npmjs.org.
-ARG NPM_REGISTRY=
-RUN if [ -n "$NPM_REGISTRY" ]; then npm config set registry "$NPM_REGISTRY"; fi
+# npm registry mirror (NPM_REGISTRY from the root .env). Empty — registry.npmjs.org.
+ARG NPM_REGISTRY=""
 
-COPY package*.json ./
-# 3. Устанавливаем только продакшен-зависимости с очисткой npm-кэша
-RUN npm install  && npm cache clean --force
+COPY package.json package-lock.json ./
+RUN if [ -n "${NPM_REGISTRY}" ]; then npm config set registry "${NPM_REGISTRY}"; fi \
+ && npm ci --omit=dev --no-audit --no-fund \
+ && npm cache clean --force
+
 COPY . .
 
-# 4. Запускаем от непривилегированного пользователя node для безопасности
+# Fail the build, not the container start, when a dependency is missing.
+RUN node -e "require('dotenv'); require('express'); require('socket.io'); console.log('[gateway] dependencies ok')"
+
 USER node
 
+EXPOSE 3000
 CMD ["node", "index.js"]

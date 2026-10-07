@@ -70,10 +70,16 @@ services:
     image: handyman-sms:local
     container_name: handyman_sms
     restart: unless-stopped
-    env_file: [./socket-server/.env]
+    # Everything comes from the root .env — the same OTP_SECRET Laravel uses.
+    # No published port: the phone reaches it through nginx at /socket.io/,
+    # Laravel at http://sms-gateway:3000.
     environment:
-      OTP_SECRET: ${OTP_SECRET:-dev-otp-secret}
-      ENABLE_TEST_PAGE: ${SMS_GATEWAY_TEST_PAGE:-true}
+      HOST: 0.0.0.0
+      PORT: 3000
+      OTP_SECRET: ${OTP_SECRET:?Set OTP_SECRET in the root .env (openssl rand -hex 32)}
+      OTP_EVENT_NAME: ${OTP_EVENT_NAME:-otp}
+      ENABLE_TEST_PAGE: ${ENABLE_TEST_PAGE:-false}
+    expose: ["3000"]
 
   db:
     image: mysql:8.0
