@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Client\ClientAuthController;
 use App\Http\Controllers\Api\V1\Client\ClientCatalogController;
+use App\Http\Controllers\Api\V1\Client\ClientDeviceController;
 use App\Http\Controllers\Api\V1\Client\ClientOrderController;
 use App\Http\Controllers\Api\V1\Client\ClientOrderTrackingController;
 use App\Http\Controllers\Api\V1\Client\ClientProfileController;
@@ -116,6 +117,11 @@ Route::prefix('client')->group(function () {
 
         Route::get('me', [ClientProfileController::class, 'show'])->name('api.v1.client.me');
         Route::patch('me', [ClientProfileController::class, 'update'])->name('api.v1.client.me.update');
+
+        // FCM token of this phone: register after sign-in / on token refresh,
+        // remove right before logout.
+        Route::post('devices', [ClientDeviceController::class, 'store'])->name('api.v1.client.devices.store');
+        Route::delete('devices', [ClientDeviceController::class, 'destroy'])->name('api.v1.client.devices.destroy');
 
         // "Become a master" — submit the application and follow its review.
         Route::get('master-application', [MasterApplicationController::class, 'show'])->name('api.v1.client.master-application.show');

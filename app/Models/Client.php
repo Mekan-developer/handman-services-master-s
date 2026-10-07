@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Repositories\ClientDeviceRepository;
 use Database\Factories\ClientFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,12 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 class Client extends Authenticatable
 {
     /** @use HasFactory<ClientFactory> */
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /** @var array<int, string> */
     protected $fillable = [
@@ -65,5 +67,21 @@ class Client extends Authenticatable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(ClientDevice::class);
+    }
+
+    /**
+     * FCM registration tokens of every phone this account is signed in on,
+     * grouped by app language — read by `FcmChannel`.
+     *
+     * @return array<string, list<string>>
+     */
+    public function routeNotificationForFcm(): array
+    {
+        return app(ClientDeviceRepository::class)->tokensByLocale($this);
     }
 }
