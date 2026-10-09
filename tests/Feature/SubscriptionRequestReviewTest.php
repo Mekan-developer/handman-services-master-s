@@ -142,7 +142,7 @@ class SubscriptionRequestReviewTest extends TestCase
         $this->assertTrue($master->refresh()->hasActiveAccess());
     }
 
-    public function test_approving_for_a_running_subscription_queues_a_renewal(): void
+    public function test_approving_for_a_running_subscription_extends_it_at_once(): void
     {
         $this->actingAsAdmin();
         $master = Master::factory()->create(['access_expires_at' => now()->addDays(10)]);
@@ -151,11 +151,13 @@ class SubscriptionRequestReviewTest extends TestCase
 
         $this->post(route('subscription-requests.approve', $request));
 
-        $renewal = MasterSubscription::whereKeyNot($running->id)->firstOrFail();
+        $extendedEnd = $running->expires_at->copy()->addDays(30);
 
-        $this->assertSame(SubscriptionStatus::Pending, $renewal->status);
-        $this->assertTrue($renewal->starts_at->equalTo($running->expires_at));
-        $this->assertTrue($master->refresh()->access_expires_at->equalTo($running->expires_at->copy()->addDays(30)));
+        $this->assertDatabaseCount('master_subscriptions', 1);
+        $this->assertSame(SubscriptionStatus::Active, $running->fresh()->status);
+        $this->assertTrue($running->fresh()->expires_at->equalTo($extendedEnd));
+        $this->assertTrue($master->refresh()->access_expires_at->equalTo($extendedEnd));
+        $this->assertSame($running->id, $request->refresh()->master_subscription_id);
     }
 
     public function test_approving_takes_the_price_actually_paid(): void

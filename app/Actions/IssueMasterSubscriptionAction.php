@@ -25,10 +25,10 @@ class IssueMasterSubscriptionAction
     /**
      * Sell a subscription to a master.
      *
-     * With no running subscription the new one starts immediately (Active).
-     * With one already running this is a renewal: the new subscription is queued
-     * (Pending) starting the moment the current one ends, so paid-for days are
-     * never burned and the "one Active subscription" invariant holds.
+     * With no running subscription a new one starts immediately (Active).
+     * With one still running this is a renewal: the bought days are added to
+     * that subscription's end date on the spot, so the master keeps a single
+     * subscription that simply lasts longer — nothing waits in a queue.
      *
      * @param  float|null  $pricePaid  Overrides the plan price — 0 issues free access.
      *
@@ -49,34 +49,60 @@ class IssueMasterSubscriptionAction
             throw SubscriptionException::planNotAvailable();
         }
 
-        $running = $this->subscriptions->activeForMaster($master);
+        $price = $pricePaid ?? (float) $plan->price;
 
-        $startsAt = $running !== null && $running->expires_at !== null && $running->expires_at->isFuture()
-            ? $running->expires_at->copy()
-            : now();
+        return DB::transaction(function () use ($master, $plan, $issuedBy, $price, $note): MasterSubscription {
+            $running = $this->subscriptions->renewableForMaster($master);
 
-        $status = $running !== null && $running->isRunning()
-            ? SubscriptionStatus::Pending
-            : SubscriptionStatus::Active;
+            // Past its end but not yet swept by `subscriptions:expire` — retire it
+            // now so the fresh one never sits next to a second Active row.
+            if ($running === null && ($overdue = $this->subscriptions->activeForMaster($master)) !== null) {
+                $this->subscriptions->updateStatus($overdue, SubscriptionStatus::Expired);
+            }
 
-        return DB::transaction(function () use ($master, $plan, $issuedBy, $pricePaid, $note, $startsAt, $status): MasterSubscription {
-            $subscription = $this->subscriptions->create([
-                'master_id' => $master->id,
-                'subscription_plan_id' => $plan->id,
-                // Snapshot: later edits to the plan must not rewrite this purchase.
-                'plan_name' => $plan->name,
-                'price_paid' => $pricePaid ?? (float) $plan->price,
-                'duration_days' => $plan->duration_days,
-                'status' => $status,
-                'starts_at' => $startsAt,
-                'expires_at' => $startsAt->copy()->addDays($plan->duration_days),
-                'created_by' => $issuedBy?->id,
-                'note' => $note,
-            ]);
+            $subscription = $running !== null
+                ? $this->extend($running, $plan, $price, $note)
+                : $this->subscriptions->create([
+                    'master_id' => $master->id,
+                    'subscription_plan_id' => $plan->id,
+                    // Snapshot: later edits to the plan must not rewrite this purchase.
+                    'plan_name' => $plan->name,
+                    'price_paid' => $this->money($price),
+                    'duration_days' => $plan->duration_days,
+                    'status' => SubscriptionStatus::Active,
+                    'starts_at' => now(),
+                    'expires_at' => now()->addDays($plan->duration_days),
+                    'created_by' => $issuedBy?->id,
+                    'note' => $note,
+                ]);
 
             $this->syncMasterAccess($master, $this->subscriptions, $this->masters);
 
             return $subscription;
         });
+    }
+
+    /**
+     * Fold a renewal into the running subscription: its end date, length and
+     * amount grow by what was just bought, and it now reads as the latest plan.
+     */
+    private function extend(MasterSubscription $running, SubscriptionPlan $plan, float $price, ?string $note): MasterSubscription
+    {
+        return $this->subscriptions->update($running, [
+            'subscription_plan_id' => $plan->id,
+            'plan_name' => $plan->name,
+            'price_paid' => $this->money((float) $running->price_paid + $price),
+            'duration_days' => $running->duration_days + $plan->duration_days,
+            'expires_at' => $running->expires_at->copy()->addDays($plan->duration_days),
+            'note' => collect([$running->note, $note])->filter()->implode('; ') ?: null,
+            // The end date moved, so the "expires tomorrow" push is due again.
+            'expiry_reminded_at' => null,
+        ]);
+    }
+
+    /** The `decimal:2` cast expects a string — floats trigger brick/math deprecations. */
+    private function money(float $amount): string
+    {
+        return number_format($amount, 2, '.', '');
     }
 }

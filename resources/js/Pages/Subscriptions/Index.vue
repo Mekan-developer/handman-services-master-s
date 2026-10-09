@@ -270,7 +270,7 @@ const statusHelp = computed(() => props.statuses.map(status => ({
 })))
 
 const thClass = 'px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400'
-const textButton = 'rounded-md px-2.5 py-1 text-xs font-medium ring-1 transition-colors'
+const textButton = 'rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors'
 const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
 </script>
 
@@ -451,33 +451,38 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex flex-wrap items-center justify-end gap-1.5">
-                                            <button
-                                                v-if="subscription.master"
-                                                @click="openRenew(subscription)"
-                                                :class="[textButton, 'bg-blue-600 text-white ring-blue-600 hover:bg-blue-700']"
-                                            >
-                                                {{ t('subscriptions.actions.renew') }}
-                                            </button>
+                                            <!-- Secondary, rarely used — kept quiet next to the main action -->
                                             <button
                                                 v-if="subscription.status === 'pending'"
                                                 @click="askStatusChange(subscription, 'active')"
-                                                :class="[textButton, 'text-green-600 ring-green-300 hover:bg-green-50 dark:text-green-400 dark:ring-green-500/40 dark:hover:bg-green-500/10']"
+                                                :title="t('subscriptions.actions.activate_hint')"
+                                                :class="[textButton, 'text-gray-500 hover:bg-green-50 hover:text-green-600 dark:text-slate-400 dark:hover:bg-green-500/10 dark:hover:text-green-400']"
                                             >
                                                 {{ t('subscriptions.actions.activate') }}
                                             </button>
                                             <button
                                                 v-if="subscription.status === 'active'"
                                                 @click="askStatusChange(subscription, 'expired')"
-                                                :class="[textButton, 'text-gray-600 ring-gray-300 hover:bg-gray-50 dark:text-slate-300 dark:ring-slate-600 dark:hover:bg-slate-700']"
+                                                :title="t('subscriptions.actions.expire_hint')"
+                                                :class="[textButton, 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200']"
                                             >
                                                 {{ t('subscriptions.actions.expire') }}
                                             </button>
                                             <button
                                                 v-if="!subscription.is_final"
                                                 @click="askStatusChange(subscription, 'cancelled')"
-                                                :class="[textButton, 'text-red-600 ring-red-300 hover:bg-red-50 dark:text-red-400 dark:ring-red-500/40 dark:hover:bg-red-500/10']"
+                                                :title="t('subscriptions.actions.cancel_hint')"
+                                                :class="[textButton, 'text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400']"
                                             >
                                                 {{ t('subscriptions.actions.cancel') }}
+                                            </button>
+                                            <!-- One "Renew" per master, on their newest subscription -->
+                                            <button
+                                                v-if="subscription.master && subscription.is_latest"
+                                                @click="openRenew(subscription)"
+                                                :class="[textButton, 'bg-blue-600 px-3 text-white ring-blue-600 hover:bg-blue-700']"
+                                            >
+                                                {{ t('subscriptions.actions.renew') }}
                                             </button>
                                             <button
                                                 @click="openSubscriptionEdit(subscription)"

@@ -98,7 +98,7 @@ return [
         'actions' => 'Hereketler',
         'empty' => 'Häzirlikçe abuna ýok',
         'delete_confirm' => 'Abunany öçürmelimi? Ussadyň girişi täzeden hasaplanar.',
-        'renewal_hint' => 'Ussadyň eýýäm işjeň abunasy bar — täzesi nobata durar we ol gutarandan soň başlar.',
+        'renewal_hint' => 'Ussanyň hereket edýän abunasy bar — onuň möhleti saýlanan nyrhyň günleri bilen derrew uzalar.',
     ],
 
     'filters' => [
@@ -110,6 +110,9 @@ return [
     'actions' => [
         'renew' => 'Uzalt',
         'activate' => 'Işjeňleşdir',
+        'activate_hint' => 'Abunany nobata garaşman şu wagt başla',
+        'expire_hint' => 'Abunany möhletinden öň tamamla — töleg hasaba alynýar',
+        'cancel_hint' => 'Abunany ýatyr — töleg girdejä goşulmaýar',
         'expire' => 'Tamamla',
         'cancel' => 'Ýatyr',
         'save' => 'Ýatda sakla',

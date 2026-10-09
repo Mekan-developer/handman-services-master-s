@@ -20,6 +20,15 @@ class MasterSubscriptionRepository
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         return MasterSubscription::with(['master:id,name,phone', 'plan', 'createdBy:id,name'])
+            ->select('master_subscriptions.*')
+            // The master's newest subscription carries the "Renew" button; older
+            // rows are history and would only offer a second, confusing one.
+            ->addSelect(['is_latest' => MasterSubscription::query()
+                ->from('master_subscriptions as newer')
+                ->selectRaw('COUNT(*) = 0')
+                ->whereColumn('newer.master_id', 'master_subscriptions.master_id')
+                ->whereColumn('newer.id', '>', 'master_subscriptions.id'),
+            ])
             ->when($filters['master_id'] ?? null, fn ($q, $masterId) => $q->where('master_id', $masterId))
             ->when($filters['status'] ?? null, fn ($q, $status) => $q->where('status', $status))
             ->latest('id')
@@ -61,6 +70,25 @@ class MasterSubscriptionRepository
         return MasterSubscription::where('master_id', $master->id)
             ->where('status', SubscriptionStatus::Active->value)
             ->orderByDesc('expires_at')
+            ->first();
+    }
+
+    /**
+     * The subscription a renewal extends: the one granting access that ends
+     * last and has not ended yet. Normally the single Active one; for masters
+     * who still carry an older queued subscription it is the tail of that queue,
+     * so extending it never overlaps another paid period.
+     */
+    public function renewableForMaster(Master $master): ?MasterSubscription
+    {
+        return MasterSubscription::where('master_id', $master->id)
+            ->whereIn('status', array_map(
+                fn (SubscriptionStatus $status) => $status->value,
+                SubscriptionStatus::grantingAccess(),
+            ))
+            ->where('expires_at', '>', now())
+            ->orderByDesc('expires_at')
+            ->lockForUpdate()
             ->first();
     }
 

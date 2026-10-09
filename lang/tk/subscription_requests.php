@@ -22,7 +22,7 @@ return [
     'rejection_reason_placeholder' => 'Hökman däl — ussa ony programmada görer',
 
     'approve' => 'Tassykla',
-    'approve_hint' => 'Arzadaky nyrh boýunça abuna resmileşdiriler. Ussanyň işjeň abunasy bar bolsa, täzesi ondan soň nobata durar.',
+    'approve_hint' => 'Arzadaky nyrh resmileşdiriler. Ussanyň hereket edýän abunasy bar bolsa, onuň möhleti nyrhyň günleri bilen derrew uzalar.',
     'reject' => 'Ret et',
     'cancel' => 'Ýatyr',
     'price_paid' => 'Tölenen',

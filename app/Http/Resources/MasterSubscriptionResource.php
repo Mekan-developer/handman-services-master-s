@@ -27,6 +27,7 @@ class MasterSubscriptionResource extends JsonResource
             'status_label' => $this->status->label(),
             'status_color' => $this->status->color(),
             'is_final' => $this->status->isFinal(),
+            'is_latest' => (bool) ($this->is_latest ?? false),
             'starts_at' => $this->starts_at?->format('d.m.Y'),
             'expires_at' => $this->expires_at?->format('d.m.Y'),
             'days_left' => $this->expires_at !== null && $this->expires_at->isFuture()

@@ -117,31 +117,113 @@ class MasterSubscriptionTest extends TestCase
 
     // ── Renewal ───────────────────────────────────────────────────────────────
 
-    public function test_renewal_starts_from_the_current_expiry_not_from_now(): void
+    public function test_renewal_extends_the_running_subscription_at_once(): void
     {
         $this->actingAsAdmin();
         $master = Master::factory()->create();
-        $plan = SubscriptionPlan::factory()->days(30)->create();
+        $monthly = SubscriptionPlan::factory()->days(30)->create(['price' => 150]);
+        $short = SubscriptionPlan::factory()->days(3)->create(['name_ru' => 'Три дня', 'price' => 20]);
 
-        $this->post(route('masters.subscriptions.store', $master), ['subscription_plan_id' => $plan->id]);
-        $first = MasterSubscription::firstOrFail();
+        $this->post(route('masters.subscriptions.store', $master), [
+            'subscription_plan_id' => $monthly->id,
+            'note' => 'Наличные',
+        ]);
+        $originalEnd = MasterSubscription::firstOrFail()->expires_at;
 
-        $this->post(route('masters.subscriptions.store', $master), ['subscription_plan_id' => $plan->id]);
-        $second = MasterSubscription::latest('id')->firstOrFail();
+        $this->post(route('masters.subscriptions.store', $master), [
+            'subscription_plan_id' => $short->id,
+            'note' => 'Перевод',
+        ]);
 
-        // Queued behind the running one, so the invariant "at most one Active" holds.
-        $this->assertSame(SubscriptionStatus::Pending, $second->status);
-        $this->assertSame($first->expires_at->toDateTimeString(), $second->starts_at->toDateTimeString());
+        // Still one subscription — nothing queued — that simply lasts longer.
+        $this->assertDatabaseCount('master_subscriptions', 1);
+        $subscription = MasterSubscription::firstOrFail();
+
+        $this->assertSame(SubscriptionStatus::Active, $subscription->status);
+        $this->assertSame($originalEnd->copy()->addDays(3)->toDateTimeString(), $subscription->expires_at->toDateTimeString());
+        $this->assertSame(33, $subscription->duration_days);
+        $this->assertEqualsWithDelta(170.0, (float) $subscription->price_paid, 0.01);
+        $this->assertSame($short->id, $subscription->subscription_plan_id);
+        $this->assertSame('Три дня', $subscription->plan_name);
+        $this->assertSame('Наличные; Перевод', $subscription->note);
+
         $this->assertSame(
-            $first->expires_at->copy()->addDays(30)->toDateTimeString(),
-            $second->expires_at->toDateTimeString(),
-        );
-
-        // Access reaches to the end of the whole chain.
-        $this->assertSame(
-            $second->expires_at->toDateTimeString(),
+            $subscription->expires_at->toDateTimeString(),
             $master->fresh()->access_expires_at->toDateTimeString(),
         );
+    }
+
+    public function test_only_the_masters_newest_subscription_is_flagged_for_renewal(): void
+    {
+        $this->actingAsAdmin();
+        $master = Master::factory()->create();
+        $old = MasterSubscription::factory()->forMaster($master)->expired()->create();
+        $newest = MasterSubscription::factory()->forMaster($master)->create();
+        $other = MasterSubscription::factory()->create();
+
+        $this->get(route('subscriptions.index'))
+            ->assertInertia(fn ($page) => $page
+                ->where('subscriptions.data', fn ($rows) => collect($rows)->pluck('is_latest', 'id')->all() === [
+                    $other->id => true,
+                    $newest->id => true,
+                    $old->id => false,
+                ]));
+    }
+
+    public function test_renewal_rearms_the_expiry_reminder(): void
+    {
+        $this->actingAsAdmin();
+        $master = Master::factory()->create();
+        $running = MasterSubscription::factory()->forMaster($master)->create([
+            'expires_at' => now()->addHours(20),
+            'expiry_reminded_at' => now(),
+        ]);
+
+        $this->post(route('masters.subscriptions.store', $master), [
+            'subscription_plan_id' => SubscriptionPlan::factory()->days(30)->create()->id,
+        ]);
+
+        $this->assertNull($running->fresh()->expiry_reminded_at);
+    }
+
+    public function test_renewal_of_a_legacy_queue_extends_its_tail(): void
+    {
+        $this->actingAsAdmin();
+        $master = Master::factory()->create();
+        $running = MasterSubscription::factory()->forMaster($master)->create(['expires_at' => now()->addDays(10)]);
+        $queued = MasterSubscription::factory()->forMaster($master)->pending()->create([
+            'starts_at' => $running->expires_at,
+            'expires_at' => $running->expires_at->copy()->addDays(30),
+        ]);
+
+        $this->post(route('masters.subscriptions.store', $master), [
+            'subscription_plan_id' => SubscriptionPlan::factory()->days(5)->create()->id,
+        ]);
+
+        $this->assertDatabaseCount('master_subscriptions', 2);
+        $this->assertSame($running->expires_at->toDateTimeString(), $running->fresh()->expires_at->toDateTimeString());
+        $this->assertSame(
+            $queued->expires_at->copy()->addDays(5)->toDateTimeString(),
+            $queued->fresh()->expires_at->toDateTimeString(),
+        );
+    }
+
+    public function test_buying_after_an_overdue_subscription_starts_a_fresh_one(): void
+    {
+        $this->actingAsAdmin();
+        $master = Master::factory()->expired()->create();
+        $overdue = MasterSubscription::factory()->forMaster($master)->overdue()->create();
+
+        $this->post(route('masters.subscriptions.store', $master), [
+            'subscription_plan_id' => SubscriptionPlan::factory()->days(30)->create()->id,
+        ]);
+
+        $fresh = MasterSubscription::whereKeyNot($overdue->id)->firstOrFail();
+
+        $this->assertSame(SubscriptionStatus::Expired, $overdue->fresh()->status);
+        $this->assertSame(SubscriptionStatus::Active, $fresh->status);
+        $this->assertTrue($fresh->starts_at->isToday());
+        $this->assertTrue($master->fresh()->hasActiveAccess());
     }
 
     public function test_master_never_has_two_active_subscriptions(): void
@@ -183,11 +265,12 @@ class MasterSubscriptionTest extends TestCase
         $master = Master::factory()->create();
         $plan = SubscriptionPlan::factory()->days(30)->create();
 
-        $this->post(route('masters.subscriptions.store', $master), ['subscription_plan_id' => $plan->id]);
-        $running = MasterSubscription::firstOrFail();
-
-        $this->post(route('masters.subscriptions.store', $master), ['subscription_plan_id' => $plan->id]);
-        $queued = MasterSubscription::latest('id')->firstOrFail();
+        // Queues are no longer created, but older data may still carry one.
+        $running = MasterSubscription::factory()->forMaster($master)->fromPlan($plan)->create();
+        $queued = MasterSubscription::factory()->forMaster($master)->fromPlan($plan)->pending()->create([
+            'starts_at' => $running->expires_at,
+            'expires_at' => $running->expires_at->copy()->addDays(30),
+        ]);
 
         $this->post(route('subscriptions.update-status', $queued), ['status' => 'cancelled'])->assertRedirect();
 
