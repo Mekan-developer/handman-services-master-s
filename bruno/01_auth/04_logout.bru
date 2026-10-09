@@ -26,5 +26,8 @@ docs {
   signs the account out of the master side as well — there is nothing left to
   revoke separately.
 
+  Call `11_push` → Remove Device **before** this request — afterwards the token
+  is gone and the phone would keep receiving this account's pushes.
+
   **Response:** `204 No Content`
 }

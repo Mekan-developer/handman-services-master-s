@@ -24,6 +24,13 @@ docs {
   8. `04_orders` → List Order Responses (saves `{{response_id}}`), then Approve
      Response — the order becomes `assigned` and starts answering in
      `10_realtime` → Order Track.
+  9. Renewal: `08_master_subscription` → Submit Subscription Request, then
+     Admin panel → **Заявки на тариф** → approve — the running subscription's
+     `expires_at` (and `access_expires_at`) moves forward by the plan's days at
+     once; it stays a single subscription, nothing is queued.
+
+  For pushes, register the phone's FCM token once after sign-in:
+  `11_push` → Register Device.
 
   ## Folders
 
@@ -36,9 +43,10 @@ docs {
   | `05_become_master`     | yes          | application + review status            |
   | `06_master_profile`    | yes, approved| profile, availability, GPS             |
   | `07_master_orders`     | yes, approved| feeds (radius / category), work, tasks |
-  | `08_master_subscription`| partly      | price list public, own subscription not|
+  | `08_master_subscription`| partly      | price list public; own subscription, plan requests (any client) |
   | `09_settings`          | no           | one T&C text, shared by both roles     |
   | `10_realtime`          | yes          | Reverb channel auth + master trail     |
+  | `11_push`              | yes          | FCM device tokens for push notifications |
 
   ## Why the master endpoints may answer 403
 
@@ -53,6 +61,27 @@ docs {
   | `application_rejected` | Rejected — `rejection_reason` explains why     |
   | `disabled`             | Blocked by the administrator                   |
   | `access_expired`       | Subscription ran out — show the renewal screen |
+
+  ## Push notifications
+
+  Delivered through FCM to every phone registered with `11_push` → Register
+  Device. Title and body arrive translated (language remembered at
+  registration). `data` always carries `type` (table below) and `audience`
+  (`client` / `master` — which half of the app to open). All `data` values are
+  **strings** (FCM requirement).
+
+  | `type`                          | `audience` | When                                          | Extra `data`                                  |
+  |---------------------------------|------------|-----------------------------------------------|-----------------------------------------------|
+  | `order.response.created`        | client     | a master responded to the order               | `order_id`, `response_id`                     |
+  | `master.assigned`               | client     | a master was assigned to the order            | `order_id`                                    |
+  | `order.status.changed`          | client     | order started / completed                     | `order_id`, `status`                          |
+  | `order.nearby`                  | master     | a new order reached the master's radius       | `order_id`                                    |
+  | `order.response.approved`       | master     | the client picked this master                 | `order_id`                                    |
+  | `order.cancelled`               | master     | the master's order was cancelled              | `order_id`                                    |
+  | `subscription.expiring`         | master     | ends within 24 h, not renewed yet             | `subscription_id`, `expires_at` (ISO)         |
+  | `subscription.expired`          | master     | ran out, access closed                        | `subscription_id`                             |
+  | `subscription_request.approved` | master     | plan request approved, access extended        | `subscription_request_id`, `subscription_id`  |
+  | `subscription_request.rejected` | master     | plan request rejected; body = reason, if any  | `subscription_request_id`                     |
 
   ## Localization
 

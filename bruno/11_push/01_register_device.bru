@@ -1,0 +1,71 @@
+meta {
+  name: Register Device
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/client/devices
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "token": "PASTE_FCM_REGISTRATION_TOKEN",
+    "platform": "android"
+  }
+}
+
+docs {
+  # Register Device
+
+  Hands the server this phone's FCM registration token so it can receive push
+  notifications. Call it:
+  - right after sign-in (Verify OTP);
+  - whenever Firebase rotates the token (`onTokenRefresh`);
+  - after the user switches the app language — pushes are rendered in the
+    language from `X-Locale` remembered here.
+
+  Idempotent: the same token sent again only refreshes its owner, platform and
+  language. A token that was registered by another account moves to this one
+  (the account that signed in last on the phone gets the pushes).
+
+  One token serves both roles — master pushes go to the same account's phones.
+
+  **Request:**
+
+  | Field      | Type   | Required | Description             |
+  |------------|--------|----------|-------------------------|
+  | `token`    | string | yes      | FCM token, max 512      |
+  | `platform` | string | yes      | `android` / `ios`       |
+
+  **Response 201** (new token) / **200** (already known):
+  ```json
+  {
+    "data": {
+      "id": 3,
+      "platform": "android",
+      "locale": "ru",
+      "created_at": "2026-10-07T12:00:00+05:00"
+    }
+  }
+  ```
+
+  **Errors:**
+  - `401` — no token
+  - `422` — `token` / `platform` missing or invalid
+
+  Put a real token from the phone (`FirebaseMessaging.instance.getToken()`)
+  into the body. The list of push types and their `data` payloads is in the
+  collection docs (click the collection root → Docs).
+}

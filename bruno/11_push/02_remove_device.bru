@@ -1,0 +1,42 @@
+meta {
+  name: Remove Device
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{base_url}}/api/v1/client/devices
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "token": "PASTE_FCM_REGISTRATION_TOKEN"
+  }
+}
+
+docs {
+  # Remove Device
+
+  Call **right before** `01_auth` → Logout, while the bearer token still works,
+  so the phone stops receiving pushes meant for the account that just left it.
+
+  Only the caller's own token is removed; an unknown or foreign token is
+  silently ignored — the response is the same.
+
+  **Response 204** — no body.
+
+  **Errors:**
+  - `401` — no token
+  - `422` — `token` missing
+}
