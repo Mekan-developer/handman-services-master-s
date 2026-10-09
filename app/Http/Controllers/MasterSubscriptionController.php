@@ -47,6 +47,8 @@ class MasterSubscriptionController extends Controller
             ]),
             'stats' => $this->subscriptions->stats(),
             'filters' => $filters,
+            // Plan actions redirect back with ?tab=plans so the administrator stays on that tab.
+            'tab' => $request->query('tab') === 'plans' ? 'plans' : 'subscriptions',
         ]);
     }
 

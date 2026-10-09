@@ -23,7 +23,7 @@ class SubscriptionPlanController extends Controller
         $action->handle($request->validated());
         $this->notifySuccess('notifications.created', ['resource' => __('resources.subscription_plan')]);
 
-        return redirect()->route('subscriptions.index');
+        return redirect()->route('subscriptions.index', ['tab' => 'plans']);
     }
 
     public function update(UpdateSubscriptionPlanRequest $request, int $id, UpdateSubscriptionPlanAction $action): RedirectResponse
@@ -32,7 +32,7 @@ class SubscriptionPlanController extends Controller
         $action->handle($plan, $request->validated());
         $this->notifySuccess('notifications.updated', ['resource' => __('resources.subscription_plan')]);
 
-        return redirect()->route('subscriptions.index');
+        return redirect()->route('subscriptions.index', ['tab' => 'plans']);
     }
 
     public function toggle(int $id, ToggleSubscriptionPlanStatusAction $action): RedirectResponse
@@ -41,7 +41,7 @@ class SubscriptionPlanController extends Controller
         $action->handle($plan);
         $this->notifySuccess('notifications.updated', ['resource' => __('resources.subscription_plan')]);
 
-        return redirect()->route('subscriptions.index');
+        return redirect()->route('subscriptions.index', ['tab' => 'plans']);
     }
 
     public function destroy(int $id, DeleteSubscriptionPlanAction $action): RedirectResponse
@@ -50,6 +50,6 @@ class SubscriptionPlanController extends Controller
         $action->handle($plan);
         $this->notifySuccess('notifications.deleted', ['resource' => __('resources.subscription_plan')]);
 
-        return redirect()->route('subscriptions.index');
+        return redirect()->route('subscriptions.index', ['tab' => 'plans']);
     }
 }

@@ -9,6 +9,8 @@ const props = defineProps({
     show: { type: Boolean, required: true },
     form: { type: Object, required: true },
     editing: { type: Object, default: null },
+    // Opened from a row's "Renew" button — same form, master and plan pre-filled.
+    renewing: { type: Boolean, default: false },
     masters: { type: Array, default: () => [] },
     plans: { type: Array, default: () => [] },
 })
@@ -45,7 +47,9 @@ const inputError = 'border-red-400 focus:border-red-400 focus:ring-red-400/20 da
         <div class="flex h-full flex-col">
             <div class="flex shrink-0 items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-slate-700">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white">
-                    {{ editing ? t('subscriptions.subscription.edit') : t('subscriptions.subscription.issue') }}
+                    {{ editing
+                        ? t('subscriptions.subscription.edit')
+                        : (renewing ? t('subscriptions.subscription.renew') : t('subscriptions.subscription.issue')) }}
                 </h2>
                 <button
                     type="button"

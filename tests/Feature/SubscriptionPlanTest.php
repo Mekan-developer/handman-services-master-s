@@ -55,7 +55,19 @@ class SubscriptionPlanTest extends TestCase
                 ->has('plans.data', 3)
                 ->has('subscriptions.data')
                 ->has('stats')
+                ->where('tab', 'subscriptions')
             );
+    }
+
+    public function test_subscriptions_page_opens_the_requested_tab(): void
+    {
+        $this->actingAsAdmin();
+
+        $this->get(route('subscriptions.index', ['tab' => 'plans']))
+            ->assertInertia(fn ($page) => $page->where('tab', 'plans'));
+
+        $this->get(route('subscriptions.index', ['tab' => 'unknown']))
+            ->assertInertia(fn ($page) => $page->where('tab', 'subscriptions'));
     }
 
     // ── Create ────────────────────────────────────────────────────────────────
@@ -65,7 +77,7 @@ class SubscriptionPlanTest extends TestCase
         $this->actingAsAdmin();
 
         $this->post(route('subscription-plans.store'), $this->validPayload())
-            ->assertRedirect(route('subscriptions.index'))
+            ->assertRedirect(route('subscriptions.index', ['tab' => 'plans']))
             ->assertSessionHas('notification', fn ($notification) => $notification['type'] === 'success');
 
         $this->assertDatabaseHas('subscription_plans', [
@@ -111,7 +123,7 @@ class SubscriptionPlanTest extends TestCase
         $plan = SubscriptionPlan::factory()->create();
 
         $this->put(route('subscription-plans.update', $plan), $this->validPayload(['price' => 199]))
-            ->assertRedirect(route('subscriptions.index'));
+            ->assertRedirect(route('subscriptions.index', ['tab' => 'plans']));
 
         $this->assertDatabaseHas('subscription_plans', ['id' => $plan->id, 'price' => 199]);
     }
@@ -144,7 +156,7 @@ class SubscriptionPlanTest extends TestCase
         $this->actingAsAdmin();
         $plan = SubscriptionPlan::factory()->create(['is_active' => true]);
 
-        $this->post(route('subscription-plans.toggle', $plan))->assertRedirect(route('subscriptions.index'));
+        $this->post(route('subscription-plans.toggle', $plan))->assertRedirect(route('subscriptions.index', ['tab' => 'plans']));
 
         $this->assertFalse($plan->fresh()->is_active);
     }
@@ -158,7 +170,7 @@ class SubscriptionPlanTest extends TestCase
         $master = Master::factory()->create();
         $subscription = MasterSubscription::factory()->forMaster($master)->fromPlan($plan)->create();
 
-        $this->delete(route('subscription-plans.destroy', $plan))->assertRedirect(route('subscriptions.index'));
+        $this->delete(route('subscription-plans.destroy', $plan))->assertRedirect(route('subscriptions.index', ['tab' => 'plans']));
 
         $this->assertSoftDeleted('subscription_plans', ['id' => $plan->id]);
         $this->assertDatabaseHas('master_subscriptions', [

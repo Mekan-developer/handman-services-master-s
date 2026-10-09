@@ -11,6 +11,38 @@ return [
         'revenue' => 'Abunalardan ýygnalan',
     ],
 
+    'tabs' => [
+        'subscriptions' => 'Ussalaryň abunalary',
+        'plans' => 'Nyrhlar',
+    ],
+
+    'hints' => [
+        'subscriptions' => 'Haýsy ussanyň näme satyn alandygy we girişiniň haçana çenli açykdygy. Girişi uzaltmak üçin ussanyň setirinde «Uzalt» düwmesine basyň.',
+        'plans' => 'Ussalaryň programmada görýän nyrhlary. Öçürilen nyrh programmada görünmeýär, ýöne onuň boýunça satyn alnan abunalar işlemegini dowam edýär.',
+    ],
+
+    'pending_requests' => 'Programmadan gelen nyrh arzalary çözgüde garaşýar: {count}',
+    'pending_requests_link' => 'Arzalary aç',
+
+    'status_help' => [
+        'title' => 'Ýagdaýlar',
+        'pending' => 'tölendi we nobata garaşýar — häzirki gutaranda başlar',
+        'active' => 'häzir dowam edýär, giriş açyk',
+        'expired' => 'möhleti gutardy',
+        'cancelled' => 'administrator tarapyndan ýatyryldy',
+    ],
+
+    'confirm' => [
+        'activate_title' => 'Abunany işjeňleşdirmelimi?',
+        'activate_message' => '{master} ussanyň abunasy nobatyna garaşman, şu wagt başlar.',
+        'expire_title' => 'Abunany möhletinden öň tamamlamalymy?',
+        'expire_message' => '{master} ussanyň abunasy şu wagt tamamlanar. Onuň yzynda tölenen abuna nobatda bolmasa, ussa sargytlara girişini derrew ýitirer. Bu hereketi yzyna gaýtaryp bolmaýar.',
+        'cancel_title' => 'Abunany ýatyrmalymy?',
+        'cancel_message' => '{master} ussanyň abunasy ýatyrylar we giriş onsuz täzeden hasaplanar. Başga abuna ýok bolsa, ussa sargytlara girişini derrew ýitirer. Bu hereketi yzyna gaýtaryp bolmaýar.',
+        'cancel_button' => 'Abunany ýatyr',
+        'delete_title' => 'Abunany öçürmelimi?',
+    ],
+
     'currency' => 'manat',
     'days_short' => 'gün',
     'days_left' => 'Galan günler',
@@ -18,6 +50,8 @@ return [
     'plan' => [
         'add' => 'Nyrh goş',
         'edit' => 'Nyrhy üýtget',
+        'delete' => 'Nyrhy öçür',
+        'name' => 'Ady',
         'name_ru' => 'Ady (RU)',
         'name_ru_placeholder' => 'Meselem: Standart',
         'name_tk' => 'Ady (TK)',
@@ -43,7 +77,11 @@ return [
 
     'subscription' => [
         'issue' => 'Abuna resmileşdir',
+        'renew' => 'Abunany uzalt',
         'edit' => 'Abunany üýtget',
+        'delete' => 'Abunany öçür',
+        'period' => 'Döwri',
+        'starts_on' => '{date} başlar',
         'master' => 'Usta',
         'master_placeholder' => 'Ussady saýlaň',
         'plan' => 'Nyrh meýilnamasy',
@@ -70,6 +108,7 @@ return [
     ],
 
     'actions' => [
+        'renew' => 'Uzalt',
         'activate' => 'Işjeňleşdir',
         'expire' => 'Tamamla',
         'cancel' => 'Ýatyr',
