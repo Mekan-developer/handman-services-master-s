@@ -10,6 +10,7 @@ return [
     'order' => 'Заказ',
     'subscription' => 'Подписка',
     'subscription_plan' => 'Тарифный план',
+    'subscription_request' => 'Заявка на тариф',
     'banner' => 'Баннер',
     'content' => 'Контент',
     'user' => 'Пользователь',

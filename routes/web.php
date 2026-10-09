@@ -17,6 +17,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SubscriptionPlanController;
+use App\Http\Controllers\SubscriptionRequestController;
 use App\Http\Controllers\SystemStatusController;
 use App\Http\Controllers\TilesController;
 use App\Http\Controllers\UserController;
@@ -108,6 +109,11 @@ Route::middleware('auth')->group(function () {
             Route::put('subscriptions/{subscription}', [MasterSubscriptionController::class, 'update'])->name('subscriptions.update');
             Route::post('subscriptions/{subscription}/status', [MasterSubscriptionController::class, 'updateStatus'])->name('subscriptions.update-status');
             Route::delete('subscriptions/{subscription}', [MasterSubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+
+            // Plan purchases requested from the app's "Buy" button.
+            Route::get('subscription-requests', [SubscriptionRequestController::class, 'index'])->name('subscription-requests.index');
+            Route::post('subscription-requests/{subscriptionRequest}/approve', [SubscriptionRequestController::class, 'approve'])->name('subscription-requests.approve');
+            Route::post('subscription-requests/{subscriptionRequest}/reject', [SubscriptionRequestController::class, 'reject'])->name('subscription-requests.reject');
 
             Route::resource('subscription-plans', SubscriptionPlanController::class)->only(['store', 'update', 'destroy']);
             Route::post('subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])->name('subscription-plans.toggle');

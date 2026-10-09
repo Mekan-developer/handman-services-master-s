@@ -41,5 +41,13 @@ return [
             'title' => 'Abuna gutardy',
             'body' => '«:plan» abunasy gutardy. Täzeden sargyt almak üçin ony uzaldyň',
         ],
+        'subscription_request_approved' => [
+            'title' => 'Nyrh birikdirildi',
+            'body' => '«:plan» nyrhy resmileşdirildi, giriş :date çenli açyk',
+        ],
+        'subscription_request_rejected' => [
+            'title' => 'Nyrh arzasy ret edildi',
+            'body' => 'Administrator nyrh arzaňyzy ret etdi',
+        ],
     ],
 ];

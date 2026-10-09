@@ -12,6 +12,7 @@ return [
         'clients' => 'Müşderiler',
         'orders' => 'Sargytlar',
         'subscriptions' => 'Abunalar',
+        'subscription_requests' => 'Nyrh arzalary',
         'pending_otps' => 'OTP kodlary',
         'banners' => 'Bannerlar',
         'users' => 'Ulanyjylar',

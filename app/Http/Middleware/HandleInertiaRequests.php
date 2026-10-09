@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Repositories\PendingOtpRepository;
+use App\Repositories\SubscriptionRequestRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -45,7 +46,21 @@ class HandleInertiaRequests extends Middleware
                 ? $request->user()->unreadNotifications()->count()
                 : 0,
             'pendingOtpCount' => $this->pendingOtpCount($request),
+            'pendingSubscriptionRequestCount' => $this->pendingSubscriptionRequestCount($request),
         ];
+    }
+
+    /**
+     * Sidebar badge for plan requests from the app waiting for a verdict.
+     * Selling subscriptions is administrator-only, so nobody else pays for it.
+     */
+    private function pendingSubscriptionRequestCount(Request $request): int
+    {
+        if ($request->user()?->isAdministrator() !== true) {
+            return 0;
+        }
+
+        return app(SubscriptionRequestRepository::class)->countPending();
     }
 
     /**

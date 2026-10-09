@@ -12,6 +12,7 @@ return [
         'clients' => 'Клиенты',
         'orders' => 'Заказы',
         'subscriptions' => 'Подписки',
+        'subscription_requests' => 'Заявки на тариф',
         'pending_otps' => 'OTP-коды',
         'banners' => 'Баннеры',
         'users' => 'Пользователи',
