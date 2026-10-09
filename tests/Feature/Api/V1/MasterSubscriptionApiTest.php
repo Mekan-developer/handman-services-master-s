@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api\V1;
 
+use App\Actions\IssueMasterSubscriptionAction;
 use App\Models\Master;
 use App\Models\MasterSubscription;
 use App\Models\SubscriptionPlan;
@@ -64,6 +65,22 @@ class MasterSubscriptionApiTest extends TestCase
             ->assertJsonPath('data.current.plan_name', '1 месяц')
             ->assertJsonPath('data.current.status', 'active')
             ->assertJsonPath('data.has_active_access', true);
+    }
+
+    public function test_days_left_is_a_whole_number_that_grows_with_a_renewal(): void
+    {
+        $master = $this->actingAsMaster(Master::factory()->create());
+        MasterSubscription::factory()->forMaster($master)->create(['expires_at' => now()->addDays(30)->subHours(2)]);
+
+        $this->getJson(route('api.v1.master.subscription'))
+            ->assertJsonPath('data.current.days_left', 29);
+
+        app(IssueMasterSubscriptionAction::class)->handle($master, SubscriptionPlan::factory()->days(3)->create());
+
+        $this->getJson(route('api.v1.master.subscription'))
+            ->assertJsonPath('data.current.days_left', 32)
+            ->assertJsonPath('data.current.duration_days', 33)
+            ->assertJsonPath('data.access_expires_at', now()->addDays(33)->subHours(2)->toDateString());
     }
 
     public function test_master_with_expired_access_can_still_read_their_subscription(): void

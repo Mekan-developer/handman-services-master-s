@@ -429,7 +429,7 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                             v-else-if="subscription.status === 'active' && subscription.days_left > 0"
                                             class="mt-0.5 text-xs text-gray-400 dark:text-slate-500"
                                         >
-                                            {{ t('subscriptions.days_left') }}: {{ Math.floor(subscription.days_left) }}
+                                            {{ t('subscriptions.days_left') }}: {{ subscription.days_left }}
                                         </p>
                                     </td>
                                     <td class="px-6 py-4">

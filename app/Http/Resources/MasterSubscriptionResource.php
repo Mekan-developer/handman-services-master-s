@@ -31,7 +31,8 @@ class MasterSubscriptionResource extends JsonResource
             'starts_at' => $this->starts_at?->format('d.m.Y'),
             'expires_at' => $this->expires_at?->format('d.m.Y'),
             'days_left' => $this->expires_at !== null && $this->expires_at->isFuture()
-                ? now()->diffInDays($this->expires_at, false)
+                // Whole days: Carbon 3 returns a float (32.97), the app shows a count.
+                ? (int) now()->diffInDays($this->expires_at, false)
                 : 0,
             'note' => $this->note,
             'created_by' => $this->whenLoaded('createdBy', fn () => $this->createdBy?->name),
