@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Enums\SubscriptionRequestStatus;
+use App\Events\SubscriptionRequestSubmitted;
 use App\Exceptions\SubscriptionRequestException;
 use App\Models\Client;
 use App\Models\SubscriptionPlan;
@@ -24,7 +25,7 @@ class SubmitSubscriptionRequestAction
     /** @throws SubscriptionRequestException */
     public function handle(Client $client, SubscriptionPlan $plan): SubscriptionRequest
     {
-        return DB::transaction(function () use ($client, $plan): SubscriptionRequest {
+        $request = DB::transaction(function () use ($client, $plan): SubscriptionRequest {
             if ($this->requests->pendingForClientLocked($client) !== null) {
                 throw SubscriptionRequestException::alreadyPending();
             }
@@ -35,5 +36,10 @@ class SubmitSubscriptionRequestAction
                 'status' => SubscriptionRequestStatus::Pending,
             ]);
         });
+
+        // After commit: administrators are only told about a request that exists.
+        SubscriptionRequestSubmitted::dispatch($request->setRelations(['client' => $client, 'plan' => $plan]));
+
+        return $request;
     }
 }

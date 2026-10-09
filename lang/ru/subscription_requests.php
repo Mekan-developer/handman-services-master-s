@@ -30,6 +30,11 @@ return [
     'note' => 'Заметка',
     'note_placeholder' => 'Например: оплата наличными',
 
+    'notifications' => [
+        'new' => 'Новая заявка на тариф',
+        'new_broadcast' => 'Новая заявка на тариф: :client — «:plan»',
+    ],
+
     'statuses' => [
         'pending' => 'Ожидает',
         'approved' => 'Одобрена',

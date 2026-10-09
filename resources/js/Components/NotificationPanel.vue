@@ -4,7 +4,12 @@ import { router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+/** Plan names travel in both languages — pick the one the panel is shown in. */
+function planName(data) {
+    return (locale.value === 'tk' ? data.plan_name_tk : data.plan_name_ru) ?? data.plan_name_ru ?? '—'
+}
 
 const props = defineProps({
     open: {
@@ -97,6 +102,9 @@ function openNotification(notification) {
 
     if (notification.data.type === 'new_client') {
         goToClients()
+    } else if (notification.data.type === 'new_subscription_request') {
+        emit('close')
+        router.visit(route('subscription-requests.index'))
     } else {
         goToOrder(notification.data.order_id)
     }
@@ -219,6 +227,9 @@ defineExpose({ prepend, fetchNotifications })
                                     <template v-else-if="n.data.type === 'new_client'">
                                         {{ t('clients.notifications.new_client') }}
                                     </template>
+                                    <template v-else-if="n.data.type === 'new_subscription_request'">
+                                        {{ t('subscription_requests.notifications.new') }}
+                                    </template>
                                     <template v-else>
                                         Новый заказ #{{ n.data.order_id }}
                                     </template>
@@ -229,6 +240,9 @@ defineExpose({ prepend, fetchNotifications })
                             </div>
                             <p v-if="n.data.type === 'new_client'" class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
                                 {{ n.data.client_name ?? n.data.phone }}
+                            </p>
+                            <p v-else-if="n.data.type === 'new_subscription_request'" class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
+                                {{ n.data.client_name ?? n.data.phone }} · {{ planName(n.data) }}
                             </p>
                             <p v-else class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
                                 {{ n.data.client_name }} · {{ n.data.category }}

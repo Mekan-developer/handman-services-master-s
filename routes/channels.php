@@ -37,6 +37,14 @@ Broadcast::channel('admin.pending-otps', function ($user) {
 });
 
 /*
+ * Private channel announcing plan requests from the app. Selling subscriptions
+ * is administrator-only, so managers and operators may not subscribe.
+ */
+Broadcast::channel('admin.subscription-requests', function ($user) {
+    return $user instanceof User && $user->isAdministrator();
+});
+
+/*
  * Private channel for a specific client — used by the mobile client app to receive:
  * master.assigned and order.status.changed events scoped to their orders.
  * Auth: Sanctum token issued to the Client model.

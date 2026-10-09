@@ -30,6 +30,11 @@ return [
     'note' => 'Bellik',
     'note_placeholder' => 'Meselem: nagt töleg',
 
+    'notifications' => [
+        'new' => 'Täze nyrh arzasy',
+        'new_broadcast' => 'Täze nyrh arzasy: :client — «:plan»',
+    ],
+
     'statuses' => [
         'pending' => 'Garaşýar',
         'approved' => 'Tassyklandy',

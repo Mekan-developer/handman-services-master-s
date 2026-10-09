@@ -24,6 +24,19 @@ class UserRepository
             ->chunkById($chunkSize, $callback);
     }
 
+    /**
+     * Stream administrators only, in chunks — for sections managers cannot
+     * open, such as selling subscriptions.
+     *
+     * @param  callable(Collection<int, User>): void  $callback
+     */
+    public function eachAdministrator(callable $callback, int $chunkSize = 200): void
+    {
+        User::query()
+            ->where('role', UserRole::Administrator->value)
+            ->chunkById($chunkSize, $callback);
+    }
+
     public function paginate(int $perPage = 20, array $filters = []): LengthAwarePaginator
     {
         return User::query()

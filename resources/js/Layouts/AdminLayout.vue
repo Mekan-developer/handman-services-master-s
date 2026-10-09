@@ -261,6 +261,21 @@ function handleNewClient(payload) {
     }
 }
 
+function handleSubscriptionRequest(payload) {
+    const plan = (locale.value === 'tk' ? payload.plan_name_tk : payload.plan_name_ru) ?? payload.plan_name_ru ?? '—'
+
+    notificationStore.info(t('subscription_requests.notifications.new_broadcast', {
+        client: payload.client_name ?? payload.client_phone ?? '—',
+        plan,
+    }))
+    playAlarmSound()
+
+    router.reload({ only: ['unreadNotificationsCount', 'pendingSubscriptionRequestCount'] })
+    if (notificationPanelOpen.value) {
+        notificationPanelRef.value?.fetchNotifications()
+    }
+}
+
 function handlePendingOtp(payload) {
     notificationStore.warning(t('pending_otps.notifications.new', { phone: payload.phone }))
     playAlarmSound()
@@ -290,6 +305,12 @@ onMounted(() => {
     if (currentUserRole.value !== 'operator') {
         window.Echo.private('admin.pending-otps').listen('.pending-otp.created', handlePendingOtp)
     }
+
+    // Selling subscriptions is administrator-only — anyone else would get a 403.
+    if (currentUserRole.value === 'administrator') {
+        window.Echo.private('admin.subscription-requests')
+            .listen('.subscription-request.submitted', handleSubscriptionRequest)
+    }
 })
 
 onBeforeUnmount(() => {
@@ -298,6 +319,7 @@ onBeforeUnmount(() => {
     window.Echo?.leave('orders')
     window.Echo?.leave('clients')
     window.Echo?.leave('admin.pending-otps')
+    window.Echo?.leave('admin.subscription-requests')
 })
 </script>
 
