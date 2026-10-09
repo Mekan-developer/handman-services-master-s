@@ -1,0 +1,77 @@
+meta {
+  name: Submit Subscription Request
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/api/v1/master/subscription-requests
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+body:json {
+  {
+    "plan_id": 1
+  }
+}
+
+docs {
+  # Submit Subscription Request
+
+  The "Buy" button on the plans screen. Files a request for the administrator,
+  who gets in touch, settles the payment and approves or rejects it. Nothing is
+  granted until then.
+
+  Runs on the plain client token (`ensure.client`): open to masters — including
+  ones whose access has already run out — and to ordinary clients alike. The
+  administrator can only approve a request from an **approved** master profile.
+
+  **Request:**
+
+  | Field     | Type    | Required | Description                                          |
+  |-----------|---------|----------|------------------------------------------------------|
+  | `plan_id` | integer | yes      | `id` from `GET /api/v1/master/subscription-plans`    |
+
+  **Response 201:**
+  ```json
+  {
+    "message": "Заявка отправлена. Администратор свяжется с вами",
+    "data": {
+      "id": 42,
+      "plan_id": 1,
+      "plan_name": "1 месяц",
+      "price": 1250,
+      "duration_days": 30,
+      "status": "pending",
+      "status_label": "Ожидает",
+      "rejection_reason": null,
+      "reviewed_at": null,
+      "created_at": "2026-10-09T12:00:00+05:00"
+    }
+  }
+  ```
+
+  `status`: `pending` / `approved` / `rejected`.
+
+  **After review** a push arrives with `data.type`:
+  - `subscription_request.approved` — also `subscription_request_id`, `subscription_id`
+  - `subscription_request.rejected` — also `subscription_request_id`; the body is the reason when one was given
+
+  Both carry `audience: master`.
+
+  **Errors:**
+  - `401` — no token
+  - `403` — token is not a client token
+  - `409` — the account already has a `pending` request (one at a time, any plan)
+  - `422` — `plan_id` missing, not an integer, unknown, disabled or deleted (`errors.plan_id`)
+}

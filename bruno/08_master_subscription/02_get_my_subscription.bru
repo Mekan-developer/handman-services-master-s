@@ -47,6 +47,7 @@ docs {
       },
       "access_expires_at": "2026-08-31",
       "has_active_access": true,
+      "pending_request": null,
       "history": []
     }
   }
@@ -56,6 +57,7 @@ docs {
   |---------------------|---------------|----------------------------------------------------------------|
   | `current`           | object\|null  | Running subscription, or the next queued one; `null` when access is closed |
   | `access_expires_at` | date\|null    | Derived from subscriptions                                      |
+  | `pending_request`   | object\|null  | Plan request awaiting the administrator — same shape as in `subscription-requests` |
   | `status`            | string        | `pending` / `active` / `expired` / `cancelled`                  |
   | `days_left`         | int           | 0 once the end date has passed                                  |
 

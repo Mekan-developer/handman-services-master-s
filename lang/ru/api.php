@@ -26,6 +26,11 @@ return [
         'location_owner_mismatch' => 'Нельзя отправлять координаты за другого мастера',
     ],
 
+    'subscription_request' => [
+        'submitted' => 'Заявка отправлена. Администратор свяжется с вами',
+        'already_pending' => 'У вас уже есть заявка на рассмотрении',
+    ],
+
     'master_application' => [
         'under_review' => 'Ваша заявка уже на рассмотрении',
         'already_approved' => 'Вы уже работаете как мастер',

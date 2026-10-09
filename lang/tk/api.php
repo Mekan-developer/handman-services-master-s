@@ -26,6 +26,11 @@ return [
         'location_owner_mismatch' => 'Başga ussanyň adyndan koordinatalary ibermek bolmaýar',
     ],
 
+    'subscription_request' => [
+        'submitted' => 'Arza iberildi. Administrator siziň bilen habarlaşar',
+        'already_pending' => 'Siziň seredilýän arzaňyz eýýäm bar',
+    ],
+
     'master_application' => [
         'under_review' => 'Arzaňyz eýýäm seredilýär',
         'already_approved' => 'Siz eýýäm ussa hökmünde işleýärsiňiz',

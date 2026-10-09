@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\MasterLocationController;
 use App\Http\Controllers\Api\V1\MasterOrderController;
 use App\Http\Controllers\Api\V1\MasterProfileController;
 use App\Http\Controllers\Api\V1\MasterSubscriptionController;
+use App\Http\Controllers\Api\V1\MasterSubscriptionRequestController;
 use App\Http\Controllers\Api\V1\MasterTaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -49,6 +50,13 @@ Route::prefix('master')->group(function () {
     Route::get('subscription', [MasterSubscriptionController::class, 'current'])
         ->middleware(['auth:sanctum', 'ensure.master:allow-expired'])
         ->name('api.v1.master.subscription');
+
+    // "Buy" on the plans screen — any client may ask, the administrator decides.
+    // Deliberately not `ensure.master`: a master with lapsed access must be able to renew.
+    Route::middleware(['auth:sanctum', 'ensure.client'])->group(function () {
+        Route::get('subscription-requests', [MasterSubscriptionRequestController::class, 'index'])->name('api.v1.master.subscription-requests.index');
+        Route::post('subscription-requests', [MasterSubscriptionRequestController::class, 'store'])->name('api.v1.master.subscription-requests.store');
+    });
 
     // Protected — client token whose account carries an approved master profile
     Route::middleware(['auth:sanctum', 'ensure.master'])->group(function () {
