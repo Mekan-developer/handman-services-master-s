@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
@@ -80,6 +80,25 @@ const statusBadgeStyles = {
 function statusBadge(status) {
     return statusBadgeStyles[status] ?? statusBadgeStyles.pending
 }
+
+// The layout already toasts these events; here we only refresh the table so
+// status/master changes made elsewhere (mobile apps, other admins) show up live.
+const ORDER_TABLE_EVENTS = ['.order.created', '.master.assigned', '.order.status.changed']
+
+function reloadOrders() {
+    router.reload({ only: ['orders'] })
+}
+
+onMounted(() => {
+    const channel = window.Echo?.channel('orders')
+    ORDER_TABLE_EVENTS.forEach((event) => channel?.listen(event, reloadOrders))
+})
+
+onBeforeUnmount(() => {
+    // stopListening, not leave() — the layout shares the 'orders' channel.
+    const channel = window.Echo?.channel('orders')
+    ORDER_TABLE_EVENTS.forEach((event) => channel?.stopListening(event, reloadOrders))
+})
 
 const deleteTarget = ref(null)
 const deleting = ref(false)

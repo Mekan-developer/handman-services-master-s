@@ -60,6 +60,10 @@ const liveEta = ref(null)
 const isTracking = computed(() => Boolean(props.order.master) && props.order.is_trackable)
 
 onMounted(async () => {
+    window.Echo?.channel('orders')
+        .listen('.order.status.changed', reloadOrderOnBroadcast)
+        .listen('.master.assigned', reloadOrderOnBroadcast)
+
     const L = (await import('leaflet')).default
     await import('@maplibre/maplibre-gl-leaflet')
 
@@ -155,7 +159,17 @@ onMounted(async () => {
     }
 })
 
+function reloadOrderOnBroadcast(payload) {
+    if (payload.order_id === props.order.id) {
+        router.reload({ only: ['order'] })
+    }
+}
+
 onBeforeUnmount(() => {
+    // stopListening, not leave() — the layout shares the 'orders' channel.
+    window.Echo?.channel('orders')
+        .stopListening('.order.status.changed', reloadOrderOnBroadcast)
+        .stopListening('.master.assigned', reloadOrderOnBroadcast)
     if (props.order.city?.id) {
         window.Echo?.leave(`masters-map.${props.order.city.id}`)
     }
