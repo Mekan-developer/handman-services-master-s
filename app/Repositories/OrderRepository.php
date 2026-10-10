@@ -9,6 +9,7 @@ use App\Models\Master;
 use App\Models\Order;
 use App\Models\OrderMasterDecline;
 use App\Models\OrderMasterResponse;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -410,6 +411,64 @@ class OrderRepository
             'order_id' => $order->id,
             'master_id' => $masterId,
         ]);
+    }
+
+    /**
+     * Orders this master declined that can still be taken back: unclaimed,
+     * pending, and declined no longer than `$windowMinutes` ago — freshest
+     * decline first. Each order carries `declined_at` and `restore_until`.
+     */
+    public function declinedRestorableForMaster(Master $master, int $windowMinutes, int $perPage = 15): LengthAwarePaginator
+    {
+        $orders = Order::with(['category', 'city', 'photos'])
+            ->select('orders.*', 'order_master_declines.created_at as declined_at')
+            ->join('order_master_declines', 'order_master_declines.order_id', '=', 'orders.id')
+            ->where('order_master_declines.master_id', $master->id)
+            ->where('order_master_declines.created_at', '>=', now()->subMinutes($windowMinutes))
+            ->where('orders.status', OrderStatus::Pending)
+            ->whereNull('orders.master_id')
+            ->orderByDesc('order_master_declines.created_at')
+            ->orderByDesc('orders.id')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $orders->getCollection()->each(function (Order $order) use ($windowMinutes): void {
+            $order->declined_at = Carbon::parse($order->declined_at);
+            $order->restore_until = $order->declined_at->copy()->addMinutes($windowMinutes);
+        });
+
+        return $orders;
+    }
+
+    /**
+     * Re-read the order under a row lock so a concurrent claim cannot slip in
+     * between the availability check and the change. Must run in a transaction.
+     */
+    public function lockForUpdate(Order $order): Order
+    {
+        return Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
+    }
+
+    public function findDeclineForMaster(Order $order, int $masterId): ?OrderMasterDecline
+    {
+        return OrderMasterDecline::query()
+            ->where('order_id', $order->id)
+            ->where('master_id', $masterId)
+            ->first();
+    }
+
+    /** The order was declined, but only by other masters — never by this one. */
+    public function isDeclinedOnlyByOtherMasters(int $orderId, int $masterId): bool
+    {
+        $declinedBy = OrderMasterDecline::query()->where('order_id', $orderId)->pluck('master_id');
+
+        return $declinedBy->isNotEmpty() && ! $declinedBy->contains($masterId);
+    }
+
+    /** Take a decline back: the order returns to this master's feeds. */
+    public function restoreDeclineForMaster(OrderMasterDecline $decline): void
+    {
+        $decline->delete();
     }
 
     /** @return array<int, int> */

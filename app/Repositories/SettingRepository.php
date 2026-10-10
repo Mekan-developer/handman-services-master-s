@@ -50,4 +50,10 @@ class SettingRepository
     {
         return (int) ($this->get(Setting::ORDER_AUTO_CANCEL_HOURS) ?: Setting::DEFAULT_ORDER_AUTO_CANCEL_HOURS);
     }
+
+    /** Minutes, counted from the decline itself, during which a master may take it back. */
+    public function orderDeclineRestoreMinutes(): int
+    {
+        return (int) ($this->get(Setting::ORDER_DECLINE_RESTORE_MINUTES) ?: Setting::DEFAULT_ORDER_DECLINE_RESTORE_MINUTES);
+    }
 }

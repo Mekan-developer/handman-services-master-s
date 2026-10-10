@@ -25,6 +25,7 @@ class SettingController extends Controller
             'masterSearchInitialRadiusKm' => $radii['initial'],
             'masterSearchMaxRadiusKm' => $radii['max'],
             'orderAutoCancelHours' => $this->repository->orderAutoCancelHours(),
+            'orderDeclineRestoreMinutes' => $this->repository->orderDeclineRestoreMinutes(),
         ]);
     }
 

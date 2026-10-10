@@ -24,5 +24,10 @@ class Setting extends Model
 
     public const DEFAULT_ORDER_AUTO_CANCEL_HOURS = 48;
 
+    /** How long after declining an order the master may still take the decline back. */
+    public const ORDER_DECLINE_RESTORE_MINUTES = 'order_decline_restore_minutes';
+
+    public const DEFAULT_ORDER_DECLINE_RESTORE_MINUTES = 60;
+
     protected $fillable = ['key', 'value'];
 }

@@ -5,16 +5,20 @@ namespace App\Http\Controllers\Api\V1;
 use App\Actions\CompleteMasterOrderAction;
 use App\Actions\DeclineOrderAction;
 use App\Actions\RespondToOrderAction;
+use App\Actions\RestoreDeclinedOrderAction;
 use App\Actions\StartMasterOrderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\CategoryOrdersRequest;
+use App\Http\Requests\Api\V1\RestoreDeclinedOrderRequest;
 use App\Http\Resources\Api\V1\AvailableOrderResource;
 use App\Http\Resources\Api\V1\CategoryOrderResource;
+use App\Http\Resources\Api\V1\DeclinedOrderResource;
 use App\Http\Resources\Api\V1\MasterOrderResource;
 use App\Http\Resources\Api\V1\OrderMasterResponseResource;
 use App\Models\Master;
 use App\Repositories\MasterRepository;
 use App\Repositories\OrderRepository;
+use App\Repositories\SettingRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -100,6 +104,30 @@ class MasterOrderController extends Controller
 
     /** Hide an offered order from this master's feed without affecting other masters. */
     public function decline(Request $request, int $id, DeclineOrderAction $action): JsonResponse
+    {
+        /** @var Master $master */
+        $master = $request->user();
+
+        $order = $this->repository->findOrFail($id);
+
+        $action->handle($master, $order);
+
+        return response()->json(null, 204);
+    }
+
+    /** Orders this master declined that can still be taken back, freshest decline first. */
+    public function declined(Request $request, SettingRepository $settings): AnonymousResourceCollection
+    {
+        /** @var Master $master */
+        $master = $request->user();
+
+        $orders = $this->repository->declinedRestorableForMaster($master, $settings->orderDeclineRestoreMinutes());
+
+        return DeclinedOrderResource::collection($orders);
+    }
+
+    /** Take a decline back so the order returns to this master's feeds. */
+    public function restoreDecline(RestoreDeclinedOrderRequest $request, int $id, RestoreDeclinedOrderAction $action): JsonResponse
     {
         /** @var Master $master */
         $master = $request->user();

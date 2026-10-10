@@ -392,7 +392,7 @@ Custom values are exposed through `config/services.php`: `services.tiles.style_u
 
 > **Note**: `.env.example` still ships Laravel's defaults (`APP_NAME=Laravel`, `APP_LOCALE=en`, `BROADCAST_CONNECTION=log`) and has no `REVERB_*` / `VITE_REVERB_*` block. Fix those after `cp .env.example .env`, otherwise broadcasting silently does nothing.
 
-Business settings that admins change at runtime are **not** env variables — they live in the `settings` table and are edited at **Settings**: app rules (`client_app_rules`), auto-search radii (`master_search_initial_radius_km` = 20, `master_search_max_radius_km` = 80) and the auto-cancel deadline (`order_auto_cancel_hours` = 48). Defaults are constants on `App\Models\Setting`.
+Business settings that admins change at runtime are **not** env variables — they live in the `settings` table and are edited at **Settings**: app rules (`client_app_rules`), auto-search radii (`master_search_initial_radius_km` = 20, `master_search_max_radius_km` = 80) the auto-cancel deadline (`order_auto_cancel_hours` = 48) and the window for a master to take back a declined order (`order_decline_restore_minutes` = 60, counted from the decline). Defaults are constants on `App\Models\Setting`.
 
 ---
 

@@ -70,6 +70,24 @@ class OrderException extends ApiException
         return new self((string) __('orders.errors.already_claimed'));
     }
 
+    /** The order left the pool (e.g. cancelled) without anyone claiming it. */
+    public static function noLongerAvailable(): self
+    {
+        return new self((string) __('orders.errors.no_longer_available'));
+    }
+
+    /** There is no decline by this master on the order to take back. */
+    public static function notDeclined(): self
+    {
+        return new self((string) __('orders.errors.not_declined'));
+    }
+
+    /** The decline is older than the restore window set in the admin settings. */
+    public static function restoreWindowExpired(): self
+    {
+        return new self((string) __('orders.errors.restore_window_expired'));
+    }
+
     /** The master sits outside the order's currently active search radius. */
     public static function outOfSearchRadius(): self
     {

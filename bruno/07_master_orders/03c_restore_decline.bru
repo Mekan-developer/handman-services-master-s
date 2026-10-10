@@ -1,0 +1,45 @@
+meta {
+  name: Restore decline (return offer)
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{base_url}}/api/v1/master/orders/{{order_id}}/decline
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Restore decline — return a declined offer
+
+  Takes this master's decline back: the order shows up again in `available`
+  and `by-category`. No push is re-sent.
+
+  The restore window counts from the moment of the decline and is inclusive
+  (see `restore_until` in the declined list).
+
+  **Response:** `204 No Content`
+
+  **Errors:**
+  - `422` — this master never declined the order, another master already
+    took it, it was cancelled, or the restore window is over:
+    ```json
+    { "message": "Вы не отклоняли эту заявку" }
+    { "message": "Заявку уже разобрал другой мастер" }
+    { "message": "Заявка больше не доступна" }
+    { "message": "Время на возврат отклонённой заявки истекло" }
+    ```
+  - `403` — the order was declined only by other masters, or the token has
+    no usable master profile (see `reason`)
+  - `404` — order not found
+}

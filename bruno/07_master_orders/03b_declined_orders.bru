@@ -1,0 +1,41 @@
+meta {
+  name: Declined (restorable list)
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{base_url}}/api/v1/master/orders/declined
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Accept: application/json
+  X-Locale: {{locale}}
+}
+
+docs {
+  # Declined — orders this master can still take back
+
+  Orders this master declined that are still `pending`, unclaimed, and were
+  declined no longer than the restore window ago (admin setting
+  `order_decline_restore_minutes`, default 60). Freshest decline first,
+  paginated by 15 (`?page=2`).
+
+  **Response 200:** same shape as the available feed, plus:
+
+  | Field           | Meaning                                                |
+  |-----------------|--------------------------------------------------------|
+  | `declined_at`   | ISO 8601 — when the master declined the order         |
+  | `restore_until` | ISO 8601 — last moment the decline can be taken back  |
+
+  `distance_km` is always `null` here.
+
+  **Errors:**
+  - `403` — token has no usable master profile (see `reason`)
+}

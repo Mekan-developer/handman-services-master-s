@@ -90,6 +90,28 @@ class SettingTest extends TestCase
         $this->assertDatabaseMissing('settings', ['key' => 'master_app_rules']);
     }
 
+    public function test_administrator_can_set_the_decline_restore_window(): void
+    {
+        $this->actingAs($this->administrator())
+            ->put(route('settings.update'), [
+                'order_decline_restore_minutes' => 15,
+            ])
+            ->assertRedirect(route('settings.index'));
+
+        $this->assertDatabaseHas('settings', ['key' => Setting::ORDER_DECLINE_RESTORE_MINUTES, 'value' => '15']);
+    }
+
+    public function test_decline_restore_window_must_be_a_positive_number_of_minutes(): void
+    {
+        $this->actingAs($this->administrator())
+            ->put(route('settings.update'), [
+                'order_decline_restore_minutes' => 0,
+            ])
+            ->assertSessionHasErrors('order_decline_restore_minutes');
+
+        $this->assertDatabaseMissing('settings', ['key' => Setting::ORDER_DECLINE_RESTORE_MINUTES]);
+    }
+
     public function test_operator_cannot_update_settings(): void
     {
         $this->actingAs($this->operator())

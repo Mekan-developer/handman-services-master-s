@@ -77,8 +77,11 @@ Route::prefix('master')->group(function () {
             Route::get('available', [MasterOrderController::class, 'available'])->name('available');
             // Every open order in the master's categories, outside the radius too.
             Route::get('by-category', [MasterOrderController::class, 'byCategory'])->name('by-category');
+            // Declines that can still be taken back — also above {order}.
+            Route::get('declined', [MasterOrderController::class, 'declined'])->name('declined');
             Route::post('{order}/respond', [MasterOrderController::class, 'respond'])->name('respond');
             Route::post('{order}/decline', [MasterOrderController::class, 'decline'])->name('decline');
+            Route::delete('{order}/decline', [MasterOrderController::class, 'restoreDecline'])->name('restore-decline');
 
             Route::get('{order}', [MasterOrderController::class, 'show'])
                 ->name('show');

@@ -34,6 +34,12 @@ return [
         'hours' => 'Sagat',
         'hours_hint' => 'Hasap sargydyň döredilen pursatyndan başlanýar',
     ],
+    'decline_restore' => [
+        'title' => 'Ýüz öwrülen sargydy gaýtarmak üçin wagt',
+        'hint' => 'Usta ýüz öwren sargydyny näçe wagtyň dowamynda yzyna gaýtaryp biler',
+        'minutes' => 'Minut',
+        'minutes_hint' => 'Hasap sargytdan ýüz öwrülen pursatyndan başlanýar',
+    ],
     'monitoring' => [
         'title' => 'Ulgam gözegçiligi',
         'all_ok' => 'Ähli ulgamlar işleýär',

@@ -11,6 +11,7 @@ const props = defineProps({
     masterSearchInitialRadiusKm: { type: Number, default: 20 },
     masterSearchMaxRadiusKm: { type: Number, default: 80 },
     orderAutoCancelHours: { type: Number, default: 48 },
+    orderDeclineRestoreMinutes: { type: Number, default: 60 },
 })
 
 const form = useForm({
@@ -18,6 +19,7 @@ const form = useForm({
     master_search_initial_radius_km: props.masterSearchInitialRadiusKm,
     master_search_max_radius_km: props.masterSearchMaxRadiusKm,
     order_auto_cancel_hours: props.orderAutoCancelHours,
+    order_decline_restore_minutes: props.orderDeclineRestoreMinutes,
 })
 
 // ── App rules card ─────────────────────────────────────────────────────────
@@ -130,6 +132,30 @@ function saveAutoCancel() {
         onSuccess() {
             autoCancelSaved.value = true
             setTimeout(() => { autoCancelSaved.value = false }, 2500)
+        },
+    })
+}
+
+// ── Declined order restore window ──────────────────────────────────────────
+const declineRestoreSaved = ref(false)
+
+const declineRestoreMinutes = computed(() => Number(form.order_decline_restore_minutes))
+
+const declineRestoreError = computed(() => {
+    if (!Number.isInteger(declineRestoreMinutes.value) || declineRestoreMinutes.value < 1) {
+        return t('validation.custom.master_search_initial_radius_km.min', { min: 1 })
+    }
+    return null
+})
+
+function saveDeclineRestore() {
+    if (declineRestoreError.value) { return }
+
+    form.put(route('settings.update'), {
+        preserveScroll: true,
+        onSuccess() {
+            declineRestoreSaved.value = true
+            setTimeout(() => { declineRestoreSaved.value = false }, 2500)
         },
     })
 }
@@ -648,6 +674,67 @@ onBeforeUnmount(() => {
                             @click="saveAutoCancel"
                             :disabled="form.processing || !!autoCancelError"
                             class="rounded-lg bg-red-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-red-600 disabled:opacity-60"
+                        >
+                            {{ t('settings.save') }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Declined order restore window -->
+                <div class="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+                    <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[11px] border border-sky-500/20 bg-sky-500/[0.12]">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14 4 9l5-5"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.decline_restore.title') }}</div>
+                            <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.decline_restore.hint') }}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 px-5 pb-4 sm:grid-cols-2">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="decline-restore-minutes" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                                {{ t('settings.decline_restore.minutes') }}
+                            </label>
+                            <div class="relative">
+                                <input
+                                    id="decline-restore-minutes"
+                                    v-model.number="form.order_decline_restore_minutes"
+                                    type="number"
+                                    min="1"
+                                    max="1440"
+                                    step="1"
+                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-14 text-[13px] text-gray-900 outline-none transition-colors focus:border-sky-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    :class="declineRestoreError || form.errors.order_decline_restore_minutes
+                                        ? 'border-red-500/60'
+                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                >
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                    {{ t('settings.decline_restore.minutes') }}
+                                </span>
+                            </div>
+                            <p v-if="declineRestoreError || form.errors.order_decline_restore_minutes" class="text-[11.5px] text-red-500">
+                                {{ declineRestoreError ?? form.errors.order_decline_restore_minutes }}
+                            </p>
+                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                                {{ t('settings.decline_restore.minutes_hint') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-gray-100 bg-sky-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
+                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            {{ declineRestoreSaved ? t('settings.saved_ok') : '' }}
+                        </span>
+                        <button
+                            type="button"
+                            @click="saveDeclineRestore"
+                            :disabled="form.processing || !!declineRestoreError"
+                            class="rounded-lg bg-sky-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-sky-600 disabled:opacity-60"
                         >
                             {{ t('settings.save') }}
                         </button>
