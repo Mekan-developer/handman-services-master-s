@@ -39,10 +39,13 @@ class MasterRepository
             ->withQueryString();
     }
 
-    /** Applications awaiting review, oldest first — the admin works through a queue. */
+    /**
+     * Applications awaiting review, oldest first — the admin works through a queue.
+     * Carries the plan the applicant requested so approval can preselect it.
+     */
     public function pendingApplications(int $perPage = 15): LengthAwarePaginator
     {
-        return Master::with(['city', 'categories', 'client'])
+        return Master::with(['city', 'categories', 'client.pendingSubscriptionRequest'])
             ->where('status', MasterStatus::Pending)
             ->oldest()
             ->paginate($perPage)

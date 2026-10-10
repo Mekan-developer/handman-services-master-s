@@ -41,6 +41,12 @@ class MasterResource extends JsonResource
                 'phone' => $this->client->phone,
             ]),
 
+            // Plan the applicant picked in the app — preselected on approval.
+            'requested_subscription_plan_id' => $this->when(
+                $this->relationLoaded('client') && $this->client?->relationLoaded('pendingSubscriptionRequest'),
+                fn () => $this->client->pendingSubscriptionRequest?->subscription_plan_id,
+            ),
+
             'is_active' => $this->is_active,
             'is_available' => $this->is_available,
 

@@ -35,10 +35,21 @@ watch(selectedPlan, (plan) => {
     approveForm.subscription_price = plan ? plan.price : null
 })
 
+const isRequestedPlanSelected = computed(() =>
+    approving.value?.requested_subscription_plan_id != null
+    && Number(approveForm.subscription_plan_id) === approving.value.requested_subscription_plan_id,
+)
+
 function openApprove(application) {
     approving.value = application
     approveForm.reset()
     approveForm.clearErrors()
+
+    // Preselect the plan the applicant picked in the app, if it is still on sale.
+    const requestedPlanId = application.requested_subscription_plan_id
+    if (props.subscriptionPlans.some(plan => plan.id === requestedPlanId)) {
+        approveForm.subscription_plan_id = requestedPlanId
+    }
 }
 
 function submitApprove() {
@@ -204,6 +215,9 @@ const inputError = 'border-red-400 bg-white text-gray-900 focus:border-red-500 f
                     </select>
                     <p v-if="approveForm.errors.subscription_plan_id" class="mt-1.5 text-xs text-red-500">
                         {{ approveForm.errors.subscription_plan_id }}
+                    </p>
+                    <p v-else-if="isRequestedPlanSelected" class="mt-1.5 text-xs text-blue-600 dark:text-blue-400">
+                        {{ t('masters.subscription_plan_requested') }}
                     </p>
                 </div>
 

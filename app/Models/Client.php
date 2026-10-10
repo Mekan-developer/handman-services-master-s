@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SubscriptionRequestStatus;
 use App\Repositories\ClientDeviceRepository;
 use Database\Factories\ClientFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -62,6 +63,17 @@ class Client extends Authenticatable
     public function master(): HasOne
     {
         return $this->hasOne(Master::class);
+    }
+
+    /**
+     * The plan request still waiting for a verdict — at most one per client,
+     * see SubmitSubscriptionRequestAction. For an applicant this is the plan
+     * they picked in the app alongside the "become a master" form.
+     */
+    public function pendingSubscriptionRequest(): HasOne
+    {
+        return $this->hasOne(SubscriptionRequest::class)
+            ->where('status', SubscriptionRequestStatus::Pending);
     }
 
     public function orders(): HasMany

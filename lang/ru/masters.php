@@ -24,6 +24,7 @@ return [
     'subscription' => 'Подписка',
     'subscription_plan' => 'Тарифный план',
     'subscription_plan_placeholder' => 'Выберите тарифный план',
+    'subscription_plan_requested' => 'Тариф выбран мастером в приложении',
     'subscription_price' => 'Цена (можно изменить вручную)',
     'subscription_note' => 'Заметка',
     'subscription_hint' => 'Выберите план, чтобы сразу открыть мастеру доступ. Цена 0 — бесплатный доступ.',

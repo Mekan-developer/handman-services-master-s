@@ -24,6 +24,7 @@ return [
     'subscription' => 'Abuna',
     'subscription_plan' => 'Nyrh meýilnamasy',
     'subscription_plan_placeholder' => 'Nyrh meýilnamasyny saýlaň',
+    'subscription_plan_requested' => 'Nyrh ussat tarapyndan programmada saýlandy',
     'subscription_price' => 'Bahasy (el bilen üýtgedip bolýar)',
     'subscription_note' => 'Bellik',
     'subscription_hint' => 'Ussada dessine giriş açmak üçin meýilnama saýlaň. Baha 0 — mugt giriş.',

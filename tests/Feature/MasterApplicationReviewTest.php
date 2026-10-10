@@ -3,12 +3,16 @@
 namespace Tests\Feature;
 
 use App\Enums\MasterStatus;
+use App\Enums\SubscriptionRequestStatus;
 use App\Enums\SubscriptionStatus;
 use App\Models\Master;
 use App\Models\MasterSubscription;
 use App\Models\SubscriptionPlan;
+use App\Models\SubscriptionRequest;
 use App\Models\User;
+use App\Notifications\Push\SubscriptionRequestApprovedNotification;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 /**
@@ -45,6 +49,25 @@ class MasterApplicationReviewTest extends TestCase
                 ->where('applications.data.0.id', $pending->id));
     }
 
+    public function test_the_queue_carries_the_plan_the_applicant_requested(): void
+    {
+        $this->actingAsAdmin();
+
+        $master = Master::factory()->pending()->create();
+        $plan = SubscriptionPlan::factory()->days(30)->create();
+        SubscriptionRequest::factory()->forClient($master->client)->forPlan($plan)->create();
+
+        $withoutRequest = Master::factory()->pending()->create(['created_at' => now()->addMinute()]);
+
+        $this->get(route('master-applications.index'))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('applications.data.0.id', $master->id)
+                ->where('applications.data.0.requested_subscription_plan_id', $plan->id)
+                ->where('applications.data.1.id', $withoutRequest->id)
+                ->where('applications.data.1.requested_subscription_plan_id', null));
+    }
+
     public function test_guests_cannot_open_the_queue(): void
     {
         $this->get(route('master-applications.index'))->assertRedirect(route('login'));
@@ -73,6 +96,47 @@ class MasterApplicationReviewTest extends TestCase
         $subscription = MasterSubscription::firstOrFail();
         $this->assertSame(SubscriptionStatus::Active, $subscription->status);
         $this->assertSame($master->id, $subscription->master_id);
+    }
+
+    public function test_approving_closes_the_pending_plan_request_with_the_issued_subscription(): void
+    {
+        Notification::fake();
+
+        $admin = $this->actingAsAdmin();
+        $master = Master::factory()->pending()->create();
+        $plan = SubscriptionPlan::factory()->days(30)->create();
+        $request = SubscriptionRequest::factory()->forClient($master->client)->forPlan($plan)->create();
+
+        $this->post(route('master-applications.approve', $master), [
+            'subscription_plan_id' => $plan->id,
+        ])->assertRedirect(route('master-applications.index'));
+
+        $request->refresh();
+        $subscription = MasterSubscription::sole();
+
+        $this->assertSame(SubscriptionRequestStatus::Approved, $request->status);
+        $this->assertSame($admin->id, $request->reviewed_by);
+        $this->assertSame($subscription->id, $request->master_subscription_id);
+
+        Notification::assertSentTo($master->client, SubscriptionRequestApprovedNotification::class);
+    }
+
+    public function test_approving_leaves_reviewed_plan_requests_alone(): void
+    {
+        Notification::fake();
+
+        $this->actingAsAdmin();
+        $master = Master::factory()->pending()->create();
+        $plan = SubscriptionPlan::factory()->days(30)->create();
+        $rejected = SubscriptionRequest::factory()->forClient($master->client)->rejected()->create();
+
+        $this->post(route('master-applications.approve', $master), [
+            'subscription_plan_id' => $plan->id,
+        ]);
+
+        $this->assertSame(SubscriptionRequestStatus::Rejected, $rejected->fresh()->status);
+        $this->assertNull($rejected->fresh()->master_subscription_id);
+        Notification::assertNothingSent();
     }
 
     public function test_approving_without_a_plan_is_rejected(): void
