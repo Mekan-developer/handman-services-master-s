@@ -193,12 +193,12 @@ const paginationMeta = computed(() => props.masters?.meta ?? null)
                                 </td>
                             </tr>
                             <tr
-                                v-for="(master, index) in masterList"
+                                v-for="master in masterList"
                                 :key="master.id"
                                 class="group cursor-default transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
                             >
                                 <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
-                                    {{ index + 1 + ((paginationMeta?.current_page ?? 1) - 1) * (paginationMeta?.per_page ?? 15) }}
+                                    {{ master.id }}
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
