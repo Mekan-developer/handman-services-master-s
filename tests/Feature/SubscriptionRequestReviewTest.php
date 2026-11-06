@@ -107,7 +107,7 @@ class SubscriptionRequestReviewTest extends TestCase
     {
         $this->actingAs(User::factory()->manager()->create());
 
-        $this->get(route('subscription-requests.index'))->assertForbidden();
+        $this->get(route('subscription-requests.index'))->assertForbiddenRedirect();
     }
 
     public function test_guests_cannot_open_the_queue(): void
@@ -251,7 +251,7 @@ class SubscriptionRequestReviewTest extends TestCase
         $this->actingAs(User::factory()->manager()->create());
         $request = $this->requestFromMaster(Master::factory()->create());
 
-        $this->post(route('subscription-requests.approve', $request))->assertForbidden();
+        $this->post(route('subscription-requests.approve', $request))->assertForbiddenRedirect();
 
         $this->assertSame(SubscriptionRequestStatus::Pending, $request->refresh()->status);
     }

@@ -46,7 +46,7 @@ class SettingTest extends TestCase
     {
         $this->actingAs($this->operator())
             ->get(route('settings.index'))
-            ->assertForbidden();
+            ->assertForbiddenRedirect('profile.edit');
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
@@ -118,6 +118,6 @@ class SettingTest extends TestCase
             ->put(route('settings.update'), [
                 'client_app_rules' => 'text',
             ])
-            ->assertForbidden();
+            ->assertForbiddenRedirect('profile.edit');
     }
 }

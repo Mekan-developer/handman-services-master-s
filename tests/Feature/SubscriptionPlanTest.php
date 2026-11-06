@@ -188,14 +188,14 @@ class SubscriptionPlanTest extends TestCase
     {
         $this->actingAs(User::factory()->manager()->create());
 
-        $this->get(route('subscriptions.index'))->assertForbidden();
+        $this->get(route('subscriptions.index'))->assertForbiddenRedirect();
     }
 
     public function test_manager_cannot_create_a_plan(): void
     {
         $this->actingAs(User::factory()->manager()->create());
 
-        $this->post(route('subscription-plans.store'), $this->validPayload())->assertForbidden();
+        $this->post(route('subscription-plans.store'), $this->validPayload())->assertForbiddenRedirect();
 
         $this->assertDatabaseCount('subscription_plans', 0);
     }
@@ -205,7 +205,7 @@ class SubscriptionPlanTest extends TestCase
         $this->actingAs(User::factory()->operator()->create());
         $plan = SubscriptionPlan::factory()->create();
 
-        $this->delete(route('subscription-plans.destroy', $plan))->assertForbidden();
+        $this->delete(route('subscription-plans.destroy', $plan))->assertForbiddenRedirect('profile.edit');
 
         $this->assertDatabaseHas('subscription_plans', ['id' => $plan->id, 'deleted_at' => null]);
     }

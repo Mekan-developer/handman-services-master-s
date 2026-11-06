@@ -368,7 +368,7 @@ class MasterSubscriptionTest extends TestCase
         $plan = SubscriptionPlan::factory()->create();
 
         $this->post(route('masters.subscriptions.store', $master), ['subscription_plan_id' => $plan->id])
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
 
         $this->assertDatabaseCount('master_subscriptions', 0);
     }
@@ -379,7 +379,7 @@ class MasterSubscriptionTest extends TestCase
         $subscription = MasterSubscription::factory()->create();
 
         $this->post(route('subscriptions.update-status', $subscription), ['status' => 'cancelled'])
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
 
         $this->assertSame(SubscriptionStatus::Active, $subscription->fresh()->status);
     }

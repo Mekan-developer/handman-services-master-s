@@ -57,14 +57,14 @@ class UserTest extends TestCase
     {
         $this->actingAs($this->manager());
 
-        $this->get(route('users.index'))->assertForbidden();
+        $this->get(route('users.index'))->assertForbiddenRedirect();
     }
 
     public function test_operator_cannot_view_users_index(): void
     {
         $this->actingAs($this->operator());
 
-        $this->get(route('users.index'))->assertForbidden();
+        $this->get(route('users.index'))->assertForbiddenRedirect('profile.edit');
     }
 
     // ── Store ─────────────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ class UserTest extends TestCase
         $this->actingAs($this->manager());
 
         $this->post(route('users.store'), $this->validPayload('manager'))
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
     }
 
     public function test_operator_cannot_create_user(): void
@@ -128,7 +128,7 @@ class UserTest extends TestCase
         $this->actingAs($this->operator());
 
         $this->post(route('users.store'), $this->validPayload())
-            ->assertForbidden();
+            ->assertForbiddenRedirect('profile.edit');
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
@@ -159,7 +159,7 @@ class UserTest extends TestCase
             'name' => 'New Name',
             'email' => $target->email,
             'role' => 'manager',
-        ])->assertForbidden();
+        ])->assertForbiddenRedirect();
     }
 
     public function test_operator_cannot_update_user(): void
@@ -172,7 +172,7 @@ class UserTest extends TestCase
             'name' => $target->name,
             'email' => $target->email,
             'role' => 'manager',
-        ])->assertForbidden();
+        ])->assertForbiddenRedirect('profile.edit');
     }
 
     // ── Destroy ───────────────────────────────────────────────────────────────
@@ -196,7 +196,7 @@ class UserTest extends TestCase
         $this->actingAs($admin);
 
         $this->delete(route('users.destroy', $admin))
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
     }
 
     public function test_administrator_can_delete_admin_they_created(): void
@@ -220,7 +220,7 @@ class UserTest extends TestCase
         $this->actingAs($this->administrator());
 
         $this->delete(route('users.destroy', $otherAdmin))
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
 
         $this->assertDatabaseHas('users', ['id' => $otherAdmin->id]);
     }
@@ -232,7 +232,7 @@ class UserTest extends TestCase
         $rootAdmin = User::factory()->administrator()->create(['created_by' => null]);
 
         $this->delete(route('users.destroy', $rootAdmin))
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
 
         $this->assertDatabaseHas('users', ['id' => $rootAdmin->id]);
     }
@@ -244,7 +244,7 @@ class UserTest extends TestCase
         $target = $this->operator();
 
         $this->delete(route('users.destroy', $target))
-            ->assertForbidden();
+            ->assertForbiddenRedirect();
     }
 
     public function test_operator_cannot_delete_user(): void
@@ -254,7 +254,7 @@ class UserTest extends TestCase
         $target = $this->manager();
 
         $this->delete(route('users.destroy', $target))
-            ->assertForbidden();
+            ->assertForbiddenRedirect('profile.edit');
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

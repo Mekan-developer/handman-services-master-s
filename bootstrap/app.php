@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureClient;
 use App\Http\Middleware\EnsureMaster;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
+use App\Support\ForbiddenRedirect;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
@@ -20,6 +21,7 @@ use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -168,4 +170,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return response()->json($payload, 500);
         });
+
+        // Admin panel only: a 403 becomes a redirect with a "no access" notification.
+        // API requests are skipped inside ForbiddenRedirect and keep the JSON above.
+        $exceptions->respond(
+            fn (Response $response, Throwable $e, Request $request): Response => app(ForbiddenRedirect::class)->handle($response, $request)
+        );
     })->create();

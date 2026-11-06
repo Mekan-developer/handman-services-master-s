@@ -128,6 +128,6 @@ class SettingsRadiusValidationTest extends TestCase
                 'master_search_initial_radius_km' => 25,
                 'master_search_max_radius_km' => 100,
             ])
-            ->assertForbidden();
+            ->assertForbiddenRedirect('profile.edit');
     }
 }

@@ -6,4 +6,5 @@ return [
     'deleted' => ':resource üstünlikli öçürildi',
     'saved' => ':resource üstünlikli ýatda saklandy',
     'not_found' => 'Ýazgy tapylmady',
+    'forbidden' => 'Bu bölüme girmäge rugsadyňyz ýok',
 ];
