@@ -2,12 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\Actions\UpdateBannerAction;
 use App\Models\Banner;
 use App\Models\User;
+use App\Repositories\BannerRepository;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Mockery;
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
 use Tests\TestCase;
 
 class BannerTest extends TestCase
@@ -399,6 +404,52 @@ class BannerTest extends TestCase
 
         Storage::disk('public')->assertMissing('banners/old.jpg');
         Storage::disk('public')->assertExists($banner->fresh()->image_path);
+    }
+
+    public function test_update_keeps_the_old_image_when_the_new_one_cannot_be_stored(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('banners/old.jpg', 'old');
+        $banner = Banner::factory()->create(['image_path' => 'banners/old.jpg']);
+
+        $failingUpload = Mockery::mock(UploadedFile::class);
+        $failingUpload->shouldReceive('store')->andReturn(false);
+
+        try {
+            app(UpdateBannerAction::class)->handle($banner, [
+                'image' => $failingUpload,
+                'url' => null,
+                'is_active' => true,
+                'sort_order' => null,
+            ]);
+            $this->fail('Expected the update to throw when the image cannot be stored.');
+        } catch (RuntimeException) {
+            // expected
+        }
+
+        Storage::disk('public')->assertExists('banners/old.jpg');
+        $this->assertSame('banners/old.jpg', $banner->fresh()->image_path);
+    }
+
+    public function test_update_keeps_the_old_image_and_drops_the_new_one_when_saving_fails(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('banners/old.jpg', 'old');
+        $this->actingAsAdmin();
+        $banner = Banner::factory()->create(['image_path' => 'banners/old.jpg']);
+
+        $this->partialMock(BannerRepository::class, function (MockInterface $mock): void {
+            $mock->shouldReceive('update')->andThrow(new RuntimeException('Database is down'));
+        });
+
+        $this->post(route('banners.update', $banner), [
+            'image' => UploadedFile::fake()->image('new.jpg', 1200, 400),
+            'is_active' => true,
+        ])->assertServerError();
+
+        Storage::disk('public')->assertExists('banners/old.jpg');
+        $this->assertSame(['banners/old.jpg'], Storage::disk('public')->files('banners'));
+        $this->assertSame('banners/old.jpg', $banner->fresh()->image_path);
     }
 
     public function test_update_without_image_keeps_the_existing_file(): void
