@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateBannerAction;
 use App\Actions\DeleteBannerAction;
+use App\Actions\ReorderBannersAction;
 use App\Actions\ToggleBannerStatusAction;
 use App\Actions\UpdateBannerAction;
+use App\Http\Requests\ReorderBannersRequest;
 use App\Http\Requests\StoreBannerRequest;
 use App\Http\Requests\UpdateBannerRequest;
 use App\Http\Resources\BannerResource;
@@ -24,8 +26,16 @@ class BannerController extends Controller
     public function index(): Response
     {
         return Inertia::render('Banners/Index', [
-            'banners' => BannerResource::collection($this->repository->paginate()),
+            'banners' => BannerResource::collection($this->repository->allSorted()),
         ]);
+    }
+
+    public function reorder(ReorderBannersRequest $request, ReorderBannersAction $action): RedirectResponse
+    {
+        $action->handle($request->validated('ids'));
+        $this->notifySuccess('notifications.saved', ['resource' => __('resources.banner_order')]);
+
+        return redirect()->route('banners.index');
     }
 
     public function store(StoreBannerRequest $request, CreateBannerAction $action): RedirectResponse

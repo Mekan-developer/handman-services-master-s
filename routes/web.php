@@ -76,6 +76,8 @@ Route::middleware('auth')->group(function () {
         Route::post('master-applications/{master}/reject', [MasterApplicationController::class, 'reject'])->name('master-applications.reject');
 
         Route::resource('banners', BannerController::class)->only(['index', 'store', 'destroy']);
+        // Registered before banners/{banner}, which would otherwise swallow "reorder" as an id.
+        Route::post('banners/reorder', [BannerController::class, 'reorder'])->name('banners.reorder');
         Route::post('banners/{banner}', [BannerController::class, 'update'])->name('banners.update');
         Route::post('banners/{banner}/toggle', [BannerController::class, 'toggle'])->name('banners.toggle');
 

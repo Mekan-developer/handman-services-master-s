@@ -12,6 +12,7 @@ return [
     'subscription_plan' => 'Тарифный план',
     'subscription_request' => 'Заявка на тариф',
     'banner' => 'Баннер',
+    'banner_order' => 'Порядок баннеров',
     'content' => 'Контент',
     'user' => 'Пользователь',
     'settings' => 'Настройки',

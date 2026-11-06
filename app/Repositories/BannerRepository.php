@@ -4,13 +4,19 @@ namespace App\Repositories;
 
 use App\Models\Banner;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class BannerRepository
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    /**
+     * Every banner on one list — drag-and-drop reordering cannot span pages,
+     * and a carousel never holds more than a handful anyway.
+     *
+     * @return Collection<int, Banner>
+     */
+    public function allSorted(): Collection
     {
-        return Banner::orderBy('sort_order')->orderBy('id')->paginate($perPage);
+        return Banner::orderBy('sort_order')->orderBy('id')->get();
     }
 
     /** @return Collection<int, Banner> */
@@ -39,5 +45,17 @@ class BannerRepository
     public function delete(Banner $banner): void
     {
         $banner->delete();
+    }
+
+    /**
+     * @param  array<int, int>  $positions  Map of banner id => sort_order.
+     */
+    public function reorder(array $positions): void
+    {
+        DB::transaction(function () use ($positions): void {
+            foreach ($positions as $id => $sortOrder) {
+                Banner::whereKey($id)->update(['sort_order' => $sortOrder]);
+            }
+        });
     }
 }

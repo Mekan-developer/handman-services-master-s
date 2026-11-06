@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { Link, useForm, router } from '@inertiajs/vue3'
+import { ref, watch } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import BannerFormModal from '@/Pages/Banners/Partials/BannerFormModal.vue'
@@ -80,10 +80,65 @@ function confirmDelete() {
     })
 }
 
-// ── Pagination ────────────────────────────────────────────────────────────────
-const currentPage = computed(() => props.banners?.current_page ?? 1)
-const lastPage = computed(() => props.banners?.last_page ?? 1)
-const bannerList = computed(() => props.banners?.data ?? [])
+// ── Drag-and-drop reorder ─────────────────────────────────────────────────────
+// Rows become draggable only while the grip handle is held, so clicking links,
+// the status toggle or the action buttons never starts a drag by accident.
+const bannerList = ref([...(props.banners?.data ?? [])])
+watch(() => props.banners, (banners) => {
+    bannerList.value = [...(banners?.data ?? [])]
+})
+
+const handleHeldId = ref(null)
+const draggingIndex = ref(null)
+const reordering = ref(false)
+let idsBeforeDrag = ''
+
+function holdHandle(banner) {
+    if (!reordering.value) {
+        handleHeldId.value = banner.id
+    }
+}
+
+function onDragStart(index, event) {
+    draggingIndex.value = index
+    idsBeforeDrag = bannerList.value.map((banner) => banner.id).join(',')
+    event.dataTransfer.effectAllowed = 'move'
+    // Firefox refuses to start a drag without data.
+    event.dataTransfer.setData('text/plain', String(bannerList.value[index].id))
+}
+
+function onDragEnter(index) {
+    if (draggingIndex.value === null || draggingIndex.value === index) {
+        return
+    }
+
+    const list = [...bannerList.value]
+    const [moved] = list.splice(draggingIndex.value, 1)
+    list.splice(index, 0, moved)
+    bannerList.value = list
+    draggingIndex.value = index
+}
+
+function onDragEnd() {
+    draggingIndex.value = null
+    handleHeldId.value = null
+
+    const ids = bannerList.value.map((banner) => banner.id)
+    if (ids.join(',') === idsBeforeDrag) {
+        return
+    }
+
+    reordering.value = true
+    router.post(route('banners.reorder'), { ids }, {
+        preserveScroll: true,
+        onError: () => {
+            bannerList.value = [...(props.banners?.data ?? [])]
+        },
+        onFinish: () => {
+            reordering.value = false
+        },
+    })
+}
 </script>
 
 <template>
@@ -91,9 +146,14 @@ const bannerList = computed(() => props.banners?.data ?? [])
         <div class="space-y-4">
             <!-- Header -->
             <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    {{ t('banners.title') }}
-                </h1>
+                <div>
+                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        {{ t('banners.title') }}
+                    </h1>
+                    <p v-if="bannerList.length > 1" class="mt-1 text-sm text-gray-500 dark:text-slate-400">
+                        {{ t('banners.drag_hint') }}
+                    </p>
+                </div>
                 <button
                     @click="openCreate"
                     class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
@@ -140,10 +200,33 @@ const bannerList = computed(() => props.banners?.data ?? [])
                             <tr
                                 v-for="(banner, index) in bannerList"
                                 :key="banner.id"
-                                class="group transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
+                                :draggable="handleHeldId === banner.id"
+                                @dragstart="onDragStart(index, $event)"
+                                @dragenter.prevent="onDragEnter(index)"
+                                @dragover.prevent
+                                @drop.prevent
+                                @dragend="onDragEnd"
+                                :class="draggingIndex === index
+                                    ? 'bg-blue-50 opacity-60 dark:bg-slate-700'
+                                    : 'hover:bg-blue-50/60 dark:hover:bg-slate-700'"
+                                class="group transition-colors duration-150"
                             >
                                 <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
-                                    {{ index + 1 + (currentPage - 1) * 15 }}
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            v-if="bannerList.length > 1"
+                                            @mousedown="holdHandle(banner)"
+                                            @mouseup="handleHeldId = null"
+                                            :title="t('banners.drag_hint')"
+                                            :class="reordering ? 'cursor-wait opacity-40' : 'cursor-grab active:cursor-grabbing'"
+                                            class="rounded p-1 text-slate-400 hover:bg-gray-100 hover:text-slate-600 dark:hover:bg-slate-600 dark:hover:text-slate-200"
+                                        >
+                                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M7 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-1.5 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-1.5 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16 16a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                                            </svg>
+                                        </span>
+                                        {{ index + 1 }}
+                                    </div>
                                 </td>
 
                                 <!-- Banner thumbnail — 3:1 ratio -->
@@ -240,24 +323,6 @@ const bannerList = computed(() => props.banners?.data ?? [])
                             </tr>
                         </tbody>
                     </table>
-                </div>
-
-                <!-- Pagination -->
-                <div v-if="lastPage > 1" class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-slate-700">
-                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ t('banners.title') }}</p>
-                    <div class="flex gap-1">
-                        <Link
-                            v-for="page in lastPage"
-                            :key="page"
-                            :href="route('banners.index', { page })"
-                            :class="page === currentPage
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700'"
-                            class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors"
-                        >
-                            {{ page }}
-                        </Link>
-                    </div>
                 </div>
             </div>
         </div>

@@ -21,4 +21,5 @@ return [
     'delete_confirm' => 'Bu banneri öçürmek isleýärsiňizmi?',
     'empty' => 'Bannerlar tapylmady',
     'no_url' => 'Baglanyşyk ýok',
+    'drag_hint' => 'Tertibi üýtgetmek üçin süýşüriň',
 ];
