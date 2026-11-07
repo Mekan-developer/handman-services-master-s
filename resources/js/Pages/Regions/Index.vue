@@ -81,12 +81,12 @@ const regionList = computed(() => props.regions?.data ?? [])
     <AdminLayout :title="t('regions.title')">
         <div class="space-y-4">
             <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                     {{ t('regions.title') }}
                 </h1>
                 <button
                     @click="openCreate"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -95,61 +95,68 @@ const regionList = computed(() => props.regions?.data ?? [])
                 </button>
             </div>
 
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+            <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50">
+                    <table class="tabular-nums min-w-full divide-y divide-slate-200 dark:divide-white/[0.08]">
+                        <thead>
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">#</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('regions.name') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('regions.oblast') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('regions.status') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('regions.created_at') }}</th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('regions.actions') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">#</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('regions.name') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('regions.oblast') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('regions.status') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('regions.created_at') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('regions.actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                             <tr v-if="regionList.length === 0">
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
-                                    {{ t('regions.empty') }}
+                                <td colspan="6" class="px-5 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                        </span>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('regions.empty') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr
                                 v-for="(region, index) in regionList"
                                 :key="region.id"
-                                class="group cursor-default transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
+                                class="group transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                             >
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ index + 1 + (currentPage - 1) * 15 }}
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-slate-300">
+                                <td class="px-5 py-4 text-sm font-semibold text-slate-800 dark:text-[#f1f5f9]">
                                     {{ region.name }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ region.oblast?.name ?? '—' }}
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-5 py-4">
                                     <span
                                         :class="region.is_active
-                                            ? 'bg-green-100 text-green-700 ring-1 ring-green-200 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-500/30'
-                                            : 'bg-red-100 text-red-600 ring-1 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30'"
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300'"
                                         class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
                                     >
                                         <span
-                                            :class="region.is_active ? 'bg-green-500 dark:bg-green-400' : 'bg-red-400'"
+                                            :class="region.is_active ? 'bg-green-600 dark:bg-green-400' : 'bg-red-500 dark:bg-red-400'"
                                             class="h-1.5 w-1.5 rounded-full"
                                         />
                                         {{ region.is_active ? t('regions.active') : t('regions.inactive') }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ region.created_at }}
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-5 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button
                                             @click="openEdit(region)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('regions.edit')"
+                                            :title="t('regions.edit')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
@@ -157,7 +164,9 @@ const regionList = computed(() => props.regions?.data ?? [])
                                         </button>
                                         <button
                                             @click="destroy(region)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('layout.actions.delete')"
+                                            :title="t('layout.actions.delete')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -170,17 +179,17 @@ const regionList = computed(() => props.regions?.data ?? [])
                     </table>
                 </div>
 
-                <div v-if="lastPage > 1" class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-slate-700">
-                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ t('regions.title') }}</p>
+                <div v-if="lastPage > 1" class="flex items-center justify-between border-t border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]">
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('regions.title') }}</p>
                     <div class="flex gap-1">
                         <Link
                             v-for="page in lastPage"
                             :key="page"
                             :href="route('regions.index', { page })"
                             :class="page === currentPage
-                                ? 'bg-blue-600 text-white'
-                                : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700'"
-                            class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors"
+                                ? 'bg-indigo-600 text-white'
+                                : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/[0.06]'"
+                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                         >
                             {{ page }}
                         </Link>
