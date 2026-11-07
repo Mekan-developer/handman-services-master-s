@@ -140,24 +140,24 @@ const paginationMeta = computed(() => props.categories?.meta ?? null)
         <div class="space-y-4">
             <!-- Header -->
             <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                     {{ t('categories.title') }}
                 </h1>
                 <div class="flex items-center gap-3">
                     <div class="relative">
-                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                         <input
                             v-model="search"
                             type="search"
                             :placeholder="t('categories.search')"
-                            class="w-56 rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                            class="w-56 rounded-[10px] border border-[#dde3ec] bg-white text-sm outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-slate-100 py-2.5 pl-9 pr-3.5 text-slate-800"
                         />
                     </div>
                     <button
                         @click="openCreate"
-                        class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
+                        class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                     >
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -168,59 +168,64 @@ const paginationMeta = computed(() => props.categories?.meta ?? null)
             </div>
 
             <!-- Table card -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+            <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50">
+                    <table class="tabular-nums min-w-full divide-y divide-slate-200 dark:divide-white/[0.08]">
+                        <thead>
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     #
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('categories.name') }}
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('categories.parent') }}
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('categories.status') }}
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('categories.created_at') }}
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('categories.actions') }}
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                             <tr v-if="categoryList.length === 0">
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
-                                    {{ t('categories.empty') }}
+                                <td colspan="6" class="px-5 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                        </span>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('categories.empty') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr
                                 v-for="(category, index) in categoryList"
                                 :key="category.id"
                                 :class="category.parent_id
-                                    ? 'bg-gray-50/50 dark:bg-slate-800/50'
+                                    ? 'bg-slate-50/50 dark:bg-white/[0.02]'
                                     : ''"
-                                class="group cursor-default transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
+                                class="group transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                             >
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ index + 1 + ((paginationMeta?.current_page ?? 1) - 1) * (paginationMeta?.per_page ?? 15) }}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-5 py-4">
                                     <div class="flex items-center gap-2">
                                         <!-- Иконка категории; если не задана — fallback: папка (корень) / вложение (подкатегория) -->
                                         <span
                                             :class="[
                                                 category.parent_id ? 'ml-4' : '',
                                                 category.icon_type === 'image'
-                                                    ? 'bg-gray-100 dark:bg-slate-700'
+                                                    ? 'bg-slate-100 dark:bg-white/[0.06]'
                                                     : (category.parent_id
-                                                        ? 'bg-purple-100 text-purple-500 dark:bg-purple-500/20 dark:text-purple-400'
-                                                        : 'bg-blue-100 text-blue-500 dark:bg-blue-500/20 dark:text-blue-400'),
+                                                        ? 'bg-purple-100 text-purple-500 dark:bg-purple-500/15 dark:text-purple-400'
+                                                        : 'bg-blue-100 text-blue-500 dark:bg-blue-500/15 dark:text-blue-400'),
                                             ]"
                                             class="flex h-6 w-6 flex-shrink-0 items-center justify-center overflow-hidden rounded-md"
                                         >
@@ -239,52 +244,53 @@ const paginationMeta = computed(() => props.categories?.meta ?? null)
                                         </span>
                                         <span
                                             :class="category.parent_id
-                                                ? 'text-sm text-gray-600 dark:text-slate-400'
-                                                : 'text-sm font-semibold text-gray-900 dark:text-slate-200'"
+                                                ? 'text-sm text-slate-600 dark:text-slate-400'
+                                                : 'text-sm font-semibold text-slate-800 dark:text-[#f1f5f9]'"
                                         >
                                             {{ category.name }}
                                         </span>
                                         <span
                                             v-if="category.parent_id"
-                                            class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-600 dark:bg-purple-500/20 dark:text-purple-300"
+                                            class="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 dark:bg-purple-500/15 dark:text-purple-300"
                                         >
                                             {{ t('categories.type_child') }}
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
-                                    <span v-if="category.parent" class="inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
+                                    <span v-if="category.parent" class="inline-flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
                                         <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
                                         </svg>
                                         {{ category.parent.name }}
                                     </span>
-                                    <span v-else class="text-gray-300 dark:text-slate-600">—</span>
+                                    <span v-else class="text-slate-300 dark:text-slate-600">—</span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-5 py-4">
                                     <span
                                         :class="category.is_active
-                                            ? 'bg-green-100 text-green-700 ring-1 ring-green-200 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-500/30'
-                                            : 'bg-red-100 text-red-600 ring-1 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30'"
+                                            ? 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300'
+                                            : 'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300'"
                                         class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
                                     >
                                         <span
-                                            :class="category.is_active ? 'bg-green-500 dark:bg-green-400' : 'bg-red-400'"
+                                            :class="category.is_active ? 'bg-green-600 dark:bg-green-400' : 'bg-red-500 dark:bg-red-400'"
                                             class="h-1.5 w-1.5 rounded-full"
                                         />
                                         {{ category.is_active ? t('categories.active') : t('categories.inactive') }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ category.created_at }}
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-5 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <!-- Кнопка "Добавить подкатегорию" только для корневых -->
                                         <button
                                             v-if="!category.parent_id"
                                             @click="openCreateChild(category)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-purple-100 hover:text-purple-600 dark:hover:bg-purple-500/15 dark:hover:text-purple-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-purple-100 hover:text-purple-600 dark:hover:bg-purple-500/15 dark:hover:text-purple-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('categories.add_child')"
                                             :title="t('categories.add_child')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -299,7 +305,8 @@ const paginationMeta = computed(() => props.categories?.meta ?? null)
                                             :class="category.content
                                                 ? 'text-indigo-500 hover:bg-indigo-100 hover:text-indigo-700 dark:text-indigo-400 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-300'
                                                 : 'text-slate-400 hover:bg-indigo-100 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400'"
-                                            class="rounded-lg p-2 transition-all duration-150"
+                                            class="rounded-lg p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="category.content ? t('categories.content_edit') : t('categories.content_add')"
                                             :title="category.content ? t('categories.content_edit') : t('categories.content_add')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -308,7 +315,8 @@ const paginationMeta = computed(() => props.categories?.meta ?? null)
                                         </button>
                                         <button
                                             @click="openEdit(category)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('categories.edit')"
                                             :title="t('categories.edit')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -317,8 +325,9 @@ const paginationMeta = computed(() => props.categories?.meta ?? null)
                                         </button>
                                         <button
                                             @click="destroy(category)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-150"
-                                            :title="t('categories.delete_confirm')"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('layout.actions.delete')"
+                                            :title="t('layout.actions.delete')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />

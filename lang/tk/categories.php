@@ -71,4 +71,6 @@ return [
     'content_images_max' => 'Iň köp 12 surat',
     'content_subcategory_only' => 'Mazmun diňe çaga kategoriýa üçin goşulýar',
     'content_not_found' => 'Bu kategoriýa üçin mazmun tapylmady',
+    'type_label' => 'Kategoriýanyň görnüşi',
+    'content_image_new' => 'Täze',
 ];

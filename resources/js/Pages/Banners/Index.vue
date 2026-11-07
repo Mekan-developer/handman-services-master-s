@@ -147,16 +147,16 @@ function onDragEnd() {
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                         {{ t('banners.title') }}
                     </h1>
-                    <p v-if="bannerList.length > 1" class="mt-1 text-sm text-gray-500 dark:text-slate-400">
+                    <p v-if="bannerList.length > 1" class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {{ t('banners.drag_hint') }}
                     </p>
                 </div>
                 <button
                     @click="openCreate"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -166,35 +166,40 @@ function onDragEnd() {
             </div>
 
             <!-- Table card -->
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+            <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50">
+                    <table class="tabular-nums min-w-full divide-y divide-slate-200 dark:divide-white/[0.08]">
+                        <thead>
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     #
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('banners.image') }}
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('banners.url') }}
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('banners.status') }}
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('banners.created_at') }}
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                                <th class="whitespace-nowrap px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('banners.actions') }}
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                             <tr v-if="bannerList.length === 0">
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
-                                    {{ t('banners.empty') }}
+                                <td colspan="6" class="px-5 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                        </span>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('banners.empty') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr
@@ -207,11 +212,11 @@ function onDragEnd() {
                                 @drop.prevent
                                 @dragend="onDragEnd"
                                 :class="draggingIndex === index
-                                    ? 'bg-blue-50 opacity-60 dark:bg-slate-700'
-                                    : 'hover:bg-blue-50/60 dark:hover:bg-slate-700'"
-                                class="group transition-colors duration-150"
+                                    ? 'bg-indigo-50 opacity-60 dark:bg-indigo-500/10'
+                                    : 'hover:bg-slate-50 dark:hover:bg-white/[0.03]'"
+                                class="group transition-colors"
                             >
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     <div class="flex items-center gap-2">
                                         <span
                                             v-if="bannerList.length > 1"
@@ -219,7 +224,7 @@ function onDragEnd() {
                                             @mouseup="handleHeldId = null"
                                             :title="t('banners.drag_hint')"
                                             :class="reordering ? 'cursor-wait opacity-40' : 'cursor-grab active:cursor-grabbing'"
-                                            class="rounded p-1 text-slate-400 hover:bg-gray-100 hover:text-slate-600 dark:hover:bg-slate-600 dark:hover:text-slate-200"
+                                            class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/[0.1] dark:hover:text-slate-200"
                                         >
                                             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M7 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-1.5 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-1.5 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM16 16a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
@@ -230,14 +235,16 @@ function onDragEnd() {
                                 </td>
 
                                 <!-- Banner thumbnail — 3:1 ratio -->
-                                <td class="px-6 py-3">
+                                <td class="px-5 py-3">
                                     <a
                                         v-if="banner.url"
                                         :href="banner.url"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="block overflow-hidden rounded-lg ring-1 ring-gray-200 dark:ring-slate-600"
+                                        class="block overflow-hidden rounded-lg ring-1 ring-slate-200 dark:ring-white/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                         style="width: 180px; aspect-ratio: 3 / 1;"
+                                        :aria-label="t('layout.actions.open_link')"
+                                        :title="t('layout.actions.open_link')"
                                     >
                                         <img
                                             :src="banner.image_url"
@@ -247,7 +254,7 @@ function onDragEnd() {
                                     </a>
                                     <div
                                         v-else
-                                        class="overflow-hidden rounded-lg ring-1 ring-gray-200 dark:ring-slate-600"
+                                        class="overflow-hidden rounded-lg ring-1 ring-slate-200 dark:ring-white/[0.1]"
                                         style="width: 180px; aspect-ratio: 3 / 1;"
                                     >
                                         <img
@@ -259,31 +266,33 @@ function onDragEnd() {
                                 </td>
 
                                 <!-- URL -->
-                                <td class="px-6 py-4 text-sm">
+                                <td class="px-5 py-4 text-sm">
                                     <a
                                         v-if="banner.url"
                                         :href="banner.url"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        class="max-w-xs truncate text-blue-600 hover:underline dark:text-blue-400"
+                                        class="max-w-xs truncate text-indigo-600 hover:underline dark:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                         style="display: block; max-width: 240px;"
                                     >
                                         {{ banner.url }}
                                     </a>
-                                    <span v-else class="text-gray-400 dark:text-slate-500">
+                                    <span v-else class="text-slate-400 dark:text-slate-500">
                                         {{ t('banners.no_url') }}
                                     </span>
                                 </td>
 
                                 <!-- Status toggle -->
-                                <td class="px-6 py-4">
+                                <td class="px-5 py-4">
                                     <button
                                         type="button"
+                                        role="switch"
+                                        :aria-checked="banner.is_active ? 'true' : 'false'"
                                         @click="toggle(banner)"
                                         :class="banner.is_active
-                                            ? 'bg-green-500 hover:bg-green-600'
-                                            : 'bg-gray-300 hover:bg-gray-400 dark:bg-slate-500 dark:hover:bg-slate-400'"
-                                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                                            ? 'bg-brand-green hover:bg-brand-green-hover'
+                                            : 'bg-slate-300 hover:bg-slate-400 dark:bg-slate-500 dark:hover:bg-slate-400'"
+                                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                         :title="banner.is_active ? t('banners.active') : t('banners.inactive')"
                                     >
                                         <span
@@ -293,16 +302,17 @@ function onDragEnd() {
                                     </button>
                                 </td>
 
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ banner.created_at }}
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-5 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button
                                             @click="openEdit(banner)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('banners.edit')"
                                             :title="t('banners.edit')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -311,8 +321,9 @@ function onDragEnd() {
                                         </button>
                                         <button
                                             @click="destroy(banner)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-150"
-                                            :title="t('banners.delete_confirm')"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('layout.actions.delete')"
+                                            :title="t('layout.actions.delete')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />

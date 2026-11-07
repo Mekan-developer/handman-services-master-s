@@ -71,4 +71,6 @@ return [
     'content_images_max' => 'Максимум 12 изображений',
     'content_subcategory_only' => 'Контент можно добавить только для подкатегории',
     'content_not_found' => 'Контент для данной категории не найден',
+    'type_label' => 'Тип категории',
+    'content_image_new' => 'Новое',
 ];
