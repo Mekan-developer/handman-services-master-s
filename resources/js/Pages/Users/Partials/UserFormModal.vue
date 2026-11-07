@@ -32,14 +32,15 @@ const roleOptions = computed(() => {
 <template>
     <Modal :show="show" max-width="md" @close="emit('close')">
         <div class="flex h-full flex-col">
-            <div class="flex shrink-0 items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-slate-700">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+            <div class="flex shrink-0 items-center justify-between border-b border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">
                     {{ editing ? t('users.edit') : t('users.add') }}
                 </h2>
                 <button
                     type="button"
                     @click="emit('close')"
-                    class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-slate-300 transition-colors"
+                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                    :aria-label="t('layout.actions.close')"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -51,11 +52,11 @@ const roleOptions = computed(() => {
                 <div class="flex-1 space-y-4 overflow-y-auto px-6 py-5">
                     <!-- Name -->
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('users.fields.name') }} <span class="text-red-400">*</span>
                         </label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 dark:text-slate-500">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                                 <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
@@ -67,20 +68,20 @@ const roleOptions = computed(() => {
                                 :placeholder="t('users.placeholders.name')"
                                 :class="form.errors.name
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
-                                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'"
-                                class="w-full rounded-xl border bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all"
+                                    : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500'"
+                                class="w-full rounded-[10px] border bg-white py-2.5 pl-11 pr-3.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-[3px] dark:bg-[#0d1424] dark:text-white dark:placeholder-slate-500 transition-all"
                             />
                         </div>
-                        <p v-if="form.errors.name" class="mt-1.5 text-xs text-red-500">{{ form.errors.name }}</p>
+                        <p v-if="form.errors.name" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.name }}</p>
                     </div>
 
                     <!-- Email -->
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('users.fields.email') }} <span class="text-red-400">*</span>
                         </label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 dark:text-slate-500">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                                 <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                                 </svg>
@@ -91,20 +92,20 @@ const roleOptions = computed(() => {
                                 :placeholder="t('users.placeholders.email')"
                                 :class="form.errors.email
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
-                                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'"
-                                class="w-full rounded-xl border bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all"
+                                    : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500'"
+                                class="w-full rounded-[10px] border bg-white py-2.5 pl-11 pr-3.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-[3px] dark:bg-[#0d1424] dark:text-white dark:placeholder-slate-500 transition-all"
                             />
                         </div>
-                        <p v-if="form.errors.email" class="mt-1.5 text-xs text-red-500">{{ form.errors.email }}</p>
+                        <p v-if="form.errors.email" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.email }}</p>
                     </div>
 
                     <!-- Role -->
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('users.fields.role') }} <span class="text-red-400">*</span>
                         </label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 dark:text-slate-500">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                                 <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -113,30 +114,30 @@ const roleOptions = computed(() => {
                                 v-model="form.role"
                                 :class="form.errors.role
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
-                                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'"
-                                class="w-full appearance-none rounded-xl border bg-gray-50 py-3 pl-11 pr-10 text-sm text-gray-900 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:focus:bg-slate-700 transition-all"
+                                    : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500'"
+                                class="w-full appearance-none rounded-[10px] border bg-white py-2.5 pl-11 pr-10 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-[3px] dark:bg-[#0d1424] dark:text-white transition-all"
                             >
                                 <option v-for="option in roleOptions" :key="option.value" :value="option.value">
                                     {{ option.label }}
                                 </option>
                             </select>
-                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 dark:text-slate-500">
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400 dark:text-slate-500">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </span>
                         </div>
-                        <p v-if="form.errors.role" class="mt-1.5 text-xs text-red-500">{{ form.errors.role }}</p>
+                        <p v-if="form.errors.role" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.role }}</p>
                     </div>
 
                     <!-- Password -->
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('users.fields.password') }}
                             <span v-if="!editing" class="text-red-400">*</span>
                         </label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 dark:text-slate-500">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                                 <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                                 </svg>
@@ -148,24 +149,24 @@ const roleOptions = computed(() => {
                                 :placeholder="t('users.placeholders.password')"
                                 :class="form.errors.password
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
-                                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'"
-                                class="w-full rounded-xl border bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all"
+                                    : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500'"
+                                class="w-full rounded-[10px] border bg-white py-2.5 pl-11 pr-3.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-[3px] dark:bg-[#0d1424] dark:text-white dark:placeholder-slate-500 transition-all"
                             />
                         </div>
-                        <p v-if="editing" class="mt-1 text-xs text-gray-400 dark:text-slate-500">
+                        <p v-if="editing" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             {{ t('users.password_hint') }}
                         </p>
-                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-500">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.password }}</p>
                     </div>
 
                     <!-- Password Confirmation -->
                     <div>
-                        <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
+                        <label class="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
                             {{ t('users.fields.password_confirmation') }}
                             <span v-if="!editing" class="text-red-400">*</span>
                         </label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 dark:text-slate-500">
+                            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
                                 <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -177,28 +178,29 @@ const roleOptions = computed(() => {
                                 :placeholder="t('users.placeholders.password_confirmation')"
                                 :class="form.errors.password_confirmation
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
-                                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'"
-                                class="w-full rounded-xl border bg-gray-50 py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all"
+                                    : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500'"
+                                class="w-full rounded-[10px] border bg-white py-2.5 pl-11 pr-3.5 text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-[3px] dark:bg-[#0d1424] dark:text-white dark:placeholder-slate-500 transition-all"
                             />
                         </div>
-                        <p v-if="form.errors.password_confirmation" class="mt-1.5 text-xs text-red-500">{{ form.errors.password_confirmation }}</p>
+                        <p v-if="form.errors.password_confirmation" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.password_confirmation }}</p>
                     </div>
                 </div>
 
-                <div class="flex shrink-0 justify-end gap-2 border-t border-gray-100 px-6 py-4 dark:border-slate-700">
+                <div class="flex shrink-0 justify-end gap-2 border-t border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]">
                     <button
                         type="button"
                         @click="emit('close')"
-                        class="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                        class="rounded-[10px] px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white"
                     >
                         {{ t('layout.actions.cancel') }}
                     </button>
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {{ form.processing ? '...' : (editing ? t('layout.actions.update') : t('layout.actions.save')) }}
+                        <svg v-if="form.processing" class="h-4 w-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                        {{ form.processing ? t('layout.actions.saving') : (editing ? t('layout.actions.update') : t('layout.actions.save')) }}
                     </button>
                 </div>
             </form>

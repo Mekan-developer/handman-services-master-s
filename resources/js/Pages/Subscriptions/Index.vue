@@ -257,10 +257,10 @@ function resetFilters() {
 watch([masterFilter, statusFilter], applyFilters)
 
 const statusClasses = {
-    green: 'bg-green-100 text-green-700 ring-green-200 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-500/30',
-    yellow: 'bg-amber-100 text-amber-700 ring-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-500/30',
-    gray: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600',
-    red: 'bg-red-100 text-red-600 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30',
+    green: 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300',
+    yellow: 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300',
+    gray: 'bg-slate-100 text-slate-700 dark:bg-white/[0.08] dark:text-slate-300',
+    red: 'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300',
 }
 
 const statusHelp = computed(() => props.statuses.map(status => ({
@@ -269,9 +269,9 @@ const statusHelp = computed(() => props.statuses.map(status => ({
     description: t(`subscriptions.status_help.${status.value}`),
 })))
 
-const thClass = 'px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400'
-const textButton = 'rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors'
-const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
+const thClass = 'whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400'
+const textButton = 'rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors'
+const iconButton = 'rounded-lg p-2 text-slate-400 transition-colors'
 </script>
 
 <template>
@@ -280,17 +280,17 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
             <!-- Header -->
             <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="max-w-3xl">
-                    <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                         {{ t('subscriptions.title') }}
                     </h1>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {{ tab === 'plans' ? t('subscriptions.hints.plans') : t('subscriptions.hints.subscriptions') }}
                     </p>
                 </div>
                 <button
                     v-if="tab === 'plans'"
                     @click="openPlanCreate"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -300,7 +300,7 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                 <button
                     v-else
                     @click="openIssue()"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -312,35 +312,35 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
             <!-- Plan requests from the app waiting for a verdict -->
             <div
                 v-if="pendingRequestCount > 0"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-amber-50 px-5 py-3 ring-1 ring-amber-200 dark:bg-amber-500/10 dark:ring-amber-500/30"
+                class="flex flex-wrap items-center justify-between gap-3 rounded-[14px] border border-amber-200 bg-amber-50 px-5 py-3 dark:border-amber-500/30 dark:bg-amber-500/10"
             >
                 <p class="text-sm font-medium text-amber-800 dark:text-amber-300">
                     {{ t('subscriptions.pending_requests', { count: pendingRequestCount }) }}
                 </p>
                 <Link
                     :href="route('subscription-requests.index')"
-                    class="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-amber-600 transition-colors"
+                    class="rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-semibold text-slate-900 transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                 >
                     {{ t('subscriptions.pending_requests_link') }}
                 </Link>
             </div>
 
             <!-- Tabs -->
-            <nav class="flex gap-1 border-b border-gray-200 dark:border-slate-700">
+            <nav class="flex gap-1 border-b border-slate-200 dark:border-white/[0.08]">
                 <Link
                     v-for="item in tabs"
                     :key="item.key"
                     :href="route('subscriptions.index', item.key === 'plans' ? { tab: 'plans' } : {})"
                     preserve-scroll
                     :class="item.key === tab
-                        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'"
-                    class="-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors"
+                        ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+                        : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
+                    class="-mb-px inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                 >
                     {{ item.label }}
                     <span
                         v-if="item.count !== null"
-                        class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-slate-700 dark:text-slate-300"
+                        class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-slate-600 dark:bg-white/[0.08] dark:text-slate-300"
                     >
                         {{ item.count }}
                     </span>
@@ -353,24 +353,24 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                     <div
                         v-for="card in statCards"
                         :key="card.label"
-                        class="rounded-xl bg-white px-5 py-4 shadow-sm dark:bg-slate-800"
+                        class="rounded-[14px] border border-slate-200 bg-white px-5 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
                     >
-                        <p class="text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-slate-500">{{ card.label }}</p>
-                        <p class="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{{ card.value }}</p>
+                        <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ card.label }}</p>
+                        <p class="mt-2 text-3xl font-extrabold leading-none tabular-nums text-brand-navy dark:text-slate-100">{{ card.value }}</p>
                     </div>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-3">
                     <select
                         v-model="masterFilter"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        class="rounded-[10px] border border-[#dde3ec] bg-white text-sm outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-slate-100 px-3.5 py-2.5 text-slate-700"
                     >
                         <option :value="null">{{ t('subscriptions.filters.all_masters') }}</option>
                         <option v-for="master in masters" :key="master.id" :value="master.id">{{ master.name }}</option>
                     </select>
                     <select
                         v-model="statusFilter"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        class="rounded-[10px] border border-[#dde3ec] bg-white text-sm outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-slate-100 px-3.5 py-2.5 text-slate-700"
                     >
                         <option :value="null">{{ t('subscriptions.filters.all_statuses') }}</option>
                         <option v-for="status in statuses" :key="status.value" :value="status.value">{{ status.label }}</option>
@@ -378,16 +378,16 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                     <button
                         v-if="hasActiveFilters"
                         @click="resetFilters"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 shadow-sm hover:bg-gray-50 hover:text-gray-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-colors"
+                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[10px] border border-[#dde3ec] px-3.5 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:border-white/[0.08] dark:text-slate-300 dark:hover:bg-white/[0.05]"
                     >
                         {{ t('subscriptions.filters.reset') }}
                     </button>
                 </div>
 
-                <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+                <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                            <thead class="bg-gray-50 dark:bg-slate-700/50">
+                        <table class="tabular-nums min-w-full divide-y divide-slate-200 dark:divide-white/[0.08]">
+                            <thead>
                                 <tr>
                                     <th :class="thClass">{{ t('subscriptions.subscription.master') }}</th>
                                     <th :class="thClass">{{ t('subscriptions.subscription.plan') }}</th>
@@ -398,27 +398,32 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                     <th :class="[thClass, 'text-right']">{{ t('subscriptions.subscription.actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                            <tbody class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                                 <tr v-if="subscriptionList.length === 0">
-                                    <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-400 dark:text-slate-500">
-                                        {{ t('subscriptions.subscription.empty') }}
+                                    <td colspan="7" class="px-6 py-10 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                            </span>
+                                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('subscriptions.subscription.empty') }}</p>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr
                                     v-for="subscription in subscriptionList"
                                     :key="subscription.id"
-                                    class="transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
+                                    class="transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                                 >
-                                    <td class="px-6 py-4">
-                                        <p class="text-sm font-medium text-gray-900 dark:text-slate-200">{{ subscription.master?.name ?? '—' }}</p>
-                                        <p class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ subscription.master?.phone }}</p>
+                                    <td class="px-5 py-4">
+                                        <p class="text-sm font-semibold text-slate-800 dark:text-[#f1f5f9]">{{ subscription.master?.name ?? '—' }}</p>
+                                        <p class="mt-0.5 text-xs tabular-nums text-slate-500 dark:text-slate-400">{{ subscription.master?.phone }}</p>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-700 dark:text-slate-300">
+                                    <td class="px-5 py-4 text-sm text-slate-700 dark:text-slate-300">
                                         {{ subscription.plan_name }}
-                                        <span class="block text-xs text-gray-400 dark:text-slate-500">{{ subscription.duration_days }} {{ t('subscriptions.days_short') }}</span>
+                                        <span class="block text-xs text-slate-400 dark:text-slate-500">{{ subscription.duration_days }} {{ t('subscriptions.days_short') }}</span>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm">
-                                        <p class="text-gray-700 dark:text-slate-300">{{ subscription.starts_at }} — {{ subscription.expires_at }}</p>
+                                    <td class="whitespace-nowrap px-5 py-4 text-sm">
+                                        <p class="text-slate-700 dark:text-slate-300">{{ subscription.starts_at }} — {{ subscription.expires_at }}</p>
                                         <p
                                             v-if="subscription.status === 'pending' && subscription.starts_at"
                                             class="mt-0.5 text-xs text-amber-600 dark:text-amber-400"
@@ -427,36 +432,37 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                         </p>
                                         <p
                                             v-else-if="subscription.status === 'active' && subscription.days_left > 0"
-                                            class="mt-0.5 text-xs text-gray-400 dark:text-slate-500"
+                                            class="mt-0.5 text-xs text-slate-400 dark:text-slate-500"
                                         >
                                             {{ t('subscriptions.days_left') }}: {{ subscription.days_left }}
                                         </p>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-5 py-4">
                                         <span
                                             :class="statusClasses[subscription.status_color]"
-                                            class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1"
+                                            class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
                                         >
                                             {{ subscription.status_label }}
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-900 dark:text-slate-200">
+                                    <td class="whitespace-nowrap px-5 py-4 text-sm font-semibold text-slate-900 dark:text-slate-200">
                                         {{ subscription.price_paid.toFixed(2) }} {{ t('subscriptions.currency') }}
-                                        <span v-if="subscription.note" class="block max-w-[12rem] truncate text-xs font-normal text-gray-400 dark:text-slate-500" :title="subscription.note">
+                                        <span v-if="subscription.note" class="block max-w-[12rem] truncate text-xs font-normal text-slate-400 dark:text-slate-500" :title="subscription.note">
                                             {{ subscription.note }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                    <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                         {{ subscription.created_by ?? '—' }}
                                     </td>
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-5 py-4 text-right">
                                         <div class="flex flex-wrap items-center justify-end gap-1.5">
                                             <!-- Secondary, rarely used — kept quiet next to the main action -->
                                             <button
                                                 v-if="subscription.status === 'pending'"
                                                 @click="askStatusChange(subscription, 'active')"
                                                 :title="t('subscriptions.actions.activate_hint')"
-                                                :class="[textButton, 'text-gray-500 hover:bg-green-50 hover:text-green-600 dark:text-slate-400 dark:hover:bg-green-500/10 dark:hover:text-green-400']"
+                                                :class="[textButton, 'text-slate-500 hover:bg-green-50 hover:text-green-600 dark:text-slate-400 dark:hover:bg-green-500/10 dark:hover:text-green-400']"
+                                                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                             >
                                                 {{ t('subscriptions.actions.activate') }}
                                             </button>
@@ -464,7 +470,8 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                                 v-if="subscription.status === 'active'"
                                                 @click="askStatusChange(subscription, 'expired')"
                                                 :title="t('subscriptions.actions.expire_hint')"
-                                                :class="[textButton, 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200']"
+                                                :class="[textButton, 'text-slate-500 hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-slate-200']"
+                                                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                             >
                                                 {{ t('subscriptions.actions.expire') }}
                                             </button>
@@ -472,7 +479,8 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                                 v-if="!subscription.is_final"
                                                 @click="askStatusChange(subscription, 'cancelled')"
                                                 :title="t('subscriptions.actions.cancel_hint')"
-                                                :class="[textButton, 'text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400']"
+                                                :class="[textButton, 'text-slate-500 hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-500/10 dark:hover:text-red-400']"
+                                                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                             >
                                                 {{ t('subscriptions.actions.cancel') }}
                                             </button>
@@ -480,14 +488,17 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                             <button
                                                 v-if="subscription.master && subscription.is_latest"
                                                 @click="openRenew(subscription)"
-                                                :class="[textButton, 'bg-blue-600 px-3 text-white ring-blue-600 hover:bg-blue-700']"
+                                                :class="[textButton, 'bg-brand-green px-3 font-semibold text-white hover:bg-brand-green-hover']"
+                                                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                             >
                                                 {{ t('subscriptions.actions.renew') }}
                                             </button>
                                             <button
                                                 @click="openSubscriptionEdit(subscription)"
-                                                :class="[iconButton, 'hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400']"
+                                                :class="[iconButton, 'hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400']"
+                                                :aria-label="t('subscriptions.subscription.edit')"
                                                 :title="t('subscriptions.subscription.edit')"
+                                                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                             >
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
@@ -496,7 +507,9 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                             <button
                                                 @click="subscriptionDeleteTarget = subscription"
                                                 :class="[iconButton, 'hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400']"
+                                                :aria-label="t('subscriptions.subscription.delete')"
                                                 :title="t('subscriptions.subscription.delete')"
+                                                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                             >
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -518,29 +531,29 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                 </div>
 
                 <!-- What the statuses mean -->
-                <div class="rounded-xl bg-white px-5 py-4 text-sm shadow-sm dark:bg-slate-800">
-                    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                <div class="rounded-[14px] border border-slate-200 bg-white px-5 py-4 text-sm shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                    <p class="mb-2 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {{ t('subscriptions.status_help.title') }}
                     </p>
                     <ul class="grid gap-2 sm:grid-cols-2">
                         <li v-for="status in statusHelp" :key="status.value" class="flex items-start gap-2">
                             <span
                                 :class="statusClasses[status.color]"
-                                class="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-semibold ring-1"
+                                class="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-semibold"
                             >
                                 {{ status.label }}
                             </span>
-                            <span class="text-gray-500 dark:text-slate-400">{{ status.description }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ status.description }}</span>
                         </li>
                     </ul>
                 </div>
             </template>
 
             <!-- ── Plans tab ─────────────────────────────────────────────────── -->
-            <div v-else class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+            <div v-else class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50">
+                    <table class="tabular-nums min-w-full divide-y divide-slate-200 dark:divide-white/[0.08]">
+                        <thead>
                             <tr>
                                 <th :class="thClass">{{ t('subscriptions.plan.name') }}</th>
                                 <th :class="thClass">{{ t('subscriptions.plan.duration_days') }}</th>
@@ -550,54 +563,65 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                 <th :class="[thClass, 'text-right']">{{ t('subscriptions.subscription.actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                             <tr v-if="planList.length === 0">
-                                <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-400 dark:text-slate-500">
-                                    {{ t('subscriptions.plan.empty') }}
+                                <td colspan="6" class="px-6 py-10 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                        </span>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('subscriptions.plan.empty') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr
                                 v-for="plan in planList"
                                 :key="plan.id"
-                                class="transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
+                                class="transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                             >
-                                <td class="px-6 py-4">
-                                    <p class="text-sm font-medium text-gray-900 dark:text-slate-200">{{ plan.name }}</p>
-                                    <p v-if="plan.description" class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ plan.description }}</p>
+                                <td class="px-5 py-4">
+                                    <p class="text-sm font-semibold text-slate-800 dark:text-[#f1f5f9]">{{ plan.name }}</p>
+                                    <p v-if="plan.description" class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ plan.description }}</p>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ plan.duration_days }} {{ t('subscriptions.days_short') }}
                                 </td>
-                                <td class="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-slate-200">
+                                <td class="px-5 py-4 text-sm font-semibold text-slate-900 dark:text-slate-200">
                                     {{ plan.price.toFixed(2) }} {{ t('subscriptions.currency') }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">{{ plan.subscriptions_count }}</td>
-                                <td class="px-6 py-4">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">{{ plan.subscriptions_count }}</td>
+                                <td class="px-5 py-4">
                                     <div class="flex items-center gap-2">
                                         <button
                                             type="button"
                                             @click="togglePlan(plan)"
                                             :class="plan.is_active
-                                                ? 'bg-green-500 hover:bg-green-600'
-                                                : 'bg-gray-300 hover:bg-gray-400 dark:bg-slate-500 dark:hover:bg-slate-400'"
-                                            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                                                ? 'bg-brand-green hover:bg-brand-green-hover'
+                                                : 'bg-slate-300 hover:bg-slate-400 dark:bg-slate-500 dark:hover:bg-slate-400'"
+                                            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('layout.actions.toggle_active')"
+                                            :title="t('layout.actions.toggle_active')"
+                                            role="switch"
+                                            :aria-checked="plan.is_active ? 'true' : 'false'"
                                         >
                                             <span
                                                 :class="plan.is_active ? 'translate-x-5' : 'translate-x-0'"
                                                 class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-300"
                                             />
                                         </button>
-                                        <span class="text-xs text-gray-500 dark:text-slate-400">
+                                        <span class="text-xs text-slate-500 dark:text-slate-400">
                                             {{ plan.is_active ? t('subscriptions.plan.active') : t('subscriptions.plan.inactive') }}
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-5 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button
                                             @click="openPlanEdit(plan)"
-                                            :class="[iconButton, 'hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400']"
+                                            :class="[iconButton, 'hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400']"
+                                            :aria-label="t('subscriptions.plan.edit')"
                                             :title="t('subscriptions.plan.edit')"
+                                            class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
@@ -606,7 +630,9 @@ const iconButton = 'rounded-lg p-2 text-slate-400 transition-all duration-150'
                                         <button
                                             @click="planDeleteTarget = plan"
                                             :class="[iconButton, 'hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400']"
+                                            :aria-label="t('subscriptions.plan.delete')"
                                             :title="t('subscriptions.plan.delete')"
+                                            class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
