@@ -72,6 +72,7 @@ return [
     'trajectory' => 'Ugur',
     'no_location' => 'Ýerleşiş maglumaty ýok',
     'last_seen' => 'Soňky ýerleşiş',
+    'live' => 'Hakyky wagtda',
     'location' => 'Ýerleşiş',
     'location_available' => 'Ýerleşiş bar',
     'location_missing' => 'Ýerleşiş ýok',

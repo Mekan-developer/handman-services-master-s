@@ -72,6 +72,7 @@ return [
     'trajectory' => 'Маршрут',
     'no_location' => 'Нет данных о местоположении',
     'last_seen' => 'Последнее местоположение',
+    'live' => 'В реальном времени',
     'location' => 'Локация',
     'location_available' => 'Есть локация',
     'location_missing' => 'Нет локации',

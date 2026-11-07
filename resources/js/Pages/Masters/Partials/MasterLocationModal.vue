@@ -116,42 +116,43 @@ function escapeHtml(value) {
 
 <template>
     <Modal :show="show" max-width="2xl" centered @close="emit('close')">
-        <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 dark:border-slate-700">
+        <div class="flex items-start justify-between gap-4 border-b border-[#eef1f5] px-5 py-4 dark:border-white/[0.08]">
             <div>
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">
                     {{ master?.name ?? t('masters.location_modal_title') }}
                 </h2>
-                <p class="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     {{ formatPhone(master?.phone) }}
                     <span v-if="master?.city?.name"> · {{ master.city.name }}</span>
                 </p>
             </div>
             <button
                 @click="emit('close')"
-                class="rounded-lg p-1.5 text-slate-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-colors"
+                class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                :aria-label="t('masters.close')"
                 :title="t('masters.close')"
             >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
 
-        <div class="relative h-[420px] w-full bg-gray-100 dark:bg-slate-900">
+        <div class="relative h-[420px] w-full bg-slate-100 dark:bg-[#0b1220]">
             <div ref="mapContainer" class="h-full w-full" />
             <div
                 v-if="loading"
-                class="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-slate-900/60"
+                class="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-[#0b1220]/60"
             >
-                <span class="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                <span class="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 px-5 py-3 text-xs dark:border-slate-700">
-            <span class="text-gray-500 dark:text-slate-400">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-[#eef1f5] px-5 py-3 text-xs dark:border-white/[0.08]">
+            <span class="text-slate-500 dark:text-slate-400">
                 {{ t('masters.location_recorded_at', { time: master?.latest_location?.recorded_at_label ?? '—' }) }}
             </span>
-            <span class="font-mono text-gray-400 dark:text-slate-500">
+            <span class="font-mono tabular-nums text-slate-400 dark:text-slate-500">
                 {{ master?.latest_location?.latitude }}, {{ master?.latest_location?.longitude }}
             </span>
         </div>

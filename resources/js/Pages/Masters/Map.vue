@@ -346,12 +346,12 @@ function escapeHtml(value) {
     <AdminLayout :title="t('masters.map')">
         <div class="flex flex-col gap-4 h-full">
             <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                     {{ t('masters.map') }}
                 </h1>
                 <Link
                     :href="route('masters.index')"
-                    class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] px-4 py-2.5 border border-[#dde3ec] bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:border-white/[0.16] dark:bg-transparent dark:text-slate-200 dark:hover:bg-white/[0.05]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -360,21 +360,21 @@ function escapeHtml(value) {
                 </Link>
             </div>
 
-            <div class="flex flex-wrap items-center gap-4 rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-slate-800">
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+            <div class="flex flex-wrap items-center gap-4 rounded-[14px] border border-slate-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                     <span class="h-3 w-3 rounded-full bg-blue-600" />
                     {{ t('masters.last_seen') }}
                 </div>
-                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-400">
+                <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                     <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-green-500" />
-                    Live
+                    {{ t('masters.live') }}
                 </div>
-                <p class="ml-auto text-xs text-gray-400 dark:text-slate-500">
+                <p class="ml-auto text-xs tabular-nums text-slate-400 dark:text-slate-500">
                     {{ masters.length }} {{ t('masters.active') }}
                 </p>
             </div>
 
-            <div class="flex-1 overflow-hidden rounded-xl shadow-sm min-h-0">
+            <div class="min-h-0 flex-1 overflow-hidden rounded-[14px] border border-slate-200 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div ref="mapContainer" class="h-full w-full" />
             </div>
         </div>
