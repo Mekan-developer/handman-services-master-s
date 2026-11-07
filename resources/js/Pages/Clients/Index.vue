@@ -150,12 +150,12 @@ const activeFilters = computed(() => ({
     <AdminLayout :title="t('clients.title')">
         <div class="space-y-4">
             <div class="flex items-center justify-between">
-                <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+                <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                     {{ t('clients.title') }}
                 </h1>
                 <button
                     @click="openCreate"
-                    class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-colors"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -169,7 +169,7 @@ const activeFilters = computed(() => ({
                 <select
                     v-model="selectedOblastId"
                     @change="onOblastChange"
-                    class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                    class="rounded-[10px] border border-[#dde3ec] bg-white text-sm outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-slate-100 px-3.5 py-2.5 text-slate-700"
                 >
                     <option :value="null">{{ t('clients.filters.all_oblasts') }}</option>
                     <option v-for="oblast in oblasts" :key="oblast.id" :value="oblast.id">
@@ -189,7 +189,7 @@ const activeFilters = computed(() => ({
                         v-if="showCityFilter"
                         v-model="selectedCityId"
                         @change="onCityChange"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        class="rounded-[10px] border border-[#dde3ec] bg-white text-sm outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-slate-100 px-3.5 py-2.5 text-slate-700"
                     >
                         <option :value="null">{{ t('clients.filters.all_cities') }}</option>
                         <option v-for="city in oblastCities" :key="city.id" :value="city.id">
@@ -201,85 +201,90 @@ const activeFilters = computed(() => ({
                 <button
                     v-if="selectedOblastId"
                     @click="resetFilters"
-                    class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 shadow-sm hover:bg-gray-50 hover:text-gray-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200 transition-colors"
+                    class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[10px] border border-[#dde3ec] px-3.5 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:border-white/[0.08] dark:text-slate-300 dark:hover:bg-white/[0.05]"
                 >
                     {{ t('clients.filters.reset') }}
                 </button>
             </div>
 
-            <div class="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-800">
+            <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                        <thead class="bg-gray-50 dark:bg-slate-700/50">
+                    <table class="tabular-nums min-w-full divide-y divide-slate-200 dark:divide-white/[0.08]">
+                        <thead>
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">#</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('clients.fields.name') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('clients.fields.phone') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('clients.fields.city') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('clients.fields.orders_count') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('clients.fields.status') }}</th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">{{ t('clients.actions') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">#</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('clients.fields.name') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('clients.fields.phone') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('clients.fields.city') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('clients.fields.orders_count') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('clients.fields.status') }}</th>
+                                <th class="whitespace-nowrap px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ t('clients.actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-700">
+                        <tbody class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                             <tr v-if="clientList.length === 0">
-                                <td colspan="7" class="px-6 py-12 text-center text-sm text-gray-400 dark:text-slate-500">
-                                    {{ t('clients.empty') }}
+                                <td colspan="7" class="px-5 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                        </span>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('clients.empty') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr
                                 v-for="(client, index) in clientList"
                                 :key="client.id"
-                                class="group cursor-default transition-colors duration-150 hover:bg-blue-50/60 dark:hover:bg-slate-700"
+                                class="group cursor-default transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                                 :class="client.is_blocked ? 'opacity-60' : ''"
                             >
-                                <td class="px-6 py-4 text-sm text-gray-400 dark:text-slate-500">
+                                <td class="px-5 py-4 text-sm text-slate-400 dark:text-slate-500">
                                     {{ index + 1 + ((paginationMeta?.current_page ?? 1) - 1) * (paginationMeta?.per_page ?? 20) }}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-5 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="h-12 w-9 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 ring-1 ring-gray-200 dark:bg-slate-700 dark:ring-slate-600">
+                                        <div class="h-12 w-9 flex-shrink-0 overflow-hidden rounded-md bg-slate-100 ring-1 ring-slate-200 dark:bg-white/[0.06] dark:ring-white/[0.1]">
                                             <img
                                                 v-if="client.photo_url"
                                                 :src="client.photo_url"
                                                 :alt="client.name"
                                                 class="h-full w-full object-cover"
                                             />
-                                            <div v-else class="flex h-full w-full items-center justify-center text-gray-300 dark:text-slate-500">
+                                            <div v-else class="flex h-full w-full items-center justify-center text-slate-300 dark:text-slate-500">
                                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                                 </svg>
                                             </div>
                                         </div>
-                                        <span class="text-sm font-medium text-gray-900 dark:text-slate-200">
+                                        <span class="text-sm font-medium text-slate-900 dark:text-slate-200">
                                             {{ client.name }}
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ formatPhone(client.phone) }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ client.city?.name ?? '—' }}
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-slate-400">
+                                <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">
                                     {{ client.orders_count }}
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-5 py-4">
                                     <span
                                         :class="client.is_blocked
-                                            ? 'bg-red-100 text-red-600 ring-1 ring-red-200 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-500/30'
-                                            : 'bg-green-100 text-green-700 ring-1 ring-green-200 dark:bg-green-500/10 dark:text-green-300 dark:ring-green-500/30'"
+                                            ? 'bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-300'
+                                            : 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-300'"
                                         class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
                                     >
                                         <span
-                                            :class="client.is_blocked ? 'bg-red-400' : 'bg-green-500 dark:bg-green-400'"
+                                            :class="client.is_blocked ? 'bg-red-500 dark:bg-red-400' : 'bg-green-600 dark:bg-green-400'"
                                             class="h-1.5 w-1.5 rounded-full"
                                         />
                                         {{ client.is_blocked ? t('clients.blocked') : t('clients.active') }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
+                                <td class="px-5 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button
                                             @click="toggleBlock(client)"
@@ -287,7 +292,7 @@ const activeFilters = computed(() => ({
                                             :class="client.is_blocked
                                                 ? 'text-slate-400 hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-500/15 dark:hover:text-green-400'
                                                 : 'text-slate-400 hover:bg-amber-100 hover:text-amber-600 dark:hover:bg-amber-500/15 dark:hover:text-amber-400'"
-                                            class="rounded-lg p-2 transition-all duration-150"
+                                            class="rounded-lg p-2 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                         >
                                             <svg v-if="client.is_blocked" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -298,7 +303,9 @@ const activeFilters = computed(() => ({
                                         </button>
                                         <button
                                             @click="openEdit(client)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-500/15 dark:hover:text-blue-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/15 dark:hover:text-indigo-400 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
+                                            :aria-label="t('clients.edit')"
+                                            :title="t('clients.edit')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
@@ -306,7 +313,9 @@ const activeFilters = computed(() => ({
                                         </button>
                                         <button
                                             @click="destroy(client)"
-                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-150"
+                                            class="rounded-lg p-2 text-slate-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/15 dark:hover:text-red-400 transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                                            :aria-label="t('layout.actions.delete')"
+                                            :title="t('layout.actions.delete')"
                                         >
                                             <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />

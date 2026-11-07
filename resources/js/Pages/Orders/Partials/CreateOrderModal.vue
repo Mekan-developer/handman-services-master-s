@@ -231,22 +231,23 @@ function submit() {
     })
 }
 
-const inputClass = 'w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white dark:focus:bg-slate-700'
+const inputClass = 'w-full rounded-[10px] border border-[#dde3ec] bg-white px-3.5 py-2.5 text-sm focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-white'
 const errorInputClass = 'border-red-400 dark:border-red-500'
-const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
+const labelClass = 'block text-sm font-medium text-slate-700 dark:text-slate-300'
 </script>
 
 <template>
     <Modal :show="show" max-width="2xl" @close="emit('close')">
         <div class="flex h-full flex-col">
-            <div class="flex shrink-0 items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-slate-700">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+            <div class="flex shrink-0 items-center justify-between border-b border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]">
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">
                     {{ t('orders.modals.create_title') }}
                 </h2>
                 <button
                     type="button"
                     @click="emit('close')"
-                    class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-slate-300 transition-colors"
+                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                    :aria-label="t('layout.actions.close')"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -263,21 +264,21 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                             <!-- Клиент выбран -->
                             <div
                                 v-if="selectedClient"
-                                class="flex items-center justify-between gap-3 rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-2.5 dark:border-blue-500/40 dark:bg-blue-500/10"
+                                class="flex items-center justify-between gap-3 rounded-[10px] border border-indigo-200 bg-indigo-50/60 px-4 py-2.5 dark:border-indigo-500/40 dark:bg-indigo-500/10"
                             >
                                 <div class="min-w-0">
-                                    <div class="truncate text-sm font-medium text-gray-900 dark:text-slate-100">
+                                    <div class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
                                         {{ selectedClient.name || selectedClient.phone }}
                                     </div>
-                                    <div class="text-xs text-gray-500 dark:text-slate-400">{{ selectedClient.phone }}</div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ selectedClient.phone }}</div>
                                 </div>
-                                <span class="hidden text-xs text-blue-600 dark:text-blue-300 sm:inline">
+                                <span class="hidden text-xs text-indigo-600 dark:text-indigo-300 sm:inline">
                                     {{ t('orders.create.selected_client') }}
                                 </span>
                                 <button
                                     type="button"
                                     @click="deselectClient"
-                                    class="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-white dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                                    class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white dark:text-slate-300 dark:hover:bg-white/[0.06] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                 >
                                     {{ t('orders.create.deselect') }}
                                 </button>
@@ -297,29 +298,29 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                     <button
                                         type="button"
                                         @click="startNewClient"
-                                        class="shrink-0 rounded-xl border border-gray-300 bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-600 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-600 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-colors"
+                                        class="shrink-0 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-600 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-600 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-slate-300 dark:hover:border-indigo-500 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                     >
                                         + {{ t('orders.create.new_client') }}
                                     </button>
                                 </div>
                                 <div
                                     v-if="showClientDropdown && clientSearch"
-                                    class="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg dark:border-slate-600 dark:bg-slate-800"
+                                    class="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-[10px] border border-slate-200 bg-white shadow-lg dark:border-white/[0.08] dark:bg-[#131b2e]"
                                 >
                                     <button
                                         v-for="c in filteredClients"
                                         :key="c.id"
                                         type="button"
                                         @click="selectClient(c)"
-                                        class="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left hover:bg-blue-50 dark:hover:bg-slate-700"
+                                        class="flex w-full items-center justify-between gap-2 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                     >
-                                        <span class="text-sm text-gray-900 dark:text-slate-200">{{ c.name || '—' }}</span>
-                                        <span class="text-xs text-gray-500 dark:text-slate-400">{{ c.phone }}</span>
+                                        <span class="text-sm text-slate-900 dark:text-slate-200">{{ c.name || '—' }}</span>
+                                        <span class="text-xs text-slate-500 dark:text-slate-400">{{ c.phone }}</span>
                                     </button>
                                     <button
                                         type="button"
                                         @click="startNewClient"
-                                        class="flex w-full items-center gap-2 border-t border-gray-100 px-4 py-2.5 text-left text-sm text-blue-600 hover:bg-blue-50 dark:border-slate-700 dark:text-blue-400 dark:hover:bg-slate-700"
+                                        class="flex w-full items-center gap-2 border-t border-[#eef1f5] px-4 py-2.5 text-left text-sm text-indigo-600 hover:bg-indigo-50 dark:border-white/[0.08] dark:text-indigo-400 dark:hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                     >
                                         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -359,7 +360,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                 <button
                                     type="button"
                                     @click="backToSearch"
-                                    class="text-xs text-blue-500 hover:underline dark:text-blue-400"
+                                    class="text-xs text-blue-500 hover:underline dark:text-blue-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                 >
                                     ← {{ t('orders.create.back_to_search') }}
                                 </button>
@@ -405,7 +406,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                             <label :class="labelClass">{{ t('orders.fields.location') }} <span class="text-red-400">*</span></label>
 
                             <!-- Map with overlays -->
-                            <div class="relative h-80 overflow-hidden rounded-xl border border-gray-300 dark:border-slate-600">
+                            <div class="relative h-80 overflow-hidden rounded-xl border border-slate-300 dark:border-white/[0.16]">
                                 <div ref="mapContainer" class="absolute inset-0" />
 
                                 <!-- "Click to pick" hint chip -->
@@ -421,7 +422,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                         v-if="!hasLocation"
                                         class="pointer-events-none absolute left-1/2 top-3 z-[1001] -translate-x-1/2"
                                     >
-                                        <div class="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-gray-600 shadow-md backdrop-blur-sm dark:bg-slate-800/90 dark:text-slate-300">
+                                        <div class="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-md backdrop-blur-sm dark:bg-[#131b2e]/90 dark:text-slate-300">
                                             <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
@@ -444,7 +445,7 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                         v-if="hasLocation"
                                         type="button"
                                         @click="clearLocation"
-                                        class="absolute right-2.5 top-2.5 z-[1001] flex items-center gap-1.5 rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-medium text-red-600 shadow-md backdrop-blur-sm hover:bg-red-50 dark:bg-slate-800/95 dark:text-red-400 dark:hover:bg-slate-700 transition-colors"
+                                        class="absolute right-2.5 top-2.5 z-[1001] flex items-center gap-1.5 rounded-lg bg-white/95 px-2.5 py-1.5 text-xs font-medium text-red-600 shadow-md backdrop-blur-sm hover:bg-red-50 dark:bg-[#131b2e]/95 dark:text-red-400 dark:hover:bg-white/[0.06] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                     >
                                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -458,9 +459,9 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                     type="button"
                                     @click="geolocate"
                                     :title="t('orders.create.my_location')"
-                                    class="absolute bottom-10 right-2.5 z-[1001] flex h-8 w-8 items-center justify-center rounded-lg bg-white/95 shadow-md backdrop-blur-sm hover:bg-white dark:bg-slate-800/95 dark:hover:bg-slate-800 transition-colors"
+                                    class="absolute bottom-10 right-2.5 z-[1001] flex h-8 w-8 items-center justify-center rounded-lg bg-white/95 shadow-md backdrop-blur-sm hover:bg-white dark:bg-[#131b2e]/95 dark:hover:bg-[#131b2e] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                 >
-                                    <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="3" />
                                         <path stroke-linecap="round" d="M12 2v3M12 19v3M2 12h3M19 12h3" />
                                     </svg>
@@ -531,13 +532,15 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                 <div
                                     v-for="(url, i) in photoPreviews"
                                     :key="i"
-                                    class="relative h-20 w-20 overflow-hidden rounded-lg border border-gray-200 dark:border-slate-600"
+                                    class="relative h-20 w-20 overflow-hidden rounded-lg border border-slate-200 dark:border-white/[0.16]"
                                 >
                                     <img :src="url" class="h-full w-full object-cover" alt="" />
                                     <button
                                         type="button"
                                         @click="removePhoto(i)"
-                                        class="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                                        class="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
+                                        :aria-label="t('layout.actions.remove_photo')"
+                                        :title="t('layout.actions.remove_photo')"
                                     >
                                         <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -548,15 +551,15 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                                     v-if="photoPreviews.length < 4"
                                     type="button"
                                     @click="photoInput?.click()"
-                                    class="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-500 dark:border-slate-600 dark:hover:border-blue-500 transition-colors"
+                                    class="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-300 text-slate-400 hover:border-indigo-400 hover:text-blue-500 dark:border-white/[0.16] dark:hover:border-indigo-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                 >
                                     <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                                     </svg>
-                                    <span class="text-[10px]">{{ t('orders.create.add_photos') }}</span>
+                                    <span class="text-[11px]">{{ t('orders.create.add_photos') }}</span>
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-400 dark:text-slate-500">{{ t('orders.create.photos_hint') }}</p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500">{{ t('orders.create.photos_hint') }}</p>
                             <InputError :message="form.errors.photos" />
                         </div>
 
@@ -573,20 +576,21 @@ const labelClass = 'block text-sm font-medium text-gray-700 dark:text-slate-300'
                     </div>
                 </div>
 
-                <div class="flex shrink-0 justify-end gap-2 border-t border-gray-100 px-6 py-4 dark:border-slate-700">
+                <div class="flex shrink-0 justify-end gap-2 border-t border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]">
                     <button
                         type="button"
                         @click="emit('close')"
-                        class="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                        class="rounded-[10px] px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white"
                     >
                         {{ t('layout.actions.cancel') }}
                     </button>
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {{ form.processing ? '...' : t('layout.actions.save') }}
+                        <svg v-if="form.processing" class="h-4 w-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                        {{ form.processing ? t('layout.actions.saving') : t('layout.actions.save') }}
                     </button>
                 </div>
             </form>

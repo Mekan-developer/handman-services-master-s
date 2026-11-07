@@ -7,6 +7,7 @@ import CreateOrderModal from '@/Pages/Orders/Partials/CreateOrderModal.vue'
 import ConfirmModal from '@/Components/ConfirmModal.vue'
 import Pagination from '@/Components/Pagination.vue'
 import CityFilterSelect from '@/Components/CityFilterSelect.vue'
+import { orderStatusBadge } from '@/Pages/Orders/Partials/OrderStatusBadge.vue'
 import { formatPhone } from '@/utils/formatPhone'
 
 const { t } = useI18n()
@@ -69,16 +70,8 @@ const activeFilters = computed(() => ({
     date_to: dateTo.value || undefined,
 }))
 
-const statusBadgeStyles = {
-    pending: { bg: 'bg-amber-100', text: 'text-amber-800', dot: 'bg-amber-500' },
-    assigned: { bg: 'bg-indigo-100', text: 'text-indigo-800', dot: 'bg-indigo-600' },
-    in_progress: { bg: 'bg-indigo-100', text: 'text-indigo-800', dot: 'bg-indigo-600' },
-    completed: { bg: 'bg-green-100', text: 'text-green-800', dot: 'bg-brand-green' },
-    cancelled: { bg: 'bg-slate-100 dark:bg-white/10', text: 'text-slate-600 dark:text-[#cbd5e1]', dot: 'bg-slate-400' },
-}
-
 function statusBadge(status) {
-    return statusBadgeStyles[status] ?? statusBadgeStyles.pending
+    return orderStatusBadge(status)
 }
 
 // The layout already toasts these events; here we only refresh the table so
@@ -121,13 +114,13 @@ function confirmDelete() {
         <div>
             <!-- Header -->
             <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
-                <h1 class="text-[28px] font-extrabold text-brand-navy dark:text-[#f1f5f9]">
+                <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                     {{ t('orders.title') }}
                 </h1>
                 <button
                     type="button"
                     @click="showCreate = true"
-                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover"
+                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-3 text-sm font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0b1220]"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24">
                         <path d="M12 4.5v15m7.5-7.5h-15" />
@@ -137,7 +130,7 @@ function confirmDelete() {
             </div>
 
             <!-- Card -->
-            <div class="rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e]">
+            <div class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
 
                 <!-- Filters -->
                 <div class="border-b border-[#eef1f5] p-5 dark:border-white/[0.08]">
@@ -181,7 +174,7 @@ function confirmDelete() {
                                     v-model="dateFrom"
                                     type="date"
                                     :max="dateTo || undefined"
-                                    class="rounded-[10px] border border-[#dde3ec] bg-white px-3 py-2.5 text-[13px] text-slate-700 outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9] dark:[color-scheme:dark]"
+                                    class="rounded-[10px] border border-[#dde3ec] bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9] dark:[color-scheme:dark]"
                                 />
                             </div>
                             <div>
@@ -190,7 +183,7 @@ function confirmDelete() {
                                     v-model="dateTo"
                                     type="date"
                                     :min="dateFrom || undefined"
-                                    class="rounded-[10px] border border-[#dde3ec] bg-white px-3 py-2.5 text-[13px] text-slate-700 outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9] dark:[color-scheme:dark]"
+                                    class="rounded-[10px] border border-[#dde3ec] bg-white px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9] dark:[color-scheme:dark]"
                                 />
                             </div>
 
@@ -198,7 +191,7 @@ function confirmDelete() {
                                 v-if="hasActiveFilters"
                                 type="button"
                                 @click="resetFilters"
-                                class="inline-flex items-center gap-1.5 rounded-[10px] border border-[#dde3ec] px-3.5 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 dark:border-white/[0.08] dark:text-slate-300 dark:hover:bg-white/[0.05]"
+                                class="inline-flex items-center gap-1.5 rounded-[10px] border border-[#dde3ec] px-3.5 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 dark:border-white/[0.08] dark:text-slate-300 dark:hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                             >
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -211,36 +204,43 @@ function confirmDelete() {
 
                 <!-- Table -->
                 <div class="overflow-x-auto">
-                    <table class="w-full border-collapse">
+                    <table class="tabular-nums w-full border-collapse">
                         <thead>
                             <tr>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">id(#)</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.client_name') }}</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.city') }}</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.category') }}</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.master') }}</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.status') }}</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.final_price') }}</th>
-                                <th class="whitespace-nowrap border-b border-gray-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-400 dark:border-white/[0.08]">{{ t('orders.fields.created_at') }}</th>
-                                <th class="border-b border-gray-200 px-5 py-3.5 dark:border-white/[0.08]" />
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">id(#)</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.client_name') }}</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.city') }}</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.category') }}</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.master') }}</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.status') }}</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.final_price') }}</th>
+                                <th class="whitespace-nowrap border-b border-slate-200 px-5 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:border-white/[0.08] dark:text-slate-400">{{ t('orders.fields.created_at') }}</th>
+                                <th class="border-b border-slate-200 px-5 py-3.5 dark:border-white/[0.08]" />
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-if="orderList.length === 0">
-                                <td colspan="9" class="px-5 py-12 text-center text-sm text-slate-400">
-                                    {{ t('orders.empty') }}
+                                <td colspan="9" class="px-5 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/[0.06] dark:text-slate-500">
+                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                                        </span>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('orders.empty') }}</p>
+                                    </div>
                                 </td>
                             </tr>
                             <tr
                                 v-for="order in orderList"
                                 :key="order.id"
-                                class="cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50 dark:border-white/[0.08] dark:hover:bg-white/[0.03]"
+                                tabindex="0"
+                                class="cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-600 dark:border-white/[0.08] dark:hover:bg-white/[0.03] dark:focus-visible:bg-white/[0.03]"
                                 @click="router.visit(route('orders.show', order.id))"
+                                @keydown.enter.self="router.visit(route('orders.show', order.id))"
                             >
                                 <td class="px-5 py-4 text-sm text-slate-500 dark:text-slate-400">{{ order.id }}</td>
                                 <td class="px-5 py-4">
                                     <div class="text-sm font-semibold text-slate-800 dark:text-[#f1f5f9]">{{ order.client_name }}</div>
-                                    <div class="mt-0.5 text-[12.5px] text-slate-400">{{ formatPhone(order.client_phone) }}</div>
+                                    <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ formatPhone(order.client_phone) }}</div>
                                 </td>
                                 <td class="px-5 py-4 text-sm text-slate-700 dark:text-[#e2e8f0]">{{ order.city?.name ?? '—' }}</td>
                                 <td class="px-5 py-4 text-sm text-slate-700 dark:text-[#e2e8f0]">{{ order.category?.name ?? '—' }}</td>
@@ -278,12 +278,14 @@ function confirmDelete() {
                                     <span v-if="order.final_price">{{ order.final_price }}</span>
                                     <span v-else class="text-slate-400">—</span>
                                 </td>
-                                <td class="whitespace-nowrap px-5 py-4 text-[13.5px] text-slate-500 dark:text-slate-400">{{ order.created_at }}</td>
+                                <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-500 dark:text-slate-400">{{ order.created_at }}</td>
                                 <td class="whitespace-nowrap px-5 py-4 text-right" @click.stop>
                                     <div class="flex items-center justify-end gap-1">
                                         <Link
                                             :href="route('orders.show', order.id)"
-                                            class="inline-flex p-1.5 text-slate-400 transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+                                            class="inline-flex p-1.5 text-slate-400 transition-colors hover:text-slate-700 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
+                                            :aria-label="t('orders.view')"
+                                            :title="t('orders.view')"
                                         >
                                             <svg class="h-[17px] w-[17px]" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                                 <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
@@ -292,7 +294,9 @@ function confirmDelete() {
                                         </Link>
                                         <button
                                             @click="destroy(order)"
-                                            class="inline-flex p-1.5 text-slate-400 transition-colors hover:text-red-600"
+                                            class="inline-flex p-1.5 text-slate-400 transition-colors hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
+                                            :aria-label="t('orders.delete')"
+                                            :title="t('orders.delete')"
                                         >
                                             <svg class="h-[17px] w-[17px]" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                                 <polyline points="3 6 5 6 21 6" />

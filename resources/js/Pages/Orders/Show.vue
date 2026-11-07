@@ -304,13 +304,15 @@ async function fetchTrajectory() {
 <template>
     <AdminLayout :title="`${t('orders.show')} #${order.id}`">
         <!-- Full-bleed monitoring layout: cancel AdminLayout padding -->
-        <div class="flex h-full flex-col overflow-hidden -m-4 lg:-m-6">
+        <div class="-m-4 flex h-[calc(100%+2rem)] flex-col overflow-hidden lg:-m-8 lg:h-[calc(100%+4rem)]">
 
             <!-- Compact header -->
-            <div class="flex shrink-0 items-center gap-3 border-b border-gray-200 bg-white px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800 lg:px-6">
+            <div class="flex shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 py-2.5 dark:border-white/[0.08] dark:bg-[#0f1626] lg:px-6">
                 <Link
                     :href="route('orders.index')"
-                    class="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-gray-100 dark:hover:bg-slate-700"
+                    class="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-400 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                    :aria-label="t('orders.back')"
+                    :title="t('orders.back')"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
@@ -318,9 +320,9 @@ async function fetchTrajectory() {
                 </Link>
 
                 <div class="flex min-w-0 flex-1 items-center gap-3">
-                    <h1 class="shrink-0 text-base font-semibold text-gray-900 dark:text-white">
+                    <h1 class="shrink-0 text-base font-semibold text-slate-900 dark:text-white">
                         {{ t('orders.show') }}
-                        <span class="font-mono text-gray-400">#{{ order.id }}</span>
+                        <span class="font-mono text-slate-400">#{{ order.id }}</span>
                     </h1>
                     <OrderStatusBadge :status="order.status" :label="order.status_label" :color="order.status_color" />
                 </div>
@@ -329,7 +331,7 @@ async function fetchTrajectory() {
                     <button
                         v-if="order.status === 'pending'"
                         @click="showEditModal = true"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[10px] px-3 py-1.5 border border-[#dde3ec] bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:border-white/[0.16] dark:bg-transparent dark:text-slate-200 dark:hover:bg-white/[0.05]"
                     >
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
@@ -340,7 +342,7 @@ async function fetchTrajectory() {
                     <button
                         v-if="order.status === 'pending'"
                         @click="router.post(route('orders.restart-search', order.id))"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[10px] px-3 py-1.5 border border-[#dde3ec] bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:border-white/[0.16] dark:bg-transparent dark:text-slate-200 dark:hover:bg-white/[0.05]"
                     >
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -351,7 +353,7 @@ async function fetchTrajectory() {
                     <button
                         v-if="!['completed', 'cancelled'].includes(order.status)"
                         @click="showStatusModal = true"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-[10px] px-3 py-1.5 border border-[#dde3ec] bg-white text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:border-white/[0.16] dark:bg-transparent dark:text-slate-200 dark:hover:bg-white/[0.05]"
                     >
                         {{ t('orders.actions.change_status') }}
                     </button>
@@ -362,41 +364,41 @@ async function fetchTrajectory() {
             <div class="flex min-h-0 flex-1 overflow-hidden">
 
                 <!-- Left sidebar -->
-                <aside class="w-72 shrink-0 overflow-y-auto border-r border-gray-200 bg-gray-50 p-3 dark:border-slate-700 dark:bg-slate-900 lg:w-80">
+                <aside class="tabular-nums w-72 shrink-0 overflow-y-auto border-r border-slate-200 bg-slate-50 p-3 dark:border-white/[0.08] dark:bg-[#0b1220] lg:w-80">
                     <div class="space-y-3">
 
                         <!-- Client -->
-                        <div class="rounded-xl bg-white shadow-sm dark:bg-slate-800">
-                            <div class="border-b border-gray-100 px-4 py-2.5 dark:border-slate-700">
-                                <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">
+                        <div class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                            <div class="border-b border-[#eef1f5] px-4 py-2.5 dark:border-white/[0.08]">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('orders.fields.client_name') }}
                                 </h3>
                             </div>
                             <div class="px-4 py-3 text-sm">
-                                <p class="font-medium text-gray-900 dark:text-slate-200">{{ order.client_name }}</p>
-                                <a :href="`tel:${order.client_phone}`" class="text-blue-600 hover:underline dark:text-blue-400">
+                                <p class="font-medium text-slate-900 dark:text-slate-200">{{ order.client_name }}</p>
+                                <a :href="`tel:${order.client_phone}`" class="text-indigo-600 hover:underline dark:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">
                                     {{ formatPhone(order.client_phone) }}
                                 </a>
-                                <p v-if="order.client_address" class="mt-1 text-xs text-gray-500 dark:text-slate-400">
+                                <p v-if="order.client_address" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                     {{ order.client_address }}
                                 </p>
                             </div>
                         </div>
 
                         <!-- Order meta -->
-                        <div class="rounded-xl bg-white shadow-sm dark:bg-slate-800">
+                        <div class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                             <div class="space-y-2 px-4 py-3 text-sm">
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-gray-500 dark:text-slate-400">{{ t('orders.fields.city') }}</span>
-                                    <span class="font-medium text-gray-700 dark:text-slate-300">{{ order.city?.name }}</span>
+                                    <span class="text-slate-500 dark:text-slate-400">{{ t('orders.fields.city') }}</span>
+                                    <span class="font-medium text-slate-700 dark:text-slate-300">{{ order.city?.name }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-gray-500 dark:text-slate-400">{{ t('orders.fields.category') }}</span>
-                                    <span class="truncate font-medium text-gray-700 dark:text-slate-300">{{ order.category?.name }}</span>
+                                    <span class="text-slate-500 dark:text-slate-400">{{ t('orders.fields.category') }}</span>
+                                    <span class="truncate font-medium text-slate-700 dark:text-slate-300">{{ order.category?.name }}</span>
                                 </div>
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-gray-500 dark:text-slate-400">{{ t('orders.fields.created_at') }}</span>
-                                    <span class="text-xs font-medium text-gray-700 dark:text-slate-300">{{ order.created_at }}</span>
+                                    <span class="text-slate-500 dark:text-slate-400">{{ t('orders.fields.created_at') }}</span>
+                                    <span class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ order.created_at }}</span>
                                 </div>
                             </div>
                         </div>
@@ -407,7 +409,7 @@ async function fetchTrajectory() {
                                 <svg class="h-4 w-4 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <h3 class="text-xs font-semibold uppercase tracking-wide text-red-600 dark:text-red-400">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wide text-red-600 dark:text-red-400">
                                     {{ t('orders.fields.cancel_reason') }}
                                 </h3>
                             </div>
@@ -418,38 +420,38 @@ async function fetchTrajectory() {
                                 <p v-else class="italic text-red-400 dark:text-red-500/80">
                                     {{ t('orders.no_reason') }}
                                 </p>
-                                <p v-if="order.cancelled_at" class="mt-2 text-xs text-red-500/80 dark:text-red-400/70">
+                                <p v-if="order.cancelled_at" class="mt-2 text-xs text-red-600/80 dark:text-red-400/70">
                                     {{ t('orders.fields.cancelled_at') }}: {{ order.cancelled_at }}
                                 </p>
                             </div>
                         </div>
 
                         <!-- Description -->
-                        <div v-if="order.description" class="rounded-xl bg-white shadow-sm dark:bg-slate-800">
-                            <div class="border-b border-gray-100 px-4 py-2.5 dark:border-slate-700">
-                                <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">
+                        <div v-if="order.description" class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                            <div class="border-b border-[#eef1f5] px-4 py-2.5 dark:border-white/[0.08]">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('orders.fields.description') }}
                                 </h3>
                             </div>
-                            <div class="px-4 py-3 text-sm text-gray-700 dark:text-slate-300 whitespace-pre-wrap">
+                            <div class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                                 {{ order.description }}
                             </div>
                         </div>
 
                         <!-- Master -->
-                        <div class="rounded-xl bg-white shadow-sm dark:bg-slate-800">
-                            <div class="border-b border-gray-100 px-4 py-2.5 dark:border-slate-700">
-                                <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">
+                        <div class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                            <div class="border-b border-[#eef1f5] px-4 py-2.5 dark:border-white/[0.08]">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('orders.fields.master') }}
                                 </h3>
                             </div>
                             <div class="px-4 py-3 text-sm">
                                 <div v-if="order.master">
-                                    <p class="font-medium text-gray-900 dark:text-slate-200">{{ order.master.name }}</p>
-                                    <a :href="`tel:${order.master.phone}`" class="text-blue-600 hover:underline dark:text-blue-400">
+                                    <p class="font-medium text-slate-900 dark:text-slate-200">{{ order.master.name }}</p>
+                                    <a :href="`tel:${order.master.phone}`" class="text-indigo-600 hover:underline dark:text-indigo-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">
                                         {{ formatPhone(order.master.phone) }}
                                     </a>
-                                    <p v-if="order.assigned_at" class="mt-1 text-xs text-gray-400">
+                                    <p v-if="order.assigned_at" class="mt-1 text-xs text-slate-400">
                                         {{ t('orders.fields.assigned_at') }}: {{ order.assigned_at }}
                                     </p>
                                     <p v-if="order.master_change_reason" class="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
@@ -481,14 +483,14 @@ async function fetchTrajectory() {
                                         <p class="mt-1 text-xs text-blue-500 dark:text-blue-400">при скорости {{ ETA_SPEED_KMH }} км/ч</p>
                                     </div>
                                 </div>
-                                <p v-else class="text-gray-400 dark:text-slate-500">{{ t('orders.no_master') }}</p>
+                                <p v-else class="text-slate-400 dark:text-slate-500">{{ t('orders.no_master') }}</p>
                             </div>
                         </div>
 
                         <!-- Photos -->
-                        <div v-if="order.photos?.length" class="rounded-xl bg-white shadow-sm dark:bg-slate-800">
-                            <div class="border-b border-gray-100 px-4 py-2.5 dark:border-slate-700">
-                                <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">
+                        <div v-if="order.photos?.length" class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                            <div class="border-b border-[#eef1f5] px-4 py-2.5 dark:border-white/[0.08]">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('orders.fields.photos') }}
                                 </h3>
                             </div>
@@ -498,7 +500,9 @@ async function fetchTrajectory() {
                                     :key="photo.id"
                                     type="button"
                                     @click="openLightbox(order.photos, idx)"
-                                    class="group relative aspect-square cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-gray-200 dark:ring-slate-700"
+                                    class="group relative aspect-square cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-slate-200 dark:ring-white/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
+                                    :aria-label="t('layout.actions.open_photo')"
+                                    :title="t('layout.actions.open_photo')"
                                 >
                                     <img :src="photo.url" :alt="`photo-${photo.id}`" class="h-full w-full object-cover transition-transform group-hover:scale-105" />
                                 </button>
@@ -506,9 +510,9 @@ async function fetchTrajectory() {
                         </div>
 
                         <!-- Tasks -->
-                        <div v-if="order.tasks?.length" class="rounded-xl bg-white shadow-sm dark:bg-slate-800">
-                            <div class="border-b border-gray-100 px-4 py-2.5 dark:border-slate-700">
-                                <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-500">
+                        <div v-if="order.tasks?.length" class="rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                            <div class="border-b border-[#eef1f5] px-4 py-2.5 dark:border-white/[0.08]">
+                                <h3 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {{ t('orders.fields.tasks') }}
                                 </h3>
                             </div>
@@ -516,35 +520,39 @@ async function fetchTrajectory() {
                                 <div
                                     v-for="task in order.tasks"
                                     :key="task.id"
-                                    class="rounded-lg border border-gray-200 p-3 dark:border-slate-700"
+                                    class="rounded-lg border border-slate-200 p-3 dark:border-white/[0.08]"
                                 >
-                                    <p class="mb-2 text-xs font-medium text-gray-900 dark:text-slate-200">{{ task.title }}</p>
+                                    <p class="mb-2 text-xs font-medium text-slate-900 dark:text-slate-200">{{ task.title }}</p>
                                     <div class="grid grid-cols-2 gap-2">
                                         <!-- Before -->
                                         <div>
-                                            <p class="mb-1 text-xs text-gray-400">{{ t('orders.fields.before') }}</p>
+                                            <p class="mb-1 text-xs text-slate-400">{{ t('orders.fields.before') }}</p>
                                             <button
                                                 v-if="taskPhoto(task, 'before')"
                                                 type="button"
-                                                class="block w-full cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-gray-200 dark:ring-slate-600"
+                                                class="block w-full cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-slate-200 dark:ring-white/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                                 @click="openLightbox([taskPhoto(task, 'before').url], 0)"
+                                                :aria-label="t('layout.actions.open_photo')"
+                                                :title="t('layout.actions.open_photo')"
                                             >
                                                 <img :src="taskPhoto(task, 'before').url" class="aspect-square w-full object-cover" />
                                             </button>
-                                            <div v-else class="aspect-square rounded-lg bg-gray-100 dark:bg-slate-700" />
+                                            <div v-else class="aspect-square rounded-lg bg-slate-100 dark:bg-white/[0.06]" />
                                         </div>
                                         <!-- After -->
                                         <div>
-                                            <p class="mb-1 text-xs text-gray-400">{{ t('orders.fields.after') }}</p>
+                                            <p class="mb-1 text-xs text-slate-400">{{ t('orders.fields.after') }}</p>
                                             <button
                                                 v-if="taskPhoto(task, 'after')"
                                                 type="button"
-                                                class="block w-full cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-gray-200 dark:ring-slate-600"
+                                                class="block w-full cursor-zoom-in overflow-hidden rounded-lg ring-1 ring-slate-200 dark:ring-white/[0.1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                                 @click="openLightbox([taskPhoto(task, 'after').url], 0)"
+                                                :aria-label="t('layout.actions.open_photo')"
+                                                :title="t('layout.actions.open_photo')"
                                             >
                                                 <img :src="taskPhoto(task, 'after').url" class="aspect-square w-full object-cover" />
                                             </button>
-                                            <div v-else class="aspect-square rounded-lg bg-gray-100 dark:bg-slate-700" />
+                                            <div v-else class="aspect-square rounded-lg bg-slate-100 dark:bg-white/[0.06]" />
                                         </div>
                                     </div>
                                 </div>
@@ -561,7 +569,7 @@ async function fetchTrajectory() {
                     <!-- Live tracking overlay — top right -->
                     <div
                         v-if="isTracking && liveDistance !== null"
-                        class="absolute right-4 top-4 z-[1001] flex items-center gap-3 rounded-xl bg-white/90 px-4 py-3 shadow-lg backdrop-blur-sm dark:bg-slate-800/90"
+                        class="tabular-nums absolute right-4 top-4 z-[1001] flex items-center gap-3 rounded-xl bg-white/90 px-4 py-3 shadow-lg backdrop-blur-sm dark:bg-[#131b2e]/90"
                     >
                         <div class="flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
                             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -569,7 +577,7 @@ async function fetchTrajectory() {
                             </svg>
                             <span class="text-sm font-bold">{{ formatDistance(liveDistance) }}</span>
                         </div>
-                        <div class="h-4 w-px bg-gray-200 dark:bg-slate-600" />
+                        <div class="h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
                         <div class="flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
                             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -583,14 +591,14 @@ async function fetchTrajectory() {
                     </div>
 
                     <!-- Legend — bottom left -->
-                    <div class="absolute bottom-6 left-4 z-[1001] flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 text-xs shadow-md backdrop-blur-sm dark:bg-slate-800/90">
+                    <div class="absolute bottom-6 left-4 z-[1001] flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 text-xs shadow-md backdrop-blur-sm dark:bg-[#131b2e]/90">
                         <div class="flex items-center gap-1.5">
-                            <span class="h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-slate-700" />
-                            <span class="text-gray-600 dark:text-slate-300">{{ t('orders.fields.client_name') }}</span>
+                            <span class="h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-white/[0.1]" />
+                            <span class="text-slate-600 dark:text-slate-300">{{ t('orders.fields.client_name') }}</span>
                         </div>
                         <div v-if="order.master" class="flex items-center gap-1.5">
-                            <span class="h-3 w-3 rounded-full bg-blue-600 ring-2 ring-white dark:ring-slate-700" />
-                            <span class="text-gray-600 dark:text-slate-300">{{ t('orders.fields.master') }}</span>
+                            <span class="h-3 w-3 rounded-full bg-blue-600 ring-2 ring-white dark:ring-white/[0.1]" />
+                            <span class="text-slate-600 dark:text-slate-300">{{ t('orders.fields.master') }}</span>
                         </div>
                     </div>
                 </section>

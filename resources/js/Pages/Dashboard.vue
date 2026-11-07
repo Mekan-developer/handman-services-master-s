@@ -184,22 +184,22 @@ const chartSubtitle = computed(() => {
 
     <AdminLayout :title="t('dashboard.title')">
         <div class="mb-6">
-            <h1 class="text-[28px] font-extrabold text-brand-navy dark:text-[#f1f5f9]">{{ t('dashboard.title') }}</h1>
-            <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ t('dashboard.subtitle') }}</p>
+            <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">{{ t('dashboard.title') }}</h1>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ t('dashboard.subtitle') }}</p>
         </div>
 
         <!-- KPI cards -->
         <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
             <!-- New subscriptions -->
-            <div class="relative rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+            <div class="relative rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div
                     v-if="metric === 'new'"
                     class="pointer-events-none absolute -inset-px rounded-[14px] border-2 border-brand-green shadow-[0_8px_20px_rgba(12,143,10,0.18)] dark:shadow-[0_8px_20px_rgba(12,143,10,0.25)]"
                 />
                 <button
                     type="button"
-                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-brand-green/[0.03] dark:hover:bg-white/[0.03]"
+                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-brand-green/[0.03] dark:hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                     @click="metric = 'new'"
                 >
                     <div class="flex items-center gap-2.5">
@@ -209,10 +209,10 @@ const chartSubtitle = computed(() => {
                                 <polyline points="14 7 21 7 21 14" />
                             </svg>
                         </div>
-                        <span class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.new') }}</span>
+                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.new') }}</span>
                     </div>
-                    <div class="text-[30px] font-extrabold leading-none text-brand-navy dark:text-[#f1f5f9]">{{ newKpi.value }}</div>
-                    <div class="flex items-center gap-1.5 text-[12.5px]">
+                    <div class="text-3xl font-extrabold leading-none tabular-nums text-brand-navy dark:text-[#f1f5f9]">{{ newKpi.value }}</div>
+                    <div class="flex items-center gap-1.5 text-xs">
                         <span class="font-bold text-green-800 dark:text-green-400">▲ {{ newKpi.delta }}</span>
                         <span class="text-slate-400">{{ periodCompareLabel }}</span>
                     </div>
@@ -220,14 +220,14 @@ const chartSubtitle = computed(() => {
             </div>
 
             <!-- Active subscriptions -->
-            <div class="relative rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+            <div class="relative rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div
                     v-if="metric === 'active'"
                     class="pointer-events-none absolute -inset-px rounded-[14px] border-2 border-indigo-600 shadow-[0_8px_20px_rgba(79,70,229,0.18)] dark:shadow-[0_8px_20px_rgba(79,70,229,0.25)]"
                 />
                 <button
                     type="button"
-                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-indigo-600/[0.03] dark:hover:bg-white/[0.03]"
+                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-indigo-600/[0.03] dark:hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                     @click="metric = 'active'"
                 >
                     <div class="flex items-center gap-2.5">
@@ -239,10 +239,10 @@ const chartSubtitle = computed(() => {
                                 <path d="M15.7 13.8c1.9.5 3.3 2.4 3.3 4.9" />
                             </svg>
                         </div>
-                        <span class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.active') }}</span>
+                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.active') }}</span>
                     </div>
-                    <div class="text-[30px] font-extrabold leading-none text-brand-navy dark:text-[#f1f5f9]">{{ activeKpi.value }}</div>
-                    <div class="flex items-center gap-1.5 text-[12.5px]">
+                    <div class="text-3xl font-extrabold leading-none tabular-nums text-brand-navy dark:text-[#f1f5f9]">{{ activeKpi.value }}</div>
+                    <div class="flex items-center gap-1.5 text-xs">
                         <span class="font-bold text-indigo-800 dark:text-indigo-400">▲ {{ activeKpi.delta }}</span>
                         <span class="text-slate-400">{{ periodCompareLabel }}</span>
                     </div>
@@ -250,14 +250,14 @@ const chartSubtitle = computed(() => {
             </div>
 
             <!-- Revenue -->
-            <div class="relative rounded-[14px] border border-gray-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+            <div class="relative rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <div
                     v-if="metric === 'revenue'"
                     class="pointer-events-none absolute -inset-px rounded-[14px] border-2 border-amber-500 shadow-[0_8px_20px_rgba(245,158,11,0.18)] dark:shadow-[0_8px_20px_rgba(245,158,11,0.25)]"
                 />
                 <button
                     type="button"
-                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-amber-500/[0.03] dark:hover:bg-white/[0.03]"
+                    class="flex w-full flex-col gap-3.5 rounded-[14px] p-5 text-left transition-colors hover:bg-amber-500/[0.03] dark:hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                     @click="metric = 'revenue'"
                 >
                     <div class="flex items-center gap-2.5">
@@ -267,10 +267,10 @@ const chartSubtitle = computed(() => {
                                 <line x1="2" y1="10" x2="22" y2="10" />
                             </svg>
                         </div>
-                        <span class="text-[13px] font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.revenue') }}</span>
+                        <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">{{ t('dashboard.kpi.revenue') }}</span>
                     </div>
-                    <div class="text-[30px] font-extrabold leading-none text-brand-navy dark:text-[#f1f5f9]">{{ revenueKpi.value }}</div>
-                    <div class="flex items-center gap-1.5 text-[12.5px]">
+                    <div class="text-3xl font-extrabold leading-none tabular-nums text-brand-navy dark:text-[#f1f5f9]">{{ revenueKpi.value }}</div>
+                    <div class="flex items-center gap-1.5 text-xs">
                         <span class="font-bold text-amber-800 dark:text-amber-400">▲ {{ revenueKpi.delta }}</span>
                         <span class="text-slate-400">{{ periodCompareLabel }}</span>
                     </div>
@@ -279,21 +279,21 @@ const chartSubtitle = computed(() => {
         </div>
 
         <!-- Chart card -->
-        <div class="rounded-[14px] border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+        <div class="rounded-[14px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
             <div class="mb-5 flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="h-2 w-2 shrink-0 rounded-full" :class="metricMeta[metric].dot" />
                         <h2 class="text-lg font-bold text-brand-navy dark:text-[#f1f5f9]">{{ t(metricMeta[metric].titleKey) }}</h2>
                     </div>
-                    <p class="ml-4 mt-1.5 text-[13px] text-slate-400">{{ chartSubtitle }}</p>
+                    <p class="ml-4 mt-1.5 text-sm text-slate-400">{{ chartSubtitle }}</p>
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2.5">
                     <div v-if="period === 'monthly'" class="relative">
                         <select
                             :value="year ?? ''"
-                            class="cursor-pointer appearance-none rounded-full border border-[#dde3ec] bg-white py-2 pl-3.5 pr-8 text-[12.5px] font-bold text-slate-700 outline-none dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9]"
+                            class="cursor-pointer appearance-none rounded-full border border-[#dde3ec] bg-white py-2 pl-3.5 pr-8 text-xs font-bold text-slate-700 outline-none dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-[#f1f5f9]"
                             @change="onYearChange"
                         >
                             <option value="">{{ t('dashboard.chart.year_all') }}</option>
@@ -310,10 +310,11 @@ const chartSubtitle = computed(() => {
                             :key="p"
                             type="button"
                             :class="[
-                                'rounded-full px-3 py-[7px] text-[12.5px] font-bold transition-colors',
+                                'rounded-full px-3 py-[7px] text-xs font-bold transition-colors',
                                 period === p ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200',
                             ]"
                             @click="goTo(p)"
+                            class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                         >
                             {{ t(`dashboard.chart.periods.${p}`) }}
                         </button>
@@ -354,7 +355,7 @@ const chartSubtitle = computed(() => {
 
                 <div
                     v-if="chart.hasHover"
-                    class="pointer-events-none absolute z-10 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-[12.5px] font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.25)]"
+                    class="pointer-events-none absolute z-10 tabular-nums whitespace-nowrap rounded-lg bg-slate-800 px-3 py-2 text-xs font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.25)]"
                     :style="{ left: `${chart.hoverPoint.xPct}%`, top: `${chart.hoverPoint.yPct}%`, transform: 'translate(-50%, -135%)' }"
                 >
                     <div class="mb-0.5 text-[11px] font-medium text-slate-400">{{ chart.hoverPoint.label }}</div>
@@ -362,10 +363,10 @@ const chartSubtitle = computed(() => {
                 </div>
             </div>
 
-            <div class="mt-4 grid gap-1 border-t border-[#eef1f5] pt-4 dark:border-white/[0.08]" :style="{ gridTemplateColumns: chart.pointsGridTemplate }">
+            <div class="mt-4 grid gap-1 tabular-nums border-t border-[#eef1f5] pt-4 dark:border-white/[0.08]" :style="{ gridTemplateColumns: chart.pointsGridTemplate }">
                 <div v-for="(p, i) in chart.points" :key="`lbl-${i}`" class="min-w-0 text-center">
-                    <div class="truncate text-[10.5px] text-slate-400">{{ p.label }}</div>
-                    <div class="mt-0.5 truncate text-[12.5px] font-bold text-brand-navy dark:text-[#f1f5f9]">{{ p.valueDisplay }}</div>
+                    <div class="truncate text-[11px] text-slate-400">{{ p.label }}</div>
+                    <div class="mt-0.5 truncate text-xs font-bold text-brand-navy dark:text-[#f1f5f9]">{{ p.valueDisplay }}</div>
                 </div>
             </div>
         </div>
