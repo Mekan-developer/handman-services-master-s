@@ -86,10 +86,10 @@ onBeforeUnmount(() => {
 <template>
     <div
         v-if="hasCodes"
-        class="rounded-xl border border-amber-300 bg-amber-50 p-5 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10"
+        class="rounded-[14px] border border-amber-300 bg-amber-50 p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-amber-500/30 dark:bg-amber-500/10"
     >
         <div class="mb-3 flex items-start gap-3">
-            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-500/20">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-500/15">
                 <svg class="h-5 w-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
+            <table class="tabular-nums w-full text-sm">
                 <thead>
                     <tr class="border-b border-amber-200 dark:border-amber-500/20">
                         <th class="pb-2 pr-3 text-left text-xs font-medium text-amber-700 dark:text-amber-300/70">{{ t('pending_otps.phone') }}</th>
@@ -126,7 +126,7 @@ onBeforeUnmount(() => {
                             <button
                                 type="button"
                                 @click="copy(item)"
-                                class="rounded-lg bg-amber-600 px-3 py-1 font-mono text-base font-bold tracking-[0.2em] text-white transition-colors hover:bg-amber-700"
+                                class="rounded-lg bg-amber-600 px-3 py-1 font-mono text-base font-bold tracking-[0.2em] text-white transition-colors hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                                 :title="t('pending_otps.copy')"
                             >
                                 {{ item.code }}
@@ -145,7 +145,7 @@ onBeforeUnmount(() => {
                             <button
                                 type="button"
                                 @click="dismiss(item.id)"
-                                class="rounded-md border border-amber-300 px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-500/30 dark:text-amber-200 dark:hover:bg-amber-500/20"
+                                class="rounded-lg border border-amber-300 px-2.5 py-1 text-xs font-semibold text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-500/30 dark:text-amber-200 dark:hover:bg-amber-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                             >
                                 {{ t('pending_otps.dismiss') }}
                             </button>
@@ -158,11 +158,11 @@ onBeforeUnmount(() => {
 
     <div
         v-else-if="showEmptyState"
-        class="rounded-xl bg-white p-10 text-center shadow-sm dark:bg-slate-800"
+        class="rounded-[14px] border border-slate-200 bg-white p-10 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
     >
         <svg class="mx-auto h-10 w-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <p class="mt-3 text-sm text-gray-500 dark:text-slate-400">{{ t('pending_otps.empty') }}</p>
+        <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">{{ t('pending_otps.empty') }}</p>
     </div>
 </template>

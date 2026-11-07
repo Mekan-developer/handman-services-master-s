@@ -37,12 +37,12 @@ function onInput(e) {
 
 <template>
     <div
-        class="flex overflow-hidden rounded-xl border shadow-sm transition-all focus-within:ring-4"
+        class="flex overflow-hidden rounded-[10px] border transition-colors focus-within:ring-[3px]"
         :class="hasError
             ? 'border-red-400 focus-within:border-red-400 focus-within:ring-red-400/20 dark:border-red-500'
-            : 'border-gray-300 focus-within:border-blue-500 focus-within:ring-blue-500/20 dark:border-slate-600 dark:focus-within:border-blue-500'"
+            : 'border-[#dde3ec] focus-within:border-indigo-600 focus-within:ring-indigo-600/15 dark:border-white/[0.16] dark:focus-within:border-indigo-500'"
     >
-        <span class="flex select-none items-center border-r border-inherit bg-gray-100 px-3 text-sm font-semibold text-gray-500 dark:bg-slate-700 dark:text-slate-400">
+        <span class="flex select-none items-center border-r border-inherit bg-slate-50 px-3 text-sm font-semibold tabular-nums text-slate-500 dark:bg-white/[0.04] dark:text-slate-400">
             +993
         </span>
         <input
@@ -52,8 +52,8 @@ function onInput(e) {
             :placeholder="placeholder"
             maxlength="11"
             :class="[
-                'min-w-0 flex-1 bg-gray-50 px-3 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500 dark:focus:bg-slate-700 transition-all',
-                size === 'sm' ? 'py-2.5' : 'py-3',
+                'min-w-0 flex-1 border-0 bg-white px-3 text-sm tabular-nums text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-0 dark:bg-[#0d1424] dark:text-white dark:placeholder-slate-500',
+                size === 'sm' ? 'py-2' : 'py-2.5',
             ]"
             @input="onInput"
         />

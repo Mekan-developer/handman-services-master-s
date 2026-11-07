@@ -34,7 +34,7 @@ defineExpose({
             type="button"
             tabindex="-1"
             :aria-label="show ? t('layout.password.hide') : t('layout.password.show')"
-            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition-colors hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
+            class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
             @click="show = !show"
         >
             <!-- Eye: show password -->

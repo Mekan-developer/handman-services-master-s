@@ -61,13 +61,13 @@ function onOblastChange() {
 }
 
 const base =
-    'w-full rounded-xl border bg-gray-50 px-4 py-3 text-sm text-gray-900 shadow-sm focus:bg-white focus:outline-none focus:ring-4 dark:bg-slate-700/50 dark:text-white dark:focus:bg-slate-700 transition-all'
+    'w-full rounded-[10px] border bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-[3px] dark:bg-[#0d1424] dark:text-white transition-all'
 const normal =
-    'border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 dark:border-slate-600 dark:focus:border-blue-500'
+    'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500'
 const error =
     'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
 const subLabel =
-    'mb-1 block text-xs font-medium text-gray-500 dark:text-slate-400'
+    'mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400'
 </script>
 
 <template>

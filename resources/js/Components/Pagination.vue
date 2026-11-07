@@ -58,9 +58,9 @@ const pages = computed(() => {
 <template>
     <div
         v-if="last > 1"
-        class="flex items-center justify-between border-t border-gray-100 px-6 py-4 dark:border-white/[0.08]"
+        class="flex items-center justify-between tabular-nums border-t border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]"
     >
-        <p class="text-sm text-gray-500 dark:text-slate-400">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
             {{ t('layout.pagination.showing', { from, to, total }) }}
         </p>
 
@@ -69,13 +69,13 @@ const pages = computed(() => {
             <Link
                 v-if="current > 1"
                 :href="pageUrl(current - 1)"
-                class="inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/[0.05]"
+                class="inline-flex h-8 items-center rounded-lg px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
             >
                 ←
             </Link>
             <span
                 v-else
-                class="inline-flex h-8 cursor-not-allowed items-center rounded-md px-2.5 text-sm font-medium text-gray-300 dark:text-slate-600"
+                class="inline-flex h-8 cursor-not-allowed items-center rounded-lg px-2.5 text-sm font-medium text-slate-300 dark:text-slate-600"
             >
                 ←
             </span>
@@ -84,7 +84,7 @@ const pages = computed(() => {
             <template v-for="(page, idx) in pages" :key="idx">
                 <span
                     v-if="page === '...'"
-                    class="inline-flex h-8 w-7 items-center justify-center text-sm text-gray-400 dark:text-slate-500"
+                    class="inline-flex h-8 w-7 items-center justify-center text-sm text-slate-400 dark:text-slate-500"
                 >
                     …
                 </span>
@@ -93,10 +93,10 @@ const pages = computed(() => {
                     :href="pageUrl(page)"
                     :class="
                         page === current
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/[0.05]'
+                            ? 'bg-indigo-600 text-white'
+                            : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/[0.05]'
                     "
-                    class="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors"
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                 >
                     {{ page }}
                 </Link>
@@ -106,13 +106,13 @@ const pages = computed(() => {
             <Link
                 v-if="current < last"
                 :href="pageUrl(current + 1)"
-                class="inline-flex h-8 items-center rounded-md px-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-white/[0.05]"
+                class="inline-flex h-8 items-center rounded-lg px-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
             >
                 →
             </Link>
             <span
                 v-else
-                class="inline-flex h-8 cursor-not-allowed items-center rounded-md px-2.5 text-sm font-medium text-gray-300 dark:text-slate-600"
+                class="inline-flex h-8 cursor-not-allowed items-center rounded-lg px-2.5 text-sm font-medium text-slate-300 dark:text-slate-600"
             >
                 →
             </span>

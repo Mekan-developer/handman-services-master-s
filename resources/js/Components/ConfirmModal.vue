@@ -32,22 +32,22 @@ const emit = defineEmits(['confirm', 'close'])
                     </svg>
                 </span>
                 <div>
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">
                         {{ title ?? t('layout.confirm.delete_title') }}
                     </h3>
-                    <p class="mt-1.5 text-sm text-gray-500 dark:text-slate-400">
+                    <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
                         {{ message }}
                     </p>
                 </div>
             </div>
 
             <!-- Buttons -->
-            <div class="flex shrink-0 justify-end gap-2 border-t border-gray-100 px-6 py-4 dark:border-slate-700">
+            <div class="flex shrink-0 justify-end gap-2 border-t border-[#eef1f5] px-6 py-4 dark:border-white/[0.08]">
                 <button
                     type="button"
                     :disabled="processing"
                     @click="emit('close')"
-                    class="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                    class="rounded-[10px] px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {{ t('layout.confirm.cancel') }}
                 </button>
@@ -56,11 +56,12 @@ const emit = defineEmits(['confirm', 'close'])
                     :disabled="processing"
                     @click="emit('confirm')"
                     :class="danger
-                        ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-                        : 'bg-amber-500 hover:bg-amber-600 focus:ring-amber-400'"
-                    class="rounded-lg px-5 py-2 text-sm font-medium text-white disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                        ? 'bg-red-600 hover:bg-red-700 focus-visible:ring-red-500'
+                        : 'bg-amber-500 hover:bg-amber-600 focus-visible:ring-amber-400'"
+                    class="inline-flex items-center justify-center gap-2 rounded-[10px] px-5 py-2 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-[#131b2e]"
                 >
-                    {{ processing ? '...' : (confirmText ?? (danger ? t('layout.confirm.delete_btn') : t('layout.confirm.confirm_btn'))) }}
+                    <svg v-if="processing" class="h-4 w-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                    {{ processing ? t('layout.actions.processing') : (confirmText ?? (danger ? t('layout.confirm.delete_btn') : t('layout.confirm.confirm_btn'))) }}
                 </button>
             </div>
         </div>

@@ -110,33 +110,33 @@ const hasIcon = computed(() => props.form.icon_type !== null && props.form.icon_
 
 const tabBtn = (active) =>
     active
-        ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-        : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200'
+        ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
+        : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
 </script>
 
 <template>
     <div>
         <div class="mb-2 flex items-center justify-between">
-            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                 {{ t('categories.icon') }}
             </label>
             <button
                 v-if="hasIcon"
                 type="button"
                 @click="clearIcon"
-                class="text-xs font-medium text-gray-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors"
+                class="text-xs font-medium text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
             >
                 {{ t('categories.icon_remove') }}
             </button>
         </div>
 
         <!-- Tabs: скрыты целиком, пока доступна одна вкладка -->
-        <div v-if="PRESET_TAB_VISIBLE" class="mb-3 flex gap-4 border-b border-gray-200 dark:border-slate-700">
+        <div v-if="PRESET_TAB_VISIBLE" class="mb-3 flex gap-4 border-b border-slate-200 dark:border-white/[0.08]">
             <button
                 type="button"
                 @click="tab = 'preset'"
                 :class="tabBtn(tab === 'preset')"
-                class="-mb-px border-b-2 px-1 pb-2 text-sm font-medium transition-colors"
+                class="-mb-px border-b-2 px-1 pb-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
             >
                 {{ t('categories.icon_tab_preset') }}
             </button>
@@ -144,7 +144,7 @@ const tabBtn = (active) =>
                 type="button"
                 @click="tab = 'upload'"
                 :class="tabBtn(tab === 'upload')"
-                class="-mb-px border-b-2 px-1 pb-2 text-sm font-medium transition-colors"
+                class="-mb-px border-b-2 px-1 pb-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
             >
                 {{ t('categories.icon_tab_upload') }}
             </button>
@@ -156,12 +156,12 @@ const tabBtn = (active) =>
                 v-model="search"
                 type="text"
                 :placeholder="t('categories.icon_search')"
-                class="mb-3 w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-600 dark:bg-slate-700/50 dark:text-white dark:placeholder-slate-500"
+                class="mb-3 w-full rounded-[10px] border border-[#dde3ec] bg-white px-3.5 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-indigo-600 focus:outline-none focus:ring-[3px] focus:ring-indigo-600/15 dark:border-white/[0.16] dark:bg-[#0d1424] dark:text-white dark:placeholder-slate-500"
             />
 
             <div class="max-h-56 space-y-3 overflow-y-auto pr-1">
                 <div v-for="(keys, group) in filteredGroups" :key="group">
-                    <p class="mb-1.5 text-xs font-medium uppercase tracking-wider text-gray-400 dark:text-slate-500">
+                    <p class="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {{ t(`categories.icon_group_${group}`) }}
                     </p>
                     <div class="grid grid-cols-6 gap-2 sm:grid-cols-8">
@@ -172,16 +172,16 @@ const tabBtn = (active) =>
                             @click="selectPreset(key)"
                             :title="key"
                             :class="isPresetSelected(key)
-                                ? 'border-blue-500 bg-blue-50 text-blue-600 dark:border-blue-400 dark:bg-blue-500/15 dark:text-blue-400'
-                                : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-700 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-700/40'"
-                            class="flex aspect-square items-center justify-center rounded-lg border transition-all"
+                                ? 'border-indigo-600 bg-indigo-50 text-indigo-600 dark:border-indigo-400 dark:bg-indigo-500/15 dark:text-indigo-400'
+                                : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50 dark:border-white/[0.08] dark:text-slate-400 dark:hover:border-white/[0.16] dark:hover:bg-white/[0.04]'"
+                            class="flex aspect-square items-center justify-center rounded-lg border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                         >
                             <ServiceIcon :url="presetUrl(key)" class="h-5 w-5" />
                         </button>
                     </div>
                 </div>
 
-                <p v-if="!hasResults" class="py-6 text-center text-sm text-gray-400 dark:text-slate-500">
+                <p v-if="!hasResults" class="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
                     {{ t('categories.icon_search_empty') }}
                 </p>
             </div>
@@ -194,23 +194,23 @@ const tabBtn = (active) =>
                 @dragleave.prevent="dragging = false"
                 @drop.prevent="onDrop"
                 :class="dragging
-                    ? 'border-blue-400 bg-blue-50 dark:border-blue-500/70 dark:bg-blue-500/10'
-                    : 'border-gray-300 hover:border-gray-400 dark:border-slate-600 dark:hover:border-slate-500'"
-                class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors"
+                    ? 'border-indigo-400 bg-indigo-50 dark:border-indigo-500/70 dark:bg-indigo-500/10'
+                    : 'border-slate-300 hover:border-slate-400 dark:border-white/[0.16] dark:hover:border-white/[0.24]'"
+                class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[10px] border-2 border-dashed px-4 py-6 text-center transition-colors"
             >
                 <span
                     v-if="uploadPreviewUrl"
-                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-200"
+                    class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-slate-100 text-slate-700 dark:bg-white/[0.06] dark:text-slate-200"
                 >
                     <CategoryIcon :url="uploadPreviewUrl" :type="uploadPreviewType" class="h-10 w-10" />
                 </span>
-                <svg v-else class="h-7 w-7 text-gray-400 dark:text-slate-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <svg v-else class="h-7 w-7 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                <span class="text-sm font-medium text-gray-600 dark:text-slate-300">
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-300">
                     {{ t('categories.icon_upload_cta') }}
                 </span>
-                <span class="text-xs text-gray-400 dark:text-slate-500">
+                <span class="text-xs text-slate-400 dark:text-slate-500">
                     {{ t('categories.icon_upload_hint') }}
                 </span>
                 <input

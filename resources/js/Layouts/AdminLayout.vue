@@ -327,12 +327,14 @@ onBeforeUnmount(() => {
     <div class="flex h-screen flex-col overflow-hidden bg-slate-100 dark:bg-[#0b1220]">
 
         <!-- Header -->
-        <header class="flex h-[72px] shrink-0 items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 dark:border-white/[0.08] dark:bg-[#0f1626] sm:px-7">
+        <header class="flex h-[72px] shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 dark:border-white/[0.08] dark:bg-[#0f1626] sm:px-7">
             <div class="flex min-w-0 items-center gap-3.5">
                 <!-- Hamburger (mobile) -->
                 <button
-                    class="rounded-[10px] p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-white lg:hidden"
+                    class="rounded-[10px] p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-white lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                     @click="sidebarOpen = !sidebarOpen"
+                    :aria-label="t('layout.actions.menu')"
+                    :aria-expanded="sidebarOpen ? 'true' : 'false'"
                 >
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -350,7 +352,7 @@ onBeforeUnmount(() => {
                 <!-- Current page label -->
                 <div class="hidden min-w-0 items-center gap-3.5 md:flex">
                     <div class="h-[22px] w-px shrink-0 bg-slate-200 dark:bg-white/[0.08]"></div>
-                    <span class="truncate text-[15px] font-semibold text-slate-700 dark:text-[#cbd5e1]">{{ title }}</span>
+                    <span class="truncate text-base font-semibold text-slate-700 dark:text-[#cbd5e1]">{{ title }}</span>
                 </div>
             </div>
 
@@ -360,8 +362,9 @@ onBeforeUnmount(() => {
                 <!-- Bell notifications -->
                 <button
                     @click="notificationPanelOpen = true"
-                    class="relative flex h-[38px] w-[38px] items-center justify-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
-                    title="Уведомления"
+                    class="relative flex h-[38px] w-[38px] items-center justify-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
+                    :aria-label="t('layout.notifications.title')"
+                    :title="t('layout.notifications.title')"
                 >
                     <svg class="h-[19px] w-[19px]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -369,7 +372,7 @@ onBeforeUnmount(() => {
                     </svg>
                     <span
                         v-if="unreadCount > 0"
-                        class="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white"
+                        class="absolute right-1 top-1 flex h-4 min-w-4 tabular-nums items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold leading-none text-white"
                     >
                         {{ unreadCount > 99 ? '99+' : unreadCount }}
                     </span>
@@ -378,7 +381,7 @@ onBeforeUnmount(() => {
                 <!-- Dark mode toggle -->
                 <button
                     @click="themeStore.toggle"
-                    class="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
+                    class="flex h-[38px] w-[38px] items-center justify-center rounded-[10px] text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-white/[0.08] dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                     :title="themeStore.isDark ? t('layout.header.theme_toggle_light') : t('layout.header.theme_toggle_dark')"
                 >
                     <svg v-if="themeStore.isDark" class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -401,6 +404,7 @@ onBeforeUnmount(() => {
                                 ? 'bg-indigo-600 text-white'
                                 : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200',
                         ]"
+                        class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0f1626]"
                     >
                         {{ lang }}
                     </button>
@@ -412,9 +416,9 @@ onBeforeUnmount(() => {
                 <div class="relative">
                     <button
                         @click="userMenuOpen = !userMenuOpen"
-                        class="flex items-center gap-2 rounded-[10px] py-[5px] pl-1.5 pr-2.5 transition-colors hover:bg-slate-100 dark:hover:bg-white/[0.08]"
+                        class="flex items-center gap-2 rounded-[10px] py-[5px] pl-1.5 pr-2.5 transition-colors hover:bg-slate-100 dark:hover:bg-white/[0.08] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                     >
-                        <div class="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[13px] font-bold text-white">
+                        <div class="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white">
                             {{ $page.props.auth.user?.name?.charAt(0)?.toUpperCase() }}
                         </div>
                         <span class="hidden max-w-32 truncate text-sm font-semibold text-slate-800 dark:text-white sm:block">{{ $page.props.auth.user?.name }}</span>
@@ -426,12 +430,12 @@ onBeforeUnmount(() => {
                     <Transition name="dropdown">
                         <div
                             v-if="userMenuOpen"
-                            class="absolute right-0 top-full z-50 mt-1 w-48 rounded-[10px] border border-gray-200 bg-white py-1 shadow-lg dark:border-white/[0.08] dark:bg-[#131b2e]"
+                            class="absolute right-0 top-full z-50 mt-1 w-48 rounded-[10px] border border-slate-200 bg-white py-1 shadow-lg dark:border-white/[0.08] dark:bg-[#131b2e]"
                         >
                             <Link
                                 :href="route('profile.edit')"
                                 @click="userMenuOpen = false"
-                                class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/[0.05]"
+                                class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                             >
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -440,7 +444,7 @@ onBeforeUnmount(() => {
                             </Link>
                             <button
                                 @click="logout"
-                                class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                                class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#0f1626]"
                             >
                                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
@@ -488,6 +492,7 @@ onBeforeUnmount(() => {
                                     : 'font-medium text-white/70 hover:bg-white/[0.07] hover:text-white/95',
                             ]"
                             @click="sidebarOpen = false"
+                            class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                         >
                             <svg
                                 class="h-[18px] w-[18px] shrink-0"
@@ -503,7 +508,7 @@ onBeforeUnmount(() => {
                             <span class="truncate">{{ t(item.labelKey) }}</span>
                             <span
                                 v-if="badgeCount(item) > 0"
-                                class="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white"
+                                class="ml-auto flex h-5 min-w-[20px] tabular-nums items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white"
                             >
                                 {{ badgeCount(item) }}
                             </span>
@@ -531,6 +536,7 @@ onBeforeUnmount(() => {
                                 : 'font-medium text-white/70 hover:bg-white/[0.07] hover:text-white/95',
                         ]"
                         @click="sidebarOpen = false"
+                        class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                     >
                         <svg
                             class="h-[18px] w-[18px] shrink-0"
@@ -546,7 +552,7 @@ onBeforeUnmount(() => {
                         <span class="truncate">{{ t(item.labelKey) }}</span>
                         <span
                             v-if="badgeCount(item) > 0"
-                            class="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white"
+                            class="ml-auto flex h-5 min-w-[20px] tabular-nums items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-bold text-white"
                         >
                             {{ badgeCount(item) }}
                         </span>
@@ -566,7 +572,7 @@ onBeforeUnmount(() => {
                         </div>
                         <button
                             @click="logout"
-                            class="shrink-0 p-1 text-white/[0.48] transition-colors hover:text-white"
+                            class="shrink-0 p-1 text-white/[0.48] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                             :title="t('layout.header.logout')"
                         >
                             <svg class="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -605,18 +611,25 @@ onBeforeUnmount(() => {
                 <div
                     v-for="notification in notificationStore.notifications"
                     :key="notification.id"
-                    class="pointer-events-auto flex min-w-80 max-w-sm items-start gap-3 rounded-lg px-4 py-3 text-white shadow-lg"
+                    class="pointer-events-auto flex min-w-80 max-w-sm items-start gap-3 rounded-[10px] px-4 py-3 shadow-lg ring-1 ring-black/5 dark:ring-white/10"
                     :class="{
-                        'bg-green-500': notification.type === 'success',
-                        'bg-red-500': notification.type === 'error',
-                        'bg-yellow-500 text-gray-900': notification.type === 'warning',
-                        'bg-blue-500': notification.type === 'info',
+                        'bg-green-700 text-white': notification.type === 'success',
+                        'bg-red-600 text-white': notification.type === 'error',
+                        'bg-amber-400 text-slate-900': notification.type === 'warning',
+                        'bg-slate-800 text-white': notification.type === 'info',
                     }"
                 >
+                    <svg class="mt-px h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                        <path v-if="notification.type === 'success'" stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path v-else-if="notification.type === 'error'" stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path v-else-if="notification.type === 'warning'" stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        <path v-else stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
                     <p class="flex-1 text-sm font-medium">{{ notification.message }}</p>
                     <button
                         @click="notificationStore.remove(notification.id)"
-                        class="shrink-0 rounded opacity-75 transition-opacity hover:opacity-100"
+                        class="shrink-0 rounded opacity-75 transition-opacity hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
+                        :aria-label="t('layout.actions.close')"
                     >
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

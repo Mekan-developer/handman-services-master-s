@@ -47,7 +47,7 @@ onUnmounted(() => {
         <Transition name="modal-backdrop">
             <div
                 v-if="show"
-                class="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md"
+                class="fixed inset-0 z-[9999] bg-slate-950/40 backdrop-blur-sm dark:bg-black/60"
                 @click="close"
             />
         </Transition>
@@ -59,7 +59,7 @@ onUnmounted(() => {
                 class="fixed inset-0 z-[99999] flex items-center justify-center p-4"
             >
                 <div
-                    class="w-full overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-800 dark:ring-1 dark:ring-slate-700"
+                    class="w-full overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-2xl dark:border-white/[0.08] dark:bg-[#131b2e]"
                     :class="maxWidthClass"
                     @click.stop
                 >
@@ -72,7 +72,7 @@ onUnmounted(() => {
         <Transition v-else name="modal-panel">
             <div
                 v-if="show"
-                class="fixed inset-y-0 right-0 z-[99999] flex w-full flex-col overflow-hidden bg-white shadow-2xl dark:bg-slate-800 dark:ring-1 dark:ring-slate-700"
+                class="fixed inset-y-0 right-0 z-[99999] flex w-full flex-col overflow-hidden border-l border-slate-200 bg-white shadow-2xl dark:border-white/[0.08] dark:bg-[#131b2e]"
                 :class="maxWidthClass"
             >
                 <slot />

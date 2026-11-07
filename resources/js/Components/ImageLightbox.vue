@@ -93,7 +93,8 @@ onBeforeUnmount(() => {
                     <button
                         type="button"
                         @click="close"
-                        class="rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+                        class="rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        :aria-label="$t('layout.actions.close')"
                     >
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -108,7 +109,9 @@ onBeforeUnmount(() => {
                         v-if="hasMultiple"
                         type="button"
                         @click.stop="prev"
-                        class="absolute left-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-6"
+                        class="absolute left-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:left-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        :aria-label="$t('layout.actions.prev_photo')"
+                        :title="$t('layout.actions.prev_photo')"
                     >
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -137,7 +140,9 @@ onBeforeUnmount(() => {
                         v-if="hasMultiple"
                         type="button"
                         @click.stop="next"
-                        class="absolute right-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-6"
+                        class="absolute right-3 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 sm:right-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        :aria-label="$t('layout.actions.next_photo')"
+                        :title="$t('layout.actions.next_photo')"
                     >
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -158,7 +163,9 @@ onBeforeUnmount(() => {
                         :class="i === current
                             ? 'ring-2 ring-white opacity-100'
                             : 'opacity-50 hover:opacity-100'"
-                        class="h-14 w-14 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/30 transition-all"
+                        class="h-14 w-14 shrink-0 overflow-hidden rounded-lg ring-1 ring-white/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        :aria-label="$t('layout.actions.open_photo')"
+                        :title="$t('layout.actions.open_photo')"
                     >
                         <img :src="url" alt="" class="h-full w-full object-cover" />
                     </button>

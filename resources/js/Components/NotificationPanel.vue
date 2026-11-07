@@ -122,7 +122,7 @@ defineExpose({ prepend, fetchNotifications })
     <Transition name="backdrop">
         <div
             v-if="open"
-            class="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md"
+            class="fixed inset-0 z-[9999] bg-slate-950/40 backdrop-blur-sm dark:bg-black/60"
             @click="$emit('close')"
         />
     </Transition>
@@ -131,15 +131,15 @@ defineExpose({ prepend, fetchNotifications })
     <Transition name="panel">
         <div
             v-if="open"
-            class="fixed inset-y-0 right-0 z-[99999] flex w-full max-w-sm flex-col bg-white shadow-2xl dark:bg-slate-800"
+            class="fixed inset-y-0 right-0 z-[99999] flex w-full max-w-sm flex-col border-l border-slate-200 bg-white shadow-2xl dark:border-white/[0.08] dark:bg-[#131b2e]"
         >
             <!-- Header -->
-            <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 px-5 dark:border-slate-700">
+            <div class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 px-5 dark:border-white/[0.08]">
                 <div class="flex items-center gap-2">
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-white">Уведомления</h2>
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">{{ t('layout.notifications.title') }}</h2>
                     <span
                         v-if="unreadCount > 0"
-                        class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1.5 text-xs font-bold text-white"
+                        class="inline-flex h-5 min-w-5 tabular-nums items-center justify-center rounded-full bg-indigo-600 px-1.5 text-xs font-bold text-white"
                     >
                         {{ unreadCount > 99 ? '99+' : unreadCount }}
                     </span>
@@ -149,20 +149,21 @@ defineExpose({ prepend, fetchNotifications })
                     <button
                         v-if="unreadCount > 0"
                         @click="markAllRead"
-                        class="rounded-md px-2.5 py-1.5 text-xs font-medium text-indigo-600 transition-colors hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/30"
+                        class="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                     >
-                        Прочитать все
+                        {{ t('layout.notifications.mark_all_read') }}
                     </button>
                     <button
                         v-if="notifications.length > 0"
                         @click="deleteAll"
-                        class="rounded-md px-2.5 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
+                        class="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                     >
-                        Удалить все
+                        {{ t('layout.notifications.delete_all') }}
                     </button>
                     <button
                         @click="$emit('close')"
-                        class="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-white"
+                        class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:text-slate-500 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                        :aria-label="t('layout.actions.close')"
                     >
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -178,7 +179,7 @@ defineExpose({ prepend, fetchNotifications })
                     <div
                         v-for="i in 4"
                         :key="i"
-                        class="h-16 animate-pulse rounded-lg bg-gray-100 dark:bg-slate-700"
+                        class="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-white/[0.06]"
                     />
                 </div>
 
@@ -187,18 +188,18 @@ defineExpose({ prepend, fetchNotifications })
                     v-else-if="notifications.length === 0"
                     class="flex flex-col items-center justify-center gap-3 py-20 text-center"
                 >
-                    <svg class="h-12 w-12 text-gray-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+                    <svg class="h-12 w-12 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                     </svg>
-                    <p class="text-sm text-gray-400 dark:text-slate-500">Уведомлений нет</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ t('layout.notifications.empty') }}</p>
                 </div>
 
                 <!-- Notification items -->
-                <TransitionGroup v-else name="notif" tag="div" class="divide-y divide-gray-100 dark:divide-slate-700">
+                <TransitionGroup v-else name="notif" tag="div" class="divide-y divide-slate-100 dark:divide-white/[0.08]">
                     <div
                         v-for="n in notifications"
                         :key="n.id"
-                        class="group relative flex items-start gap-3 px-5 py-4 transition-colors hover:bg-gray-50 dark:hover:bg-slate-700/50"
+                        class="group relative flex items-start gap-3 px-5 py-4 transition-colors hover:bg-slate-50 dark:hover:bg-white/[0.03]"
                         :class="!n.read_at ? 'bg-indigo-50/60 dark:bg-indigo-900/10' : ''"
                     >
                         <!-- Unread dot -->
@@ -211,7 +212,7 @@ defineExpose({ prepend, fetchNotifications })
 
                         <!-- Content — кликабельный -->
                         <button
-                            class="min-w-0 flex-1 text-left"
+                            class="min-w-0 flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                             @click="openNotification(n)"
                         >
                             <div class="flex items-center justify-between gap-2">
@@ -219,7 +220,7 @@ defineExpose({ prepend, fetchNotifications })
                                     class="text-sm font-medium"
                                     :class="n.data.type === 'order_search_exhausted'
                                         ? 'text-amber-600 dark:text-amber-400'
-                                        : 'text-gray-900 dark:text-white'"
+                                        : 'text-slate-900 dark:text-white'"
                                 >
                                     <template v-if="n.data.type === 'order_search_exhausted'">
                                         {{ t('orders.search.needs_manual_assignment') }} #{{ n.data.order_id }}
@@ -234,17 +235,17 @@ defineExpose({ prepend, fetchNotifications })
                                         Новый заказ #{{ n.data.order_id }}
                                     </template>
                                 </p>
-                                <time class="shrink-0 text-xs text-gray-400 dark:text-slate-500">
+                                <time class="shrink-0 text-xs tabular-nums text-slate-400 dark:text-slate-500">
                                     {{ formatTime(n.created_at) }}
                                 </time>
                             </div>
-                            <p v-if="n.data.type === 'new_client'" class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
+                            <p v-if="n.data.type === 'new_client'" class="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
                                 {{ n.data.client_name ?? n.data.phone }}
                             </p>
-                            <p v-else-if="n.data.type === 'new_subscription_request'" class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
+                            <p v-else-if="n.data.type === 'new_subscription_request'" class="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
                                 {{ n.data.client_name ?? n.data.phone }} · {{ planName(n.data) }}
                             </p>
-                            <p v-else class="mt-0.5 text-sm text-gray-600 dark:text-slate-400">
+                            <p v-else class="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
                                 {{ n.data.client_name }} · {{ n.data.category }}
                             </p>
                             <p
@@ -253,7 +254,7 @@ defineExpose({ prepend, fetchNotifications })
                             >
                                 {{ t('orders.search.radius', { km: n.data.search_radius_km }) }} · {{ t('orders.search.needs_manual_assignment_hint') }}
                             </p>
-                            <p v-if="n.data.city" class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
+                            <p v-if="n.data.city" class="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
                                 {{ n.data.city }}<span v-if="n.data.address"> · {{ n.data.address }}</span>
                             </p>
                         </button>
@@ -261,8 +262,9 @@ defineExpose({ prepend, fetchNotifications })
                         <!-- Delete button -->
                         <button
                             @click.stop="deleteNotification(n)"
-                            class="shrink-0 rounded-md p-1 text-gray-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 dark:text-slate-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-                            title="Удалить"
+                            class="shrink-0 rounded-md p-1 text-slate-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 focus-visible:opacity-100 dark:text-slate-600 dark:hover:bg-red-500/10 dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
+                            :aria-label="t('layout.actions.delete')"
+                            :title="t('layout.actions.delete')"
                         >
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
