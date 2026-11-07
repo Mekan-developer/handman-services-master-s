@@ -38,4 +38,20 @@ return [
         'processing' => 'Iberilýär...',
         'back_to_login' => 'Girişe gaýdyp git',
     ],
+    'confirm_password' => [
+        'title' => 'Açar sözi tassyklamak',
+        'description' => 'Bu goragly bölüm. Dowam etmek üçin açar sözüňizi tassyklaň.',
+        'submit' => 'Tassykla',
+    ],
+    'reset_password' => [
+        'title' => 'Täze açar söz',
+        'submit' => 'Açar sözi sakla',
+    ],
+    'verify_email' => [
+        'title' => 'Email tassyklamak',
+        'description' => 'Hasap açanyňyz üçin sag boluň! Iberen hatymyzdaky salgy arkaly emailiňizi tassyklaň. Hat gelmedik bolsa, ony täzeden ibereris.',
+        'link_sent' => 'Tassyklamak üçin täze salgy emailiňize iberildi.',
+        'resend' => 'Haty täzeden iber',
+        'logout' => 'Çykmak',
+    ],
 ];

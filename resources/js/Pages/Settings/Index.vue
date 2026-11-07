@@ -298,15 +298,15 @@ onBeforeUnmount(() => {
             <section>
                 <div class="mb-4 flex items-center gap-2.5">
                     <div class="h-[18px] w-[3px] shrink-0 rounded-sm" style="background:linear-gradient(to bottom,#22c55e,#16a34a)" />
-                    <h2 class="text-[13px] font-semibold uppercase tracking-[0.5px] text-slate-400">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {{ t('settings.monitoring.title') }}
                     </h2>
                     <div
                         class="ml-auto flex items-center gap-1.5 rounded-full border px-2.5 py-1"
                         :class="systemOk ? 'border-green-500/20 bg-green-500/10' : 'border-red-500/25 bg-red-500/10'"
                     >
-                        <div class="h-1.5 w-1.5 animate-pulse rounded-full" :class="systemOk ? 'bg-green-500' : 'bg-red-500'" />
-                        <span class="text-[11.5px] font-medium" :class="systemOk ? 'text-green-500' : 'text-red-500'">
+                        <div class="h-1.5 w-1.5 animate-pulse rounded-full" :class="systemOk ? 'bg-green-600 dark:bg-green-400' : 'bg-red-500'" />
+                        <span class="text-[11px] font-medium" :class="systemOk ? 'text-green-500' : 'text-red-500'">
                             {{ systemOk ? t('settings.monitoring.all_ok') : t('settings.monitoring.issues') }}
                         </span>
                     </div>
@@ -315,7 +315,7 @@ onBeforeUnmount(() => {
                 <div class="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
 
                     <!-- Queue -->
-                    <div class="rounded-2xl border border-gray-200 bg-white p-[18px] dark:border-white/[0.07] dark:bg-[#131729]">
+                    <div class="rounded-[14px] border border-slate-200 bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
                         <div class="mb-3.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-amber-500/20 bg-amber-500/10">
@@ -325,8 +325,8 @@ onBeforeUnmount(() => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-[13.5px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.monitoring.queue') }}</div>
-                                    <div class="mt-px text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.queue_worker') }}</div>
+                                    <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t('settings.monitoring.queue') }}</div>
+                                    <div class="mt-px text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.queue_worker') }}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 rounded-full border px-2.5 py-[3px]" :class="[qSt.bg, qSt.border]">
@@ -335,16 +335,16 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.in_queue') }}</div>
-                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ metric(queuePending) }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.in_queue') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-slate-900 dark:text-slate-100">{{ metric(queuePending) }}</div>
                             </div>
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.processed') }}</div>
-                                <div class="text-xl font-bold leading-tight text-green-500">{{ queueProcessed === null ? '—' : queueProcessed.toLocaleString('ru') }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.processed') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-green-500">{{ queueProcessed === null ? '—' : queueProcessed.toLocaleString('ru') }}</div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-1 text-[11px] text-gray-400 dark:text-slate-500">
+                        <div class="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                             </svg>
@@ -353,7 +353,7 @@ onBeforeUnmount(() => {
                     </div>
 
                     <!-- Reverb -->
-                    <div class="rounded-2xl border border-gray-200 bg-white p-[18px] dark:border-white/[0.07] dark:bg-[#131729]">
+                    <div class="rounded-[14px] border border-slate-200 bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
                         <div class="mb-3.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-violet-500/20 bg-violet-500/10">
@@ -364,8 +364,8 @@ onBeforeUnmount(() => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-[13.5px] font-semibold text-gray-900 dark:text-slate-100">Reverb</div>
-                                    <div class="mt-px text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.broadcasting') }}</div>
+                                    <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">Reverb</div>
+                                    <div class="mt-px text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.broadcasting') }}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 rounded-full border px-2.5 py-[3px]" :class="[rSt.bg, rSt.border]">
@@ -374,21 +374,21 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.channels') }}</div>
-                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ metric(reverbChannels) }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.channels') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-slate-900 dark:text-slate-100">{{ metric(reverbChannels) }}</div>
                             </div>
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.ping') }}</div>
-                                <div class="text-xl font-bold leading-tight text-violet-400">{{ metric(reverbLatency, ' ms') }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.ping') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-violet-400">{{ metric(reverbLatency, ' ms') }}</div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.updated') }} {{ nowTime }}</div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.updated') }} {{ nowTime }}</div>
                             <button
                                 type="button"
                                 @click="reconnect('reverb')"
-                                class="rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-200 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                                class="rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-slate-200 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                             >
                                 {{ t('settings.monitoring.reconnect') }}
                             </button>
@@ -396,7 +396,7 @@ onBeforeUnmount(() => {
                     </div>
 
                     <!-- WebSocket -->
-                    <div class="rounded-2xl border border-gray-200 bg-white p-[18px] dark:border-white/[0.07] dark:bg-[#131729]">
+                    <div class="rounded-[14px] border border-slate-200 bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
                         <div class="mb-3.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-sky-500/20 bg-sky-500/10">
@@ -408,8 +408,8 @@ onBeforeUnmount(() => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-[13.5px] font-semibold text-gray-900 dark:text-slate-100">WebSocket</div>
-                                    <div class="mt-px text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.ws_server') }}</div>
+                                    <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">WebSocket</div>
+                                    <div class="mt-px text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.ws_server') }}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 rounded-full border px-2.5 py-[3px]" :class="[wSt.bg, wSt.border]">
@@ -418,21 +418,21 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.clients') }}</div>
-                                <div class="text-xl font-bold leading-tight text-gray-900 dark:text-slate-100">{{ metric(wsConnections) }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.clients') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-slate-900 dark:text-slate-100">{{ metric(wsConnections) }}</div>
                             </div>
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.my_channels') }}</div>
-                                <div class="text-xl font-bold leading-tight text-sky-400">{{ metric(wsSubscribed) }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.my_channels') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-sky-400">{{ metric(wsSubscribed) }}</div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ wsStateLabel }}</div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ wsStateLabel }}</div>
                             <button
                                 type="button"
                                 @click="reconnect('ws')"
-                                class="rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-200 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                                class="rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-slate-200 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                             >
                                 {{ t('settings.monitoring.reconnect') }}
                             </button>
@@ -440,7 +440,7 @@ onBeforeUnmount(() => {
                     </div>
 
                     <!-- OTP Gateway -->
-                    <div class="rounded-2xl border border-gray-200 bg-white p-[18px] dark:border-white/[0.07] dark:bg-[#131729]">
+                    <div class="rounded-[14px] border border-slate-200 bg-white p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
                         <div class="mb-3.5 flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-emerald-500/20 bg-emerald-500/10">
@@ -451,8 +451,8 @@ onBeforeUnmount(() => {
                                     </svg>
                                 </div>
                                 <div>
-                                    <div class="text-[13.5px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.monitoring.otp_gateway') }}</div>
-                                    <div class="mt-px text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.gateway_bridge') }}</div>
+                                    <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ t('settings.monitoring.otp_gateway') }}</div>
+                                    <div class="mt-px text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.gateway_bridge') }}</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 rounded-full border px-2.5 py-[3px]" :class="[oSt.bg, oSt.border]">
@@ -461,24 +461,24 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                         <div class="mb-3.5 grid grid-cols-2 gap-2">
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.phones_connected') }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.phones_connected') }}</div>
                                 <div
-                                    class="text-xl font-bold leading-tight"
-                                    :class="otpClients > 0 ? 'text-emerald-400' : 'text-gray-900 dark:text-slate-100'"
+                                    class="text-xl font-bold leading-tight tabular-nums"
+                                    :class="otpClients > 0 ? 'text-emerald-400' : 'text-slate-900 dark:text-slate-100'"
                                 >{{ otpClients }}</div>
                             </div>
-                            <div class="rounded-lg bg-gray-50 p-[9px] dark:bg-white/[0.04]">
-                                <div class="mb-[3px] text-[11px] text-gray-400 dark:text-slate-500">{{ t('settings.monitoring.last_otp') }}</div>
-                                <div class="text-xl font-bold leading-tight text-emerald-400">{{ otpLastSent ?? '—' }}</div>
+                            <div class="rounded-lg bg-slate-50 p-[9px] dark:bg-white/[0.04]">
+                                <div class="mb-[3px] text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.monitoring.last_otp') }}</div>
+                                <div class="text-xl font-bold leading-tight tabular-nums text-emerald-400">{{ otpLastSent ?? '—' }}</div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between">
-                            <div class="text-[11px] text-gray-400 dark:text-slate-500">{{ otpDeviceLabel || '—' }} · {{ otpDriver }}</div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400">{{ otpDeviceLabel || '—' }} · {{ otpDriver }}</div>
                             <button
                                 type="button"
                                 @click="reconnect('otp')"
-                                class="rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-200 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+                                class="rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500 transition-colors hover:bg-slate-200 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                             >
                                 {{ t('settings.monitoring.reconnect') }}
                             </button>
@@ -492,12 +492,12 @@ onBeforeUnmount(() => {
             <section>
                 <div class="mb-4 flex items-center gap-2.5">
                     <div class="h-[18px] w-[3px] shrink-0 rounded-sm" style="background:linear-gradient(to bottom,#f59e0b,#f97316)" />
-                    <h2 class="text-[13px] font-semibold uppercase tracking-[0.5px] text-slate-400">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {{ t('settings.section_auto_search') }}
                     </h2>
                 </div>
 
-                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+                <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
 
                     <!-- Header -->
                     <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
@@ -509,15 +509,15 @@ onBeforeUnmount(() => {
                             </svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.auto_search.title') }}</div>
-                            <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.auto_search.hint') }}</div>
+                            <div class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ t('settings.auto_search.title') }}</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ t('settings.auto_search.hint') }}</div>
                         </div>
                     </div>
 
                     <!-- Inputs -->
                     <div class="grid grid-cols-1 gap-4 px-5 pb-4 sm:grid-cols-2">
                         <div class="flex flex-col gap-1.5">
-                            <label for="initial-radius" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                            <label for="initial-radius" class="text-xs font-medium text-slate-700 dark:text-slate-300">
                                 {{ t('settings.auto_search.initial_radius') }}
                             </label>
                             <div class="relative">
@@ -528,25 +528,25 @@ onBeforeUnmount(() => {
                                     min="1"
                                     max="1000"
                                     step="1"
-                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-11 text-[13px] text-gray-900 outline-none transition-colors focus:border-amber-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    class="w-full rounded-[10px] border bg-white py-2.5 pl-3.5 pr-11 text-sm text-slate-800 outline-none transition-colors focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:bg-[#0d1424] dark:text-slate-100"
                                     :class="initialRadiusError || form.errors.master_search_initial_radius_km
-                                        ? 'border-red-500/60'
-                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                        ? 'border-red-400 dark:border-red-500'
+                                        : 'border-[#dde3ec] dark:border-white/[0.16]'"
                                 >
-                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-xs text-slate-400 dark:text-slate-500">
                                     {{ t('settings.auto_search.km') }}
                                 </span>
                             </div>
-                            <p v-if="initialRadiusError || form.errors.master_search_initial_radius_km" class="text-[11.5px] text-red-500">
+                            <p v-if="initialRadiusError || form.errors.master_search_initial_radius_km" class="text-[11px] text-red-600 dark:text-red-400">
                                 {{ initialRadiusError ?? form.errors.master_search_initial_radius_km }}
                             </p>
-                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            <p v-else class="text-[11px] text-slate-500 dark:text-slate-400">
                                 {{ t('settings.auto_search.initial_radius_hint') }}
                             </p>
                         </div>
 
                         <div class="flex flex-col gap-1.5">
-                            <label for="max-radius" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                            <label for="max-radius" class="text-xs font-medium text-slate-700 dark:text-slate-300">
                                 {{ t('settings.auto_search.max_radius') }}
                             </label>
                             <div class="relative">
@@ -557,19 +557,19 @@ onBeforeUnmount(() => {
                                     min="1"
                                     max="1000"
                                     step="1"
-                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-11 text-[13px] text-gray-900 outline-none transition-colors focus:border-amber-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    class="w-full rounded-[10px] border bg-white py-2.5 pl-3.5 pr-11 text-sm text-slate-800 outline-none transition-colors focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:bg-[#0d1424] dark:text-slate-100"
                                     :class="maxRadiusError || form.errors.master_search_max_radius_km
-                                        ? 'border-red-500/60'
-                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                        ? 'border-red-400 dark:border-red-500'
+                                        : 'border-[#dde3ec] dark:border-white/[0.16]'"
                                 >
-                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-xs text-slate-400 dark:text-slate-500">
                                     {{ t('settings.auto_search.km') }}
                                 </span>
                             </div>
-                            <p v-if="maxRadiusError || form.errors.master_search_max_radius_km" class="text-[11.5px] text-red-500">
+                            <p v-if="maxRadiusError || form.errors.master_search_max_radius_km" class="text-[11px] text-red-600 dark:text-red-400">
                                 {{ maxRadiusError ?? form.errors.master_search_max_radius_km }}
                             </p>
-                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            <p v-else class="text-[11px] text-slate-500 dark:text-slate-400">
                                 {{ t('settings.auto_search.max_radius_hint') }}
                             </p>
                         </div>
@@ -577,7 +577,7 @@ onBeforeUnmount(() => {
 
                     <!-- Expansion preview -->
                     <div v-if="radiusSteps.length" class="flex flex-wrap items-center gap-1.5 px-5 pb-4">
-                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">{{ t('settings.auto_search.preview') }}:</span>
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">{{ t('settings.auto_search.preview') }}:</span>
                         <span
                             v-for="step in radiusSteps"
                             :key="step.n"
@@ -585,21 +585,21 @@ onBeforeUnmount(() => {
                         >
                             {{ t('settings.auto_search.minute', { n: step.n }) }} — {{ step.km }} {{ t('settings.auto_search.km') }}
                         </span>
-                        <span class="rounded-full border border-gray-200 bg-gray-100 px-2.5 py-[3px] text-[11px] font-medium text-gray-500 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400">
+                        <span class="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-[3px] text-[11px] font-medium text-slate-500 dark:border-white/[0.08] dark:bg-white/5 dark:text-slate-400">
                             {{ t('settings.auto_search.manual_after') }}
                         </span>
                     </div>
 
                     <!-- Footer -->
-                    <div class="flex items-center justify-between border-t border-gray-100 bg-amber-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
-                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                    <div class="flex items-center justify-between border-t border-[#eef1f5] bg-amber-500/[0.04] px-5 py-3 dark:border-white/[0.08]">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">
                             {{ radiusSaved ? t('settings.saved_ok') : '' }}
                         </span>
                         <button
                             type="button"
                             @click="saveRadii"
                             :disabled="form.processing || !radiusValid"
-                            class="rounded-lg bg-amber-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-amber-600 disabled:opacity-60"
+                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-[18px] py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-green-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                         >
                             {{ t('settings.save') }}
                         </button>
@@ -611,12 +611,12 @@ onBeforeUnmount(() => {
             <section>
                 <div class="mb-4 flex items-center gap-2.5">
                     <div class="h-[18px] w-[3px] shrink-0 rounded-sm" style="background:linear-gradient(to bottom,#ef4444,#f97316)" />
-                    <h2 class="text-[13px] font-semibold uppercase tracking-[0.5px] text-slate-400">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {{ t('settings.section_auto_cancel') }}
                     </h2>
                 </div>
 
-                <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+                <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
 
                     <!-- Header -->
                     <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
@@ -627,15 +627,15 @@ onBeforeUnmount(() => {
                             </svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.auto_cancel.title') }}</div>
-                            <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.auto_cancel.hint') }}</div>
+                            <div class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ t('settings.auto_cancel.title') }}</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ t('settings.auto_cancel.hint') }}</div>
                         </div>
                     </div>
 
                     <!-- Input -->
                     <div class="grid grid-cols-1 gap-4 px-5 pb-4 sm:grid-cols-2">
                         <div class="flex flex-col gap-1.5">
-                            <label for="auto-cancel-hours" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                            <label for="auto-cancel-hours" class="text-xs font-medium text-slate-700 dark:text-slate-300">
                                 {{ t('settings.auto_cancel.hours') }}
                             </label>
                             <div class="relative">
@@ -646,34 +646,34 @@ onBeforeUnmount(() => {
                                     min="1"
                                     max="720"
                                     step="1"
-                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-11 text-[13px] text-gray-900 outline-none transition-colors focus:border-red-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    class="w-full rounded-[10px] border bg-white py-2.5 pl-3.5 pr-11 text-sm text-slate-800 outline-none transition-colors focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:bg-[#0d1424] dark:text-slate-100"
                                     :class="autoCancelError || form.errors.order_auto_cancel_hours
-                                        ? 'border-red-500/60'
-                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                        ? 'border-red-400 dark:border-red-500'
+                                        : 'border-[#dde3ec] dark:border-white/[0.16]'"
                                 >
-                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-xs text-slate-400 dark:text-slate-500">
                                     {{ t('settings.auto_cancel.hours') }}
                                 </span>
                             </div>
-                            <p v-if="autoCancelError || form.errors.order_auto_cancel_hours" class="text-[11.5px] text-red-500">
+                            <p v-if="autoCancelError || form.errors.order_auto_cancel_hours" class="text-[11px] text-red-600 dark:text-red-400">
                                 {{ autoCancelError ?? form.errors.order_auto_cancel_hours }}
                             </p>
-                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            <p v-else class="text-[11px] text-slate-500 dark:text-slate-400">
                                 {{ t('settings.auto_cancel.hours_hint') }}
                             </p>
                         </div>
                     </div>
 
                     <!-- Footer -->
-                    <div class="flex items-center justify-between border-t border-gray-100 bg-red-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
-                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                    <div class="flex items-center justify-between border-t border-[#eef1f5] bg-red-500/[0.04] px-5 py-3 dark:border-white/[0.08]">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">
                             {{ autoCancelSaved ? t('settings.saved_ok') : '' }}
                         </span>
                         <button
                             type="button"
                             @click="saveAutoCancel"
                             :disabled="form.processing || !!autoCancelError"
-                            class="rounded-lg bg-red-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-red-600 disabled:opacity-60"
+                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-[18px] py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-green-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                         >
                             {{ t('settings.save') }}
                         </button>
@@ -681,7 +681,7 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Declined order restore window -->
-                <div class="mt-4 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+                <div class="mt-4 overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
                     <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
                         <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[11px] border border-sky-500/20 bg-sky-500/[0.12]">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8">
@@ -690,14 +690,14 @@ onBeforeUnmount(() => {
                             </svg>
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.decline_restore.title') }}</div>
-                            <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.decline_restore.hint') }}</div>
+                            <div class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ t('settings.decline_restore.title') }}</div>
+                            <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ t('settings.decline_restore.hint') }}</div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 gap-4 px-5 pb-4 sm:grid-cols-2">
                         <div class="flex flex-col gap-1.5">
-                            <label for="decline-restore-minutes" class="text-[12.5px] font-medium text-gray-700 dark:text-slate-300">
+                            <label for="decline-restore-minutes" class="text-xs font-medium text-slate-700 dark:text-slate-300">
                                 {{ t('settings.decline_restore.minutes') }}
                             </label>
                             <div class="relative">
@@ -708,33 +708,33 @@ onBeforeUnmount(() => {
                                     min="1"
                                     max="1440"
                                     step="1"
-                                    class="w-full rounded-[9px] border bg-gray-50 py-[9px] pl-[13px] pr-14 text-[13px] text-gray-900 outline-none transition-colors focus:border-sky-500/50 dark:bg-white/[0.03] dark:text-slate-200"
+                                    class="w-full rounded-[10px] border bg-white py-2.5 pl-3.5 pr-14 text-sm text-slate-800 outline-none transition-colors focus:border-indigo-600 focus:ring-[3px] focus:ring-indigo-600/15 dark:bg-[#0d1424] dark:text-slate-100"
                                     :class="declineRestoreError || form.errors.order_decline_restore_minutes
-                                        ? 'border-red-500/60'
-                                        : 'border-gray-200 dark:border-white/[0.07]'"
+                                        ? 'border-red-400 dark:border-red-500'
+                                        : 'border-[#dde3ec] dark:border-white/[0.16]'"
                                 >
-                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-[12px] text-gray-400 dark:text-slate-500">
+                                <span class="pointer-events-none absolute right-[13px] top-1/2 -translate-y-1/2 text-xs text-slate-400 dark:text-slate-500">
                                     {{ t('settings.decline_restore.minutes') }}
                                 </span>
                             </div>
-                            <p v-if="declineRestoreError || form.errors.order_decline_restore_minutes" class="text-[11.5px] text-red-500">
+                            <p v-if="declineRestoreError || form.errors.order_decline_restore_minutes" class="text-[11px] text-red-600 dark:text-red-400">
                                 {{ declineRestoreError ?? form.errors.order_decline_restore_minutes }}
                             </p>
-                            <p v-else class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                            <p v-else class="text-[11px] text-slate-500 dark:text-slate-400">
                                 {{ t('settings.decline_restore.minutes_hint') }}
                             </p>
                         </div>
                     </div>
 
-                    <div class="flex items-center justify-between border-t border-gray-100 bg-sky-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
-                        <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                    <div class="flex items-center justify-between border-t border-[#eef1f5] bg-sky-500/[0.04] px-5 py-3 dark:border-white/[0.08]">
+                        <span class="text-[11px] text-slate-500 dark:text-slate-400">
                             {{ declineRestoreSaved ? t('settings.saved_ok') : '' }}
                         </span>
                         <button
                             type="button"
                             @click="saveDeclineRestore"
                             :disabled="form.processing || !!declineRestoreError"
-                            class="rounded-lg bg-sky-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-sky-600 disabled:opacity-60"
+                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-[18px] py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-green-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                         >
                             {{ t('settings.save') }}
                         </button>
@@ -746,7 +746,7 @@ onBeforeUnmount(() => {
             <section>
                 <div class="mb-4 flex items-center gap-2.5">
                     <div class="h-[18px] w-[3px] shrink-0 rounded-sm" style="background:linear-gradient(to bottom,#6366f1,#8b5cf6)" />
-                    <h2 class="text-[13px] font-semibold uppercase tracking-[0.5px] text-slate-400">
+                    <h2 class="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {{ t('settings.section_app') }}
                     </h2>
                 </div>
@@ -754,7 +754,7 @@ onBeforeUnmount(() => {
                 <div class="flex flex-col gap-4">
 
                     <!-- ── APP RULES CARD ─────────────────────────────────────────── -->
-                    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-white/[0.07] dark:bg-[#131729]">
+                    <div class="overflow-hidden rounded-[14px] border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)] dark:border-white/[0.08] dark:bg-[#131b2e]">
 
                         <!-- Header -->
                         <div class="flex items-center gap-3.5 px-5 pb-3.5 pt-[18px]">
@@ -767,17 +767,17 @@ onBeforeUnmount(() => {
                                 </svg>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="text-[15px] font-semibold text-gray-900 dark:text-slate-100">{{ t('settings.client_app.title') }}</div>
-                                <div class="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{{ t('settings.client_app.hint') }}</div>
+                                <div class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ t('settings.client_app.title') }}</div>
+                                <div class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ t('settings.client_app.hint') }}</div>
                             </div>
                             <div class="flex shrink-0 items-center gap-2">
                                 <button
                                     type="button"
                                     @click="toggleEdit"
-                                    class="flex items-center gap-1.5 rounded-lg border px-3.5 py-[7px] text-[12.5px] font-medium transition-all"
+                                    class="flex items-center gap-1.5 rounded-lg border px-3.5 py-[7px] text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                                     :class="clientEditing
-                                        ? 'border-emerald-500/35 bg-emerald-500/15 text-emerald-400'
-                                        : 'border-gray-200 bg-gray-50 text-gray-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400'"
+                                        ? 'border-green-500/35 bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-400'
+                                        : 'border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400'"
                                 >
                                     <svg v-if="clientEditing" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                         <polyline points="20 6 9 17 4 12"/>
@@ -794,31 +794,31 @@ onBeforeUnmount(() => {
                         <!-- Toolbar -->
                         <Transition name="toolbar">
                             <div v-if="clientEditing" class="px-5 pb-2.5">
-                                <div class="flex flex-wrap items-center gap-0.5 rounded-xl border border-gray-200 bg-gray-50 px-1.5 py-[5px] dark:border-white/[0.07] dark:bg-white/[0.04]">
-                                    <button @click="execCmd(CLIENT_ID,'bold')"                    type="button" class="tb-btn font-bold">B</button>
-                                    <button @click="execCmd(CLIENT_ID,'italic')"                  type="button" class="tb-btn italic">I</button>
-                                    <button @click="execCmd(CLIENT_ID,'underline')"               type="button" class="tb-btn underline">U</button>
-                                    <button @click="execCmd(CLIENT_ID,'strikethrough')"           type="button" class="tb-btn line-through">S</button>
-                                    <div class="mx-1 h-[18px] w-px bg-gray-200 dark:bg-white/10" />
-                                    <button @click="execCmd(CLIENT_ID,'formatBlock','H1')"        type="button" class="tb-btn !w-8 text-[11px] font-bold">H1</button>
-                                    <button @click="execCmd(CLIENT_ID,'formatBlock','H2')"        type="button" class="tb-btn !w-8 text-[11px] font-semibold">H2</button>
-                                    <div class="mx-1 h-[18px] w-px bg-gray-200 dark:bg-white/10" />
-                                    <button @click="execCmd(CLIENT_ID,'insertUnorderedList')"     type="button" class="tb-btn">
+                                <div class="flex flex-wrap items-center gap-0.5 rounded-[10px] border border-slate-200 bg-slate-50 px-1.5 py-[5px] dark:border-white/[0.08] dark:bg-white/[0.04]">
+                                    <button @click="execCmd(CLIENT_ID,'bold')"                    type="button" class="tb-btn font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">B</button>
+                                    <button @click="execCmd(CLIENT_ID,'italic')"                  type="button" class="tb-btn italic focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">I</button>
+                                    <button @click="execCmd(CLIENT_ID,'underline')"               type="button" class="tb-btn underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">U</button>
+                                    <button @click="execCmd(CLIENT_ID,'strikethrough')"           type="button" class="tb-btn line-through focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">S</button>
+                                    <div class="mx-1 h-[18px] w-px bg-slate-200 dark:bg-white/10" />
+                                    <button @click="execCmd(CLIENT_ID,'formatBlock','H1')"        type="button" class="tb-btn !w-8 text-[11px] font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">H1</button>
+                                    <button @click="execCmd(CLIENT_ID,'formatBlock','H2')"        type="button" class="tb-btn !w-8 text-[11px] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">H2</button>
+                                    <div class="mx-1 h-[18px] w-px bg-slate-200 dark:bg-white/10" />
+                                    <button @click="execCmd(CLIENT_ID,'insertUnorderedList')"     type="button" class="tb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600" :aria-label="t('layout.editor.bullet_list')" :title="t('layout.editor.bullet_list')">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
                                             <circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/>
                                         </svg>
                                     </button>
-                                    <button @click="execCmd(CLIENT_ID,'insertOrderedList')"       type="button" class="tb-btn">
+                                    <button @click="execCmd(CLIENT_ID,'insertOrderedList')"       type="button" class="tb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600" :aria-label="t('layout.editor.numbered_list')" :title="t('layout.editor.numbered_list')">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
                                             <path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/>
                                         </svg>
                                     </button>
-                                    <div class="mx-1 h-[18px] w-px bg-gray-200 dark:bg-white/10" />
-                                    <button @click="execCmd(CLIENT_ID,'formatBlock','BLOCKQUOTE')" type="button" class="tb-btn text-base font-bold leading-none">"</button>
+                                    <div class="mx-1 h-[18px] w-px bg-slate-200 dark:bg-white/10" />
+                                    <button @click="execCmd(CLIENT_ID,'formatBlock','BLOCKQUOTE')" type="button" class="tb-btn text-base font-bold leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600">"</button>
                                     <div class="flex-1" />
-                                    <button @click="clearEditor(CLIENT_ID)" type="button" class="tb-btn !text-gray-400 hover:!text-red-500 dark:!text-slate-500 dark:hover:!text-red-400">
+                                    <button @click="clearEditor(CLIENT_ID)" type="button" class="tb-btn !text-slate-400 hover:!text-red-500 dark:!text-slate-500 dark:hover:!text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600" :aria-label="t('layout.editor.clear')" :title="t('layout.editor.clear')">
                                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
                                             <path d="M10 11v6"/><path d="M14 11v6"/>
@@ -836,19 +836,19 @@ onBeforeUnmount(() => {
                                 @input="onInput"
                                 :data-empty="clientEmpty ? 'true' : 'false'"
                                 :data-placeholder="t('settings.client_app.placeholder')"
-                                class="rte-content rounded-[9px] px-[15px] py-[13px] text-[13px] leading-[1.65] outline-none transition-all"
+                                class="rte-content rounded-[10px] px-[15px] py-[13px] text-sm leading-[1.65] outline-none transition-all"
                                 :class="[
                                     clientEditing
-                                        ? 'min-h-[140px] cursor-text border border-emerald-500/40'
-                                        : 'min-h-[60px] cursor-default border border-gray-200 dark:border-white/[0.07]',
-                                    'bg-gray-50 text-gray-700 dark:bg-white/[0.03] dark:text-slate-300',
+                                        ? 'min-h-[140px] cursor-text border border-indigo-600 ring-[3px] ring-indigo-600/15'
+                                        : 'min-h-[60px] cursor-default border border-slate-200 dark:border-white/[0.08]',
+                                    'bg-white text-slate-700 dark:bg-[#0d1424] dark:text-slate-300',
                                 ]"
                             />
                         </div>
 
                         <!-- Footer -->
-                        <div class="flex items-center justify-between border-t border-gray-100 bg-emerald-500/[0.04] px-5 py-3 dark:border-white/[0.05]">
-                            <span class="text-[11.5px] text-gray-400 dark:text-slate-500">
+                        <div class="flex items-center justify-between border-t border-[#eef1f5] bg-emerald-500/[0.04] px-5 py-3 dark:border-white/[0.08]">
+                            <span class="text-[11px] text-slate-500 dark:text-slate-400">
                                 {{ clientSaved ? t('settings.saved_ok') : '' }}
                             </span>
                             <button
@@ -856,7 +856,7 @@ onBeforeUnmount(() => {
                                 type="button"
                                 @click="save"
                                 :disabled="form.processing"
-                                class="rounded-lg bg-emerald-500 px-[18px] py-[7px] text-[12.5px] font-semibold text-white transition-opacity hover:bg-emerald-600 disabled:opacity-60"
+                                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-[18px] py-[7px] text-xs font-semibold text-white transition-colors hover:bg-brand-green-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
                             >
                                 {{ t('settings.save') }}
                             </button>

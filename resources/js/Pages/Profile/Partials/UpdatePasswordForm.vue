@@ -34,12 +34,12 @@ function updatePassword() {
 
 function inputCls(hasError) {
     return [
-        'mt-1.5 block w-full rounded-lg border px-3.5 py-2.5 text-sm shadow-sm transition-colors',
-        'focus:outline-none focus:ring-1',
-        'dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-500',
+        'mt-1.5 block w-full rounded-[10px] border bg-white px-3.5 py-2.5 text-sm text-slate-800 transition-colors',
+        'focus:outline-none focus:ring-[3px]',
+        'dark:bg-[#0d1424] dark:text-white dark:placeholder:text-slate-500',
         hasError
-            ? 'border-red-400 focus:border-red-400 focus:ring-red-400 dark:border-red-500'
-            : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-slate-600 dark:focus:border-indigo-400 dark:focus:ring-indigo-400',
+            ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20 dark:border-red-500'
+            : 'border-[#dde3ec] focus:border-indigo-600 focus:ring-indigo-600/15 dark:border-white/[0.16] dark:focus:border-indigo-500',
     ].join(' ')
 }
 </script>
@@ -47,13 +47,13 @@ function inputCls(hasError) {
 <template>
     <section>
         <div class="mb-5">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('profile.password.title') }}</h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">{{ t('profile.password.description') }}</p>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">{{ t('profile.password.title') }}</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ t('profile.password.description') }}</p>
         </div>
 
         <form @submit.prevent="updatePassword" class="space-y-4">
             <div>
-                <label for="current_password" class="block text-sm font-medium text-gray-700 dark:text-slate-300">
+                <label for="current_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ t('profile.password.current') }}
                 </label>
                 <PasswordInput
@@ -63,11 +63,11 @@ function inputCls(hasError) {
                     autocomplete="current-password"
                     :class="inputCls(!!form.errors.current_password)"
                 />
-                <p v-if="form.errors.current_password" class="mt-1.5 text-xs text-red-500">{{ form.errors.current_password }}</p>
+                <p v-if="form.errors.current_password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.current_password }}</p>
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-slate-300">
+                <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ t('profile.password.new') }}
                 </label>
                 <PasswordInput
@@ -77,11 +77,11 @@ function inputCls(hasError) {
                     autocomplete="new-password"
                     :class="inputCls(!!form.errors.password)"
                 />
-                <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-500">{{ form.errors.password }}</p>
+                <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.password }}</p>
             </div>
 
             <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-slate-300">
+                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {{ t('profile.password.confirm') }}
                 </label>
                 <PasswordInput
@@ -90,14 +90,14 @@ function inputCls(hasError) {
                     autocomplete="new-password"
                     :class="inputCls(!!form.errors.password_confirmation)"
                 />
-                <p v-if="form.errors.password_confirmation" class="mt-1.5 text-xs text-red-500">{{ form.errors.password_confirmation }}</p>
+                <p v-if="form.errors.password_confirmation" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.password_confirmation }}</p>
             </div>
 
             <div class="flex items-center gap-4 pt-1">
                 <button
                     type="submit"
                     :disabled="form.processing"
-                    class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-800"
+                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-brand-green px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {{ t('profile.password.save') }}
                 </button>

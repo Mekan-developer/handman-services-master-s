@@ -23,20 +23,17 @@ const verificationLinkSent = computed(
 
 <template>
     <GuestLayout>
-        <Head title="Email Verification" />
+        <Head :title="$t('auth.verify_email.title')" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your
-            email address by clicking on the link we just emailed to you? If you
-            didn't receive the email, we will gladly send you another.
+        <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
+            {{ $t('auth.verify_email.description') }}
         </div>
 
         <div
-            class="mb-4 text-sm font-medium text-green-600"
+            class="mb-4 text-sm font-medium text-green-600 dark:text-green-400"
             v-if="verificationLinkSent"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            {{ $t('auth.verify_email.link_sent') }}
         </div>
 
         <form @submit.prevent="submit">
@@ -45,15 +42,15 @@ const verificationLinkSent = computed(
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Resend Verification Email
+                    {{ $t('auth.verify_email.resend') }}
                 </PrimaryButton>
 
                 <Link
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >Log Out</Link
+                    class="rounded-md text-sm text-slate-600 underline hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:text-white dark:focus-visible:ring-offset-[#131b2e]"
+                    >{{ $t('auth.verify_email.logout') }}</Link
                 >
             </div>
         </form>

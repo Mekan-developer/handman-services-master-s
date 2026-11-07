@@ -19,15 +19,15 @@ defineProps({
 
     <AdminLayout :title="t('profile.title')">
         <div class="mx-auto max-w-2xl space-y-5">
-            <div class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-800">
+            <div class="rounded-[14px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <UpdateProfileInformationForm :must-verify-email="mustVerifyEmail" :status="status" />
             </div>
 
-            <div class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-800">
+            <div class="rounded-[14px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <UpdatePasswordForm />
             </div>
 
-            <div class="rounded-xl bg-white p-6 shadow-sm dark:bg-slate-800">
+            <div class="rounded-[14px] border border-slate-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-white/[0.08] dark:bg-[#131b2e] dark:shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                 <DeleteUserForm />
             </div>
         </div>

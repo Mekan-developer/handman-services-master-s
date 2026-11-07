@@ -26,7 +26,7 @@ function submit() {
 
 function inputCls(hasError) {
     return [
-        'block w-full rounded-[10px] border px-3.5 py-3 text-[15px] transition-colors',
+        'block w-full rounded-[10px] border px-3.5 py-3 text-base transition-colors',
         'bg-white text-slate-800 placeholder:text-slate-400',
         'dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500',
         'focus:outline-none focus:ring-[3px] focus:ring-offset-0',
@@ -77,10 +77,10 @@ function inputCls(hasError) {
         <!-- Form panel -->
         <div class="flex min-w-[280px] flex-[1_1_50%] items-center justify-center bg-white px-11 py-[52px] dark:bg-slate-900">
             <div class="w-full max-w-[360px]">
-                <h1 class="text-[30px] font-extrabold text-brand-navy dark:text-white">
+                <h1 class="text-[28px] font-extrabold tracking-tight text-brand-navy dark:text-slate-100">
                     {{ t('auth.login.title') }}
                 </h1>
-                <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                     {{ t('auth.login.subtitle') }}
                 </p>
 
@@ -108,7 +108,7 @@ function inputCls(hasError) {
                             placeholder="email@example.com"
                             :class="inputCls(!!form.errors.email)"
                         />
-                        <p v-if="form.errors.email" class="mt-1.5 text-xs text-red-500">{{ form.errors.email }}</p>
+                        <p v-if="form.errors.email" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.email }}</p>
                     </div>
 
                     <!-- Password -->
@@ -124,7 +124,7 @@ function inputCls(hasError) {
                             placeholder="••••••••"
                             :class="inputCls(!!form.errors.password)"
                         />
-                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-500">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.password }}</p>
                     </div>
 
                     <!-- Remember + forgot password -->
@@ -140,7 +140,7 @@ function inputCls(hasError) {
                         <Link
                             v-if="canResetPassword"
                             :href="route('password.request')"
-                            class="text-sm text-indigo-600 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300"
+                            class="text-sm text-indigo-600 hover:text-indigo-700 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
                         >
                             {{ t('auth.login.forgot_password') }}
                         </Link>
@@ -150,7 +150,7 @@ function inputCls(hasError) {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="w-full rounded-[10px] bg-brand-green px-4 py-3.5 text-[15px] font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus:outline-none focus:ring-2 focus:ring-brand-green focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-900"
+                        class="w-full rounded-[10px] bg-brand-green px-4 py-3.5 text-base font-semibold text-white shadow-brand-cta transition-colors hover:bg-brand-green-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-slate-900"
                     >
                         {{ form.processing ? t('auth.login.processing') : t('auth.login.submit') }}
                     </button>

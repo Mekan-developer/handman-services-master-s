@@ -37,13 +37,13 @@ function closeModal() {
 <template>
     <section>
         <div class="mb-5">
-            <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('profile.delete.title') }}</h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-slate-400">{{ t('profile.delete.description') }}</p>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">{{ t('profile.delete.title') }}</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ t('profile.delete.description') }}</p>
         </div>
 
         <button
             @click="confirmDeletion"
-            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-red-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#131b2e]"
         >
             {{ t('profile.delete.button') }}
         </button>
@@ -52,14 +52,14 @@ function closeModal() {
         <Transition name="modal">
             <div v-if="confirmingDeletion" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-black/60" @click="closeModal" />
+                <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-sm dark:bg-black/60" @click="closeModal" />
 
                 <!-- Dialog -->
-                <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800">
-                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                <div class="relative w-full max-w-md rounded-[14px] border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/[0.08] dark:bg-[#131b2e]">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">
                         {{ t('profile.delete.confirm_title') }}
                     </h3>
-                    <p class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+                    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
                         {{ t('profile.delete.confirm_description') }}
                     </p>
 
@@ -68,23 +68,23 @@ function closeModal() {
                             ref="passwordInput"
                             v-model="form.password"
                             :placeholder="t('profile.delete.password_placeholder')"
-                            class="block w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm shadow-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-red-500"
+                            class="block w-full rounded-[10px] border border-[#dde3ec] bg-white px-3.5 py-2.5 text-sm transition-colors focus:border-red-400 focus:outline-none focus:ring-[3px] focus:ring-red-400/20 dark:border-white/[0.16] dark:bg-white/[0.06] dark:text-white dark:placeholder:text-slate-500 dark:focus:border-red-500"
                             @keyup.enter="deleteUser"
                         />
-                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-500">{{ form.errors.password }}</p>
+                        <p v-if="form.errors.password" class="mt-1.5 text-xs text-red-600 dark:text-red-400">{{ form.errors.password }}</p>
                     </div>
 
                     <div class="mt-5 flex justify-end gap-3">
                         <button
                             @click="closeModal"
-                            class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                            class="rounded-[10px] border border-[#dde3ec] bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 dark:bg-transparent dark:border-white/[0.16] dark:text-slate-300 dark:hover:bg-white/[0.06]"
                         >
                             {{ t('profile.delete.cancel') }}
                         </button>
                         <button
                             @click="deleteUser"
                             :disabled="form.processing"
-                            class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus:ring-offset-slate-800"
+                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] bg-red-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-[#131b2e]"
                         >
                             {{ t('profile.delete.confirm_button') }}
                         </button>
